@@ -1,116 +1,120 @@
 /**
- * app.js — 主入口（防崩溃版）
+ * app.js — 主逻辑入口
+ * 时钟、APP 点击、弹窗、PWA 注册
  */
 
-/* ── 时钟 ── */
-function updateClock() {
+/* ===== 已开发 APP 列表（点击不弹"未开发"） ===== */
+const DEVELOPED_APPS = new Set([
+    // 目前留空，根据你的开发进度往这里加
+    // 例如: 'settings', 'music'
+]);
+
+/* APP 中文名映射 */
+const APP_NAMES = {
+    chat: '聊天',
+    worldbook: '世界书',
+    voice: '心声',
+    forum: '论坛',
+    diary: '小芽日记',
+    street: '街の声',
+    candy: '糖果铺',
+    music: '音乐',
+    settings: '设置'
+};
+
+/* ===== 时钟 ===== */
+function updateTime() {
     const el = document.getElementById('statusTime');
     if (!el) return;
     const now = new Date();
-    el.textContent =
-        now.getHours().toString().padStart(2, '0') + ':' +
-        now.getMinutes().toString().padStart(2, '0');
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    el.textContent = `${h}:${m}`;
 }
 
-/* ── APP 弹窗 ── */
-function openAppModal(appName) {
-    const modal = document.getElementById('appModal');
-    const titleEl = document.getElementById('modalTitle');
-    const descEl = document.getElementById('modalDesc');
-    const iconEl = document.getElementById('modalIcon');
-    if (!modal) return;
-    if (titleEl) titleEl.textContent = appName;
-    if (descEl) descEl.textContent = '该模块正在开发中，敬请期待';
-    if (iconEl) iconEl.innerHTML = '';
-    modal.classList.add('open');
+/* ===== 弹窗 ===== */
+function showModal(appKey) {
+    const overlay = document.getElementById('modalOverlay');
+    const title = document.getElementById('modalTitle');
+    title.textContent = `${APP_NAMES[appKey] || appKey} · 开发中`;
+    overlay.classList.add('show');
 }
 
-function closeAppModal() {
-    const modal = document.getElementById('appModal');
-    if (modal) modal.classList.remove('open');
+function hideModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
 }
 
-/* ── 绑定所有 app / dock 点击 ── */
+/* ===== APP 点击处理 ===== */
+function handleAppClick(appKey) {
+    if (DEVELOPED_APPS.has(appKey)) {
+        // 已开发：跳转到对应模块（后续路由）
+        console.log('Open app:', appKey);
+        // window.location.href = `apps/${appKey}/index.html`;
+    } else {
+        showModal(appKey);
+    }
+}
+
+/* ===== 绑定所有 APP 和 Dock 点击 ===== */
 function bindAppClicks() {
-    const items = document.querySelectorAll('.app-item, .dock-item');
-    console.log('[MyPhone] 找到可点击元素：', items.length, '个');
-
-    items.forEach(function (item) {
-        item.addEventListener('click', function () {
-            const appName = item.dataset.app;
-            console.log('[MyPhone] 点击了：', appName);
-            if (!appName) return;
-
-            if (appName === '设置') {
-                console.log('[MyPhone] 准备打开设置...');
-                if (typeof Settings !== 'undefined' && Settings.openSettings) {
-                    Settings.openSettings();
-                } else {
-                    console.error('[MyPhone] Settings 模块不存在！');
-                    alert('Settings 模块加载失败，请检查 js/settings.js');
-                }
-                return;
-            }
-
-            openAppModal(appName);
-        });
+    // 主屏 APP
+    document.querySelectorAll('.app-item[data-app]').forEach(el => {
+        el.addEventListener('click', () => handleAppClick(el.dataset.app));
     });
 
-    /* 弹窗关闭 */
-    const closeBtn = document.getElementById('modalClose');
-    if (closeBtn) closeBtn.addEventListener('click', closeAppModal);
+    // Dock APP
+    document.querySelectorAll('.dock-item[data-app]').forEach(el => {
+        el.addEventListener('click', () => handleAppClick(el.dataset.app));
+    });
 
-    const modal = document.getElementById('appModal');
-    if (modal) {
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal) closeAppModal();
+    // 弹窗关闭
+    document.getElementById('modalClose').addEventListener('click', hideModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+        if (e.target === e.currentTarget) hideModal();
+    });
+}
+
+/* ===== PWA Service Worker 注册 ===== */
+function registerSW() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.warn('SW register failed:', err);
+            });
         });
     }
 }
 
-/* ── DOMContentLoaded ── */
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('[MyPhone] DOMContentLoaded 触发');
+/* ===== 防止系统双击缩放 ===== */
+function preventDoubleTapZoom() {
+    let last = 0;
+    document.addEventListener('touchend', e => {
+        const now = Date.now();
+        if (now - last < 300) e.preventDefault();
+        last = now;
+    }, { passive: false });
+}
 
-    /* 初始化 Widgets —— 单独 try/catch，崩了不影响后续 */
-    try {
-        if (typeof Widgets !== 'undefined') {
-            Widgets.init();
-            console.log('[MyPhone] Widgets 初始化成功');
-        } else {
-            console.warn('[MyPhone] Widgets 模块未找到，跳过');
-        }
-    } catch (e) {
-        console.error('[MyPhone] Widgets.init() 报错（已跳过）：', e);
-    }
+/* ===== 入口 ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    // 恢复持久化数据
+    restoreWidgets();
 
-    // 初始化 Display
-    try {
-        if (typeof Display !== 'undefined') Display.init();
-    } catch (e) { console.error('[MyPhone] Display.init() 报错：', e); }
-    
-    /* 初始化 Settings —— 单独 try/catch */
-    try {
-        if (typeof Settings !== 'undefined') {
-            Settings.init();
-            console.log('[MyPhone] Settings 初始化成功');
-        } else {
-            console.error('[MyPhone] Settings 模块未找到！请确认 settings.js 已正确引入');
-        }
-    } catch (e) {
-        console.error('[MyPhone] Settings.init() 报错：', e);
-    }
+    // 初始化小组件交互
+    initWidgets();
 
-    /* 绑定点击 */
-    try {
-        bindAppClicks();
-    } catch (e) {
-        console.error('[MyPhone] bindAppClicks() 报错：', e);
-    }
+    // 绑定 APP 点击
+    bindAppClicks();
 
-    /* 时钟 */
-    updateClock();
-    setInterval(updateClock, 10000);
+    // 时钟
+    updateTime();
+    setInterval(updateTime, 10000);
 
-    console.log('[MyPhone] 初始化流程完成');
+    // PWA
+    registerSW();
+
+    // 防双击缩放
+    preventDoubleTapZoom();
+
+    console.log('星星机 启动完成');
 });

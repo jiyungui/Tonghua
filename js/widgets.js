@@ -1,279 +1,164 @@
 /**
- * widgets.js
- * 小组件逻辑：读取数据、渲染、编辑、图片上传
- * 正方形小组件：点击整体直接换图，无角标按钮
- * 顶部组件：保留角标编辑
+ * widgets.js — 小组件编辑交互
+ * 图片上传、文字编辑、头像更换、壁纸更换
  */
 
-const Widgets = (() => {
+/**
+ * 读取文件为 DataURL（base64），适合小图片存 localStorage
+ * 大图片建议改用 IndexedDB（见注释）
+ */
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
 
-    /* ======== 工具：File -> DataURL ======== */
-    function fileToDataUrl(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
+/**
+ * 将 dataURL 设置为某容器的背景图片，并隐藏 placeholder
+ */
+function applyImageToWidget(imgWrap, placeholderId, dataUrl) {
+    // 移除旧预览
+    const oldImg = imgWrap.querySelector('.widget-preview-img');
+    if (oldImg) oldImg.remove();
+
+    // 创建新预览
+    const img = document.createElement('img');
+    img.className = 'widget-preview-img';
+    img.src = dataUrl;
+    imgWrap.appendChild(img);
+
+    // 隐藏 placeholder
+    const ph = document.getElementById(placeholderId);
+    if (ph) ph.style.opacity = '0';
+}
+
+function initWidgets() {
+    /* ---- 左侧图片组件 ---- */
+    const leftFile = document.getElementById('widgetLeftFile');
+    const leftWrap = document.getElementById('widgetLeftImgWrap');
+
+    leftFile.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const url = await readFileAsDataURL(file);
+            applyImageToWidget(leftWrap, 'widgetLeftPlaceholder', url);
+            Storage.save('widgetLeftImg', url);
+        } catch { /* 文件读取失败静默 */ }
+        leftFile.value = '';
+    });
+
+    /* ---- 右侧图片组件 ---- */
+    const rightFile = document.getElementById('widgetRightFile');
+    const rightWrap = document.getElementById('widgetRightImgWrap');
+
+    rightFile.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const url = await readFileAsDataURL(file);
+            applyImageToWidget(rightWrap, 'widgetRightPlaceholder', url);
+            Storage.save('widgetRightImg', url);
+        } catch { }
+        rightFile.value = '';
+    });
+
+    /* ---- 头像 ---- */
+    const avatar = document.getElementById('infoAvatar');
+    const avatarInput = document.createElement('input');
+    avatarInput.type = 'file';
+    avatarInput.accept = 'image/*';
+    avatarInput.style.display = 'none';
+    document.body.appendChild(avatarInput);
+
+    avatar.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const url = await readFileAsDataURL(file);
+            applyAvatarImg(url);
+            Storage.save('avatarUrl', url);
+        } catch { }
+        avatarInput.value = '';
+    });
+
+    /* ---- 壁纸更换 ---- */
+    const wallpaperBtn = document.getElementById('wallpaperBtn');
+    const wallpaperFile = document.getElementById('wallpaperFile');
+
+    wallpaperBtn.addEventListener('click', () => wallpaperFile.click());
+    wallpaperFile.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const url = await readFileAsDataURL(file);
+            applyWallpaper(url);
+            Storage.save('wallpaper', url);
+            Storage.save('wallpaperType', 'image');
+        } catch { }
+        wallpaperFile.value = '';
+    });
+
+    /* ---- 文字输入实时保存 ---- */
+    const textFields = [
+        { id: 'infoMotto', key: 'motto' },
+        { id: 'infoBaby', key: 'baby' },
+        { id: 'infoContact', key: 'contact' },
+        { id: 'widgetLeftCaption', key: 'widgetLeftCaption' }
+    ];
+    textFields.forEach(({ id, key }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => Storage.save(key, el.value));
+    });
+}
+
+function applyAvatarImg(url) {
+    const avatar = document.getElementById('infoAvatar');
+    avatar.innerHTML = `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+}
+
+function applyWallpaper(url) {
+    const shell = document.getElementById('phoneShell');
+    shell.style.backgroundImage = `url(${url})`;
+    shell.style.backgroundSize = 'cover';
+    shell.style.backgroundPosition = 'center';
+}
+
+/**
+ * 从 Storage 恢复所有小组件状态
+ */
+function restoreWidgets() {
+    const s = Storage.load();
+
+    if (s.motto) document.getElementById('infoMotto').value = s.motto;
+    if (s.baby) document.getElementById('infoBaby').value = s.baby;
+    if (s.contact) document.getElementById('infoContact').value = s.contact;
+    if (s.widgetLeftCaption) document.getElementById('widgetLeftCaption').value = s.widgetLeftCaption;
+
+    if (s.avatarUrl) applyAvatarImg(s.avatarUrl);
+
+    if (s.widgetLeftImg) {
+        applyImageToWidget(
+            document.getElementById('widgetLeftImgWrap'),
+            'widgetLeftPlaceholder',
+            s.widgetLeftImg
+        );
     }
 
-    /* ======== 工具：压缩图片 ======== */
-    function compressImage(dataUrl, maxWidth = 600, quality = 0.82) {
-        return new Promise(resolve => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
-                canvas.width = w;
-                canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.src = dataUrl;
-        });
+    if (s.widgetRightImg) {
+        applyImageToWidget(
+            document.getElementById('widgetRightImgWrap'),
+            'widgetRightPlaceholder',
+            s.widgetRightImg
+        );
     }
 
-    /* ======== 工具：应用图片到 img 元素 ======== */
-    function applyImage(imgEl, dataUrl) {
-        if (!dataUrl || !imgEl) return;
-        imgEl.onload = () => imgEl.classList.add('loaded');
-        imgEl.src = dataUrl;
-        if (imgEl.complete && imgEl.naturalWidth > 0) {
-            imgEl.classList.add('loaded');
-        }
+    if (s.wallpaper && s.wallpaperType === 'image') {
+        applyWallpaper(s.wallpaper);
     }
-
-    /* ======== 顶部组件 ======== */
-    function initTopWidget() {
-        const data = Storage.getTopWidget();
-
-        const avatarEl = document.getElementById('twAvatar');
-        const avatarInput = document.getElementById('twAvatarInput');
-        const avatarWrap = avatarEl.parentElement;
-        const titleEl = document.getElementById('twTitle');
-        const babyEl = document.getElementById('twBaby');
-        const contactEl = document.getElementById('twContact');
-        const editCorner = document.querySelector('[data-widget="top"]');
-        const babyEditBtn = document.querySelector('[data-target="twBaby"]');
-
-        function render(d) {
-            titleEl.textContent = d.title;
-            babyEl.textContent = d.baby;
-            contactEl.textContent = d.contact;
-            if (d.avatarDataUrl) applyImage(avatarEl, d.avatarDataUrl);
-        }
-        render(data);
-
-        // 点击头像换图
-        avatarWrap.addEventListener('click', () => avatarInput.click());
-        avatarInput.addEventListener('change', async e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                const raw = await fileToDataUrl(file);
-                const compressed = await compressImage(raw, 200, 0.9);
-                applyImage(avatarEl, compressed);
-                const d = Storage.getTopWidget();
-                d.avatarDataUrl = compressed;
-                Storage.saveTopWidget(d);
-            } catch (err) { console.error('[TopWidget] 头像上传失败', err); }
-            avatarInput.value = '';
-        });
-
-        // Baby 快捷修改按钮
-        babyEditBtn && babyEditBtn.addEventListener('click', () => {
-            openEditModal('top', Storage.getTopWidget());
-        });
-
-        // 顶部组件角标编辑（顶部组件保留）
-        editCorner && editCorner.addEventListener('click', e => {
-            e.stopPropagation();
-            openEditModal('top', Storage.getTopWidget());
-        });
-    }
-
-    /* ======== 拍立得组件：点击整体换图 ======== */
-    function initPolaroid() {
-        const data = Storage.getPolaroid();
-
-        const imgEl = document.getElementById('polaroidImg');
-        const imgInput = document.getElementById('polaroidImgInput');
-        const captionEl = document.getElementById('polaroidCaption');
-        const widget = document.getElementById('polaroidWidget');
-
-        function render(d) {
-            captionEl.textContent = d.caption || 'First Choice';
-            if (d.imgDataUrl) applyImage(imgEl, d.imgDataUrl);
-        }
-        render(data);
-
-        // 点击整个组件换图（无角标，直接触发）
-        widget.addEventListener('click', () => imgInput.click());
-
-        imgInput.addEventListener('change', async e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                const raw = await fileToDataUrl(file);
-                const compressed = await compressImage(raw, 400, 0.85);
-                applyImage(imgEl, compressed);
-                const d = Storage.getPolaroid();
-                d.imgDataUrl = compressed;
-                Storage.savePolaroid(d);
-                console.log('[Polaroid] 已保存，长度:', compressed.length);
-            } catch (err) { console.error('[Polaroid] 上传失败', err); }
-            imgInput.value = '';
-        });
-    }
-
-    /* ======== 右侧图片组件：点击整体换图 ======== */
-    function initPhotoWidget() {
-        const data = Storage.getPhotoWidget();
-
-        const imgEl = document.getElementById('photoImg');
-        const imgInput = document.getElementById('photoImgInput');
-        const widget = document.getElementById('photoWidget');
-
-        function render(d) {
-            if (d.imgDataUrl) {
-                applyImage(imgEl, d.imgDataUrl);
-                widget.classList.add('has-image');
-            }
-        }
-        render(data);
-
-        // 点击整个组件换图（无角标，直接触发）
-        widget.addEventListener('click', () => imgInput.click());
-
-        imgInput.addEventListener('change', async e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                const raw = await fileToDataUrl(file);
-                const compressed = await compressImage(raw, 500, 0.85);
-                applyImage(imgEl, compressed);
-                widget.classList.add('has-image');
-                const d = Storage.getPhotoWidget();
-                d.imgDataUrl = compressed;
-                Storage.savePhotoWidget(d);
-                // 验证
-                const v = Storage.getPhotoWidget();
-                console.log('[PhotoWidget] 已保存，长度:', v.imgDataUrl ? v.imgDataUrl.length : 0);
-            } catch (err) { console.error('[PhotoWidget] 上传失败', err); }
-            imgInput.value = '';
-        });
-    }
-
-    /* ======== 顶部组件编辑弹窗 ======== */
-    let _currentEditType = null;
-    let _editImgDataUrl = null;
-
-    function openEditModal(type, data) {
-        _currentEditType = type;
-        _editImgDataUrl = null;
-
-        const modal = document.getElementById('editModal');
-        const titleEl = document.getElementById('editModalTitle');
-        const bodyEl = document.getElementById('editModalBody');
-
-        bodyEl.innerHTML = '';
-
-        if (type === 'top') {
-            titleEl.textContent = '编辑顶部组件';
-            bodyEl.innerHTML = `
-        <div class="edit-field">
-          <label>头像图片</label>
-          <div class="edit-field-img">
-            <img class="edit-img-preview" id="editAvatarPreview"
-                 src="${escapeAttr(data.avatarDataUrl || '')}" alt="" />
-            <button class="edit-img-btn" id="editAvatarBtn">点击更换头像</button>
-            <input type="file" accept="image/*" id="editAvatarFileInput" class="hidden-input" />
-          </div>
-        </div>
-        <div class="edit-field">
-          <label>标题语句</label>
-          <input type="text" id="editTitle" value="${escapeAttr(data.title)}" placeholder="输入一句话..." />
-        </div>
-        <div class="edit-field">
-          <label>Baby 称呼</label>
-          <input type="text" id="editBaby" value="${escapeAttr(data.baby)}" placeholder="称呼..." />
-        </div>
-        <div class="edit-field">
-          <label>Contact 链接</label>
-          <input type="text" id="editContact" value="${escapeAttr(data.contact)}" placeholder="链接或文字..." />
-        </div>
-      `;
-            setTimeout(() => bindImgUpload('editAvatarBtn', 'editAvatarFileInput', 'editAvatarPreview', 200), 0);
-        }
-
-        modal.classList.add('open');
-    }
-
-    function bindImgUpload(btnId, inputId, previewId, maxW) {
-        const btn = document.getElementById(btnId);
-        const inp = document.getElementById(inputId);
-        const prev = document.getElementById(previewId);
-        if (!btn || !inp || !prev) return;
-
-        btn.addEventListener('click', () => inp.click());
-        inp.addEventListener('change', async e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                const raw = await fileToDataUrl(file);
-                const compressed = await compressImage(raw, maxW, 0.88);
-                prev.src = compressed;
-                _editImgDataUrl = compressed;
-            } catch (err) { console.error('[EditModal] 图片处理失败', err); }
-            inp.value = '';
-        });
-    }
-
-    function saveEditModal() {
-        if (_currentEditType === 'top') {
-            const d = Storage.getTopWidget();
-            const titleVal = document.getElementById('editTitle')?.value.trim();
-            const babyVal = document.getElementById('editBaby')?.value.trim();
-            const contactVal = document.getElementById('editContact')?.value.trim();
-            if (titleVal) d.title = titleVal;
-            if (babyVal) d.baby = babyVal;
-            if (contactVal) d.contact = contactVal;
-            if (_editImgDataUrl) d.avatarDataUrl = _editImgDataUrl;
-            Storage.saveTopWidget(d);
-            document.getElementById('twTitle').textContent = d.title;
-            document.getElementById('twBaby').textContent = d.baby;
-            document.getElementById('twContact').textContent = d.contact;
-            if (d.avatarDataUrl) applyImage(document.getElementById('twAvatar'), d.avatarDataUrl);
-        }
-        closeEditModal();
-    }
-
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('open');
-        _currentEditType = null;
-        _editImgDataUrl = null;
-    }
-
-    function escapeAttr(str) {
-        return String(str || '')
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;');
-    }
-
-    /* ======== 初始化 ======== */
-    function init() {
-        initTopWidget();
-        initPolaroid();
-        initPhotoWidget();
-
-        document.getElementById('editSave').addEventListener('click', saveEditModal);
-        document.getElementById('editCancel').addEventListener('click', closeEditModal);
-        document.getElementById('editModal').addEventListener('click', e => {
-            if (e.target === document.getElementById('editModal')) closeEditModal();
-        });
-    }
-
-    return { init };
-})();
+}

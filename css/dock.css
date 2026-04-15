@@ -1,82 +1,91 @@
 /* ===== Dock 栏 ===== */
-.dock {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px 28px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 100;
+.dock-bar {
+    flex-shrink: 0;
+    padding: 8px 20px 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
 }
 
 .dock-inner {
     width: 100%;
-    max-width: 300px;
-    border-radius: var(--radius-lg);
-    padding: 10px 12px;
+    max-width: 320px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-}
-
-.glass-dock {
-    background: rgba(255, 255, 255, 0.38);
-    backdrop-filter: blur(24px) saturate(1.6);
-    -webkit-backdrop-filter: blur(24px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    padding: 10px 16px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.48);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.78);
     box-shadow:
-        0 4px 24px rgba(140, 170, 210, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        0 4px 20px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .dock-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     cursor: pointer;
+    transition: transform var(--transition);
+    -webkit-user-select: none;
+    user-select: none;
     padding: 4px 10px;
-    border-radius: var(--radius-md);
-    transition: background 0.15s, transform 0.1s;
+    border-radius: 14px;
 }
 
 .dock-item:active {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(0.93);
+    transform: scale(0.88);
 }
 
-/* Dock 图标与网格图标统一尺寸 */
 .dock-icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
-    border-radius: var(--icon-radius);
-    background: rgba(255, 255, 255, 0.62);
-    border: 1px solid rgba(255, 255, 255, 0.82);
-    box-shadow:
-        0 2px 10px rgba(160, 185, 215, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(230, 230, 230, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: box-shadow 0.15s, transform 0.1s;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: transform var(--transition);
+    position: relative;
+    overflow: hidden;
 }
 
-.dock-icon svg {
-    width: var(--icon-svg);
-    height: var(--icon-svg);
-    stroke: var(--accent-deep);
-}
-
-.dock-name {
-    font-size: var(--icon-name-size);
-    color: var(--text-secondary);
-    font-weight: 500;
-    letter-spacing: 0.3px;
+.dock-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+    pointer-events: none;
 }
 
 .dock-item:active .dock-icon {
     transform: scale(0.9);
-    box-shadow: 0 1px 4px rgba(160, 185, 215, 0.18);
+}
+
+.dock-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+/* ===== Home 指示条 ===== */
+.home-indicator {
+    width: 134px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    margin: 8px auto 6px;
 }

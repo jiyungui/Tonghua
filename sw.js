@@ -1,17 +1,18 @@
-const CACHE_NAME = 'myphone-v1';
+const CACHE_NAME = 'starphone-v1';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json',
     './css/base.css',
-    './css/screen.css',
+    './css/phone.css',
     './css/widgets.css',
-    './css/dock.css',
     './css/apps.css',
+    './css/dock.css',
+    './css/modal.css',
     './js/app.js',
     './js/widgets.js',
     './js/storage.js',
-    './js/apps.js'
+    './js/grid.js',
+    './manifest.json'
 ];
 
 self.addEventListener('install', e => {
