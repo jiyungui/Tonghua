@@ -15,17 +15,22 @@ const APP_NAMES = {
     settings: '设置'
 };
 
-/* settings 已开发，其余后续追加 */
-const DEVELOPED_APPS = ['settings'];
+/* settings / worldbook 已开发，其余后续追加 */
+const DEVELOPED_APPS = ['settings', 'worldbook'];
 
 function openApp(appId) {
     if (appId === 'settings') {
-        openSettingsApp();   /* 来自 settings.js */
+        openSettingsApp();       /* 来自 settings.js */
+        return;
+    }
+    if (appId === 'worldbook') {
+        openWorldbookApp();      /* 来自 worldbook.js */
         return;
     }
     if (DEVELOPED_APPS.includes(appId)) {
         return;
     }
+    if (appId === 'chat') { openChatApp(); return; }
     /* 未开发提示 */
     const overlay = document.getElementById('appOverlay');
     document.getElementById('overlayAppName').textContent = APP_NAMES[appId] || appId;
