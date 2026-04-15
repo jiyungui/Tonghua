@@ -1,0 +1,938 @@
+/* ═══════════════════════════════════════════════════════
+   settings.css  设置APP样式
+   黑白ins线条风 · 悬浮卡片 · 毛玻璃
+═══════════════════════════════════════════════════════ */
+
+/* ── 设置APP容器 ── */
+.settings-app {
+    position: absolute;
+    inset: 0;
+    z-index: 300;
+    background: #f2f2f0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: saSlideIn 0.3s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+
+@keyframes saSlideIn {
+    from {
+        transform: translateY(100%) scale(0.97);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes saSlideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(60%);
+        opacity: 0;
+    }
+}
+
+/* ── 页面层（多级导航复用） ── */
+.sa-page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: #f2f2f0;
+    animation: saPageIn 0.22s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+
+@keyframes saPageIn {
+    from {
+        transform: translateX(28px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ── 顶栏 ── */
+.sa-header {
+    display: flex;
+    align-items: center;
+    padding: 54px 20px 14px;
+    gap: 10px;
+    background: rgba(242, 242, 240, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(210, 210, 208, 0.5);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.sa-back {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #444;
+    border-radius: 50%;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.sa-back:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.sa-back svg {
+    width: 20px;
+    height: 20px;
+}
+
+.sa-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: 0.8px;
+}
+
+/* ── 滚动区 ── */
+.sa-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 32px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ── 分组标签 ── */
+.sa-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #aaa;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 4px;
+    margin: 18px 0 8px;
+}
+
+.sa-section-label:first-child {
+    margin-top: 4px;
+}
+
+/* ── 菜单组（悬浮卡片风） ── */
+.sa-menu-group {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.sa-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(220, 220, 218, 0.4);
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.sa-menu-item:last-child {
+    border-bottom: none;
+}
+
+.sa-menu-item:active {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.sa-menu-item--static {
+    cursor: default;
+}
+
+.sa-menu-item--static:active {
+    background: none;
+}
+
+.sa-menu-item--danger .sa-menu-text {
+    color: #c04040;
+}
+
+.sa-menu-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(240, 240, 238, 0.7);
+    border: 1px solid rgba(220, 220, 218, 0.4);
+    flex-shrink: 0;
+}
+
+.sa-menu-icon svg {
+    width: 16px;
+    height: 16px;
+    color: #444;
+}
+
+.sa-menu-text {
+    flex: 1;
+    font-size: 14px;
+    color: #2a2a2a;
+    letter-spacing: 0.3px;
+}
+
+.sa-menu-arrow {
+    color: #c8c8c6;
+}
+
+.sa-menu-arrow svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sa-menu-badge {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 0.3px;
+}
+
+/* ── 内容卡片 ── */
+.sa-card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.sa-card--danger {
+    border-color: rgba(200, 80, 80, 0.15);
+    background: rgba(255, 248, 248, 0.7);
+}
+
+.sa-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sa-card-title--danger {
+    color: #c04040;
+}
+
+.sa-card-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: rgba(60, 60, 60, 0.08);
+    border-radius: 10px;
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* ── 表单元素 ── */
+.sa-field-group {
+    margin-bottom: 12px;
+}
+
+.sa-field-group:last-child {
+    margin-bottom: 0;
+}
+
+.sa-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #777;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+}
+
+.sa-range-val {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+}
+
+.sa-input {
+    width: 100%;
+    background: rgba(240, 240, 238, 0.65);
+    border: 1px solid rgba(210, 210, 208, 0.55);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #2a2a2a;
+    outline: none;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: border-color 0.18s, background 0.18s;
+    -webkit-appearance: none;
+}
+
+.sa-input:focus {
+    border-color: rgba(100, 100, 100, 0.45);
+    background: rgba(252, 252, 250, 0.9);
+}
+
+.sa-input::placeholder {
+    color: #c0c0be;
+}
+
+/* 带眼睛按钮的输入框 */
+.sa-input-eye {
+    position: relative;
+}
+
+.sa-input-eye .sa-input {
+    padding-right: 38px;
+}
+
+.sa-eye-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    transition: color 0.15s;
+    border-radius: 6px;
+}
+
+.sa-eye-btn:hover {
+    color: #555;
+}
+
+.sa-eye-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* select */
+.sa-select-wrap {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.sa-select-wrap:last-child {
+    margin-bottom: 0;
+}
+
+.sa-select {
+    width: 100%;
+    background: rgba(240, 240, 238, 0.65);
+    border: 1px solid rgba(210, 210, 208, 0.55);
+    border-radius: 10px;
+    padding: 10px 32px 10px 12px;
+    font-size: 13px;
+    color: #2a2a2a;
+    outline: none;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='1.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+.sa-select:focus {
+    border-color: rgba(100, 100, 100, 0.45);
+}
+
+/* range */
+.sa-range {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: rgba(200, 200, 198, 0.5);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.sa-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+}
+
+.sa-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+}
+
+/* ── 按钮 ── */
+.sa-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.sa-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.sa-btn--solid {
+    background: #2a2a2a;
+    color: #f5f5f3;
+    border: 1px solid #2a2a2a;
+}
+
+.sa-btn--solid:hover {
+    background: #1a1a1a;
+}
+
+.sa-btn--solid:active {
+    transform: scale(0.96);
+}
+
+.sa-btn--ghost {
+    background: rgba(240, 240, 238, 0.7);
+    color: #3a3a3a;
+    border: 1px solid rgba(210, 210, 208, 0.6);
+}
+
+.sa-btn--ghost:hover {
+    background: rgba(230, 230, 228, 0.9);
+}
+
+.sa-btn--ghost:active {
+    transform: scale(0.96);
+}
+
+.sa-btn--danger {
+    background: rgba(200, 60, 60, 0.08);
+    color: #c04040;
+    border: 1px solid rgba(200, 60, 60, 0.2);
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.sa-btn--danger:last-child {
+    margin-bottom: 0;
+}
+
+.sa-btn--danger:hover {
+    background: rgba(200, 60, 60, 0.14);
+}
+
+.sa-btn--danger:active {
+    transform: scale(0.97);
+}
+
+.sa-btn--danger-full {
+    margin-top: 6px;
+    background: rgba(200, 60, 60, 0.15);
+    border-color: rgba(200, 60, 60, 0.3);
+}
+
+/* 行排列按钮组 */
+.sa-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.sa-row .sa-btn {
+    flex: 1;
+}
+
+/* ── 测试结果 ── */
+.sa-test-result {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+}
+
+.sa-test-result.success {
+    background: rgba(60, 160, 60, 0.08);
+    border: 1px solid rgba(60, 160, 60, 0.2);
+    color: #2a7a2a;
+}
+
+.sa-test-result.error {
+    background: rgba(200, 60, 60, 0.07);
+    border: 1px solid rgba(200, 60, 60, 0.18);
+    color: #b03030;
+}
+
+/* ── 模型列表 ── */
+.sa-model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sa-empty-tip {
+    font-size: 12px;
+    color: #bbb;
+    text-align: center;
+    padding: 12px 0 4px;
+    letter-spacing: 0.3px;
+}
+
+.sa-model-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(240, 240, 238, 0.6);
+    border: 1px solid rgba(220, 220, 218, 0.5);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.sa-model-card.active {
+    background: rgba(42, 42, 42, 0.07);
+    border-color: rgba(42, 42, 42, 0.2);
+}
+
+.sa-model-card:active {
+    transform: scale(0.98);
+}
+
+.sa-model-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(180, 180, 178, 0.6);
+    flex-shrink: 0;
+    border: 1px solid rgba(180, 180, 178, 0.8);
+}
+
+.sa-model-card.active .sa-model-dot {
+    background: #2a2a2a;
+    border-color: #2a2a2a;
+}
+
+.sa-model-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sa-model-name {
+    font-size: 13px;
+    color: #2a2a2a;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sa-model-sub {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 0.2px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sa-model-del {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    border-radius: 6px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.sa-model-del:hover {
+    color: #c04040;
+    background: rgba(200, 60, 60, 0.08);
+}
+
+.sa-model-del svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ── 壁纸上传区 ── */
+.sa-upload-zone {
+    border: 1.5px dashed rgba(180, 180, 178, 0.65);
+    border-radius: 12px;
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #bbb;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+}
+
+.sa-upload-zone:hover {
+    border-color: rgba(140, 140, 138, 0.7);
+    background: rgba(240, 240, 238, 0.4);
+    color: #999;
+}
+
+.sa-upload-zone svg {
+    width: 32px;
+    height: 32px;
+}
+
+.sa-upload-zone span {
+    font-size: 13px;
+    letter-spacing: 0.3px;
+}
+
+/* 壁纸预览 */
+.sa-wp-preview {
+    margin-top: 12px;
+}
+
+.sa-wp-preview img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+    border: 1px solid rgba(220, 220, 218, 0.5);
+}
+
+.sa-wp-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sa-wp-actions .sa-btn {
+    flex: 1;
+}
+
+/* ── 颜色预设网格 ── */
+.sa-color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.sa-color-chip {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1.5px solid rgba(200, 200, 198, 0.4);
+    transition: all 0.15s;
+}
+
+.sa-color-chip:hover {
+    transform: scale(1.06);
+    border-color: rgba(100, 100, 100, 0.4);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.sa-color-chip:active {
+    transform: scale(0.95);
+}
+
+/* ── 图标风格选择 ── */
+.sa-icon-style-list {
+    display: flex;
+    gap: 10px;
+}
+
+.sa-icon-style-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px 8px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(210, 210, 208, 0.5);
+    background: rgba(240, 240, 238, 0.5);
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.sa-icon-style-item.active {
+    border-color: #2a2a2a;
+    background: rgba(42, 42, 42, 0.06);
+}
+
+.sa-icon-style-item:active {
+    transform: scale(0.96);
+}
+
+.sa-icon-style-preview {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.style-default {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(220, 220, 218, 0.5);
+}
+
+.style-default svg {
+    width: 24px;
+    height: 24px;
+    color: #444;
+}
+
+.style-filled {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(220, 220, 218, 0.5);
+}
+
+.style-filled svg {
+    width: 24px;
+    height: 24px;
+    color: #2a2a2a;
+}
+
+.style-rounded {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(220, 220, 218, 0.5);
+}
+
+.style-rounded svg {
+    width: 24px;
+    height: 24px;
+    color: #444;
+}
+
+.sa-icon-style-item span {
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 0.3px;
+}
+
+/* 图标背景选择 */
+.sa-icon-bg-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.sa-icon-bg-item {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #555;
+    background: rgba(240, 240, 238, 0.6);
+    border: 1.5px solid rgba(210, 210, 208, 0.5);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+    user-select: none;
+}
+
+.sa-icon-bg-item.active {
+    background: #2a2a2a;
+    color: #f5f5f3;
+    border-color: #2a2a2a;
+}
+
+.sa-icon-bg-item:active {
+    transform: scale(0.95);
+}
+
+/* ── 字体列表 ── */
+.sa-font-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.sa-font-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(210, 210, 208, 0.5);
+    background: rgba(240, 240, 238, 0.5);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.sa-font-item.active {
+    border-color: #2a2a2a;
+    background: rgba(42, 42, 42, 0.05);
+}
+
+.sa-font-item:active {
+    transform: scale(0.98);
+}
+
+.sa-font-preview {
+    font-size: 14px;
+    color: #2a2a2a;
+    letter-spacing: 0.3px;
+}
+
+.sa-font-name {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 0.3px;
+}
+
+/* ── 存储信息 ── */
+.sa-storage-info {
+    margin-bottom: 12px;
+}
+
+.sa-storage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(220, 220, 218, 0.4);
+    font-size: 13px;
+    color: #555;
+    letter-spacing: 0.2px;
+}
+
+.sa-storage-row:last-child {
+    border-bottom: none;
+}
+
+.sa-storage-row span:last-child {
+    color: #888;
+    font-size: 12px;
+}
+
+.sa-storage-row--total {
+    font-weight: 600;
+}
+
+.sa-storage-row--total span {
+    color: #2a2a2a !important;
+    font-size: 13px !important;
+}
+
+/* 危险按钮组 */
+.sa-danger-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* 提示文字 */
+.sa-tip {
+    font-size: 11px;
+    color: #bbb;
+    text-align: center;
+    padding: 4px 8px 0;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+}
+
+/* ── Voice ID 提示文字 ── */
+.sa-voice-hint {
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+    margin-top: 5px;
+    padding: 0 2px;
+}
+
+/* ── 多行文本输入 ── */
+.sa-textarea {
+    resize: none;
+    min-height: 72px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    font-family: inherit;
+    display: block;
+}
+
+/* ── 试听状态提示 ── */
+.sa-voice-preview-status {
+    margin-top: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+    background: rgba(240, 240, 238, 0.7);
+    border: 1px solid rgba(210, 210, 208, 0.5);
+    color: #666;
+}
+
+.sa-voice-preview-status.loading {
+    color: #888;
+}
+
+.sa-voice-preview-status.error {
+    background: rgba(200, 60, 60, 0.07);
+    border-color: rgba(200, 60, 60, 0.18);
+    color: #b03030;
+}

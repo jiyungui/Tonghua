@@ -1,22 +1,16 @@
 {
     "name": "星星机",
     "short_name": "星星机",
-    "description": "星星机 · 你的专属模拟手机",
     "start_url": "./index.html",
     "display": "fullscreen",
-    "orientation": "portrait",
     "background_color": "#dfdfdd",
     "theme_color": "#dfdfdd",
+    "orientation": "portrait",
     "icons": [
         {
-            "src": "icons/icon-192.png",
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23dfdfdd'/><text y='130' font-size='120' text-anchor='middle' x='96'>✦</text></svg>",
             "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/svg+xml"
         }
     ]
 }

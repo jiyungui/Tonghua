@@ -7,321 +7,1118 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="星星机" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#dfdfdd" />
-    <title>星星机</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <link rel="stylesheet" href="css/base.css" />
+    <title>星星机</title>
+    <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/phone.css" />
+    <link rel="stylesheet" href="css/home.css" />
     <link rel="stylesheet" href="css/widgets.css" />
     <link rel="stylesheet" href="css/apps.css" />
-    <link rel="stylesheet" href="css/dock.css" />
-    <link rel="stylesheet" href="css/modal.css" />
+    <link rel="stylesheet" href="css/settings.css" />
 </head>
 
 <body>
 
-    <!-- 手机外壳 -->
     <div class="phone-shell" id="phoneShell">
+        <div class="phone-screen" id="phoneScreen">
 
-        <!-- 状态栏 -->
-        <div class="status-bar">
-            <span class="status-time" id="statusTime">00:00</span>
-            <div class="status-right">
-                <span class="status-signal">
-                    <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                        <rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor" />
-                        <rect x="4.5" y="4.5" width="3" height="7.5" rx="0.5" fill="currentColor" />
-                        <rect x="9" y="2" width="3" height="10" rx="0.5" fill="currentColor" />
-                        <rect x="13.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor" opacity="0.3" />
-                    </svg>
-                </span>
-                <span class="status-network">5G</span>
-                <span class="status-battery">
-                    <svg width="22" height="12" viewBox="0 0 22 12" fill="none">
-                        <rect x="0.5" y="0.5" width="18" height="11" rx="2.5" stroke="currentColor" stroke-width="1" />
-                        <rect x="2" y="2" width="13" height="8" rx="1.5" fill="currentColor" id="batteryFill" />
-                        <path d="M19.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.4" />
-                    </svg>
-                </span>
-            </div>
-        </div>
-
-        <!-- 灵动岛 -->
-        <div class="dynamic-island"></div>
-
-        <!-- 主屏幕内容区 -->
-        <div class="home-screen" id="homeScreen">
-
-            <!-- ① 顶部信息小组件 -->
-            <div class="widget-info glass-widget" id="widgetInfo">
-                <div class="widget-info-top">
-                    <div class="info-avatar" id="infoAvatar" title="点击更换头像">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                            <circle cx="14" cy="10" r="5" stroke="#999" stroke-width="1.2" />
-                            <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#999" stroke-width="1.2"
-                                stroke-linecap="round" />
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">00:00</span>
+                <div class="status-right">
+                    <span class="status-signal">
+                        <svg viewBox="0 0 20 14" fill="none">
+                            <rect x="0" y="8" width="3" height="6" rx="0.5" fill="currentColor" />
+                            <rect x="4.5" y="5" width="3" height="9" rx="0.5" fill="currentColor" />
+                            <rect x="9" y="2" width="3" height="12" rx="0.5" fill="currentColor" />
+                            <rect x="13.5" y="0" width="3" height="14" rx="0.5" fill="currentColor" opacity="0.3" />
                         </svg>
-                    </div>
-                    <div class="info-motto-wrap">
-                        <input class="info-motto" id="infoMotto" type="text" placeholder="幸好爱是小小的奇迹" maxlength="20" />
-                    </div>
-                    <div class="info-icon">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="7" cy="7" r="3" stroke="#bbb" stroke-width="1.2" />
-                            <circle cx="13" cy="13" r="3" stroke="#bbb" stroke-width="1.2" />
-                            <circle cx="13" cy="7" r="3" stroke="#bbb" stroke-width="1.2" />
+                    </span>
+                    <span class="status-network">5G</span>
+                    <span class="status-battery">
+                        <svg viewBox="0 0 25 13" fill="none">
+                            <rect x="0.5" y="0.5" width="21" height="12" rx="2.5" stroke="currentColor"
+                                stroke-opacity="0.4" />
+                            <rect x="2" y="2" width="16" height="9" rx="1.5" fill="currentColor" />
+                            <path d="M23 4.5V8.5C23.8 8.17 24.5 7.45 24.5 6.5C24.5 5.55 23.8 4.83 23 4.5Z"
+                                fill="currentColor" fill-opacity="0.4" />
                         </svg>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Baby</span>
-                    <input class="info-input" id="infoBaby" type="text" placeholder="call Aero" maxlength="16" />
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Contact</span>
-                    <input class="info-input" id="infoContact" type="text" placeholder="http//>Aero's love.com"
-                        maxlength="32" />
+                    </span>
                 </div>
             </div>
 
-            <!-- ② 双小组件行 -->
-            <div class="widgets-row">
+            <!-- 动态岛 -->
+            <div class="dynamic-island"></div>
 
-                <!-- 左侧：图片 + 斜体标题（带回形针） -->
-                <div class="widget-square widget-left glass-widget" id="widgetLeft">
-                    <div class="widget-clip" aria-hidden="true">
-                        <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
-                            <path d="M7 1v14M7 15c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a5 5 0 0 1 10 0v9" stroke="#aaa"
-                                stroke-width="1.3" stroke-linecap="round" />
-                        </svg>
+            <!-- 主屏幕 -->
+            <div class="home-screen" id="homeScreen">
+                <div class="wallpaper-layer" id="wallpaperLayer"></div>
+
+                <!-- ① 顶部信息小组件 -->
+                <div class="top-widget glass-widget" id="topWidget">
+                    <div class="tw-row tw-profile">
+                        <div class="tw-avatar" id="twAvatar" onclick="triggerAvatarUpload()" title="点击更换头像">
+                            <div class="avatar-default" id="avatarDefault">
+                                <svg viewBox="0 0 40 40" fill="none">
+                                    <circle cx="20" cy="20" r="20" fill="#e4e4e2" />
+                                    <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
+                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
+                                </svg>
+                            </div>
+                            <img id="avatarImg" class="avatar-img hidden" alt="avatar" />
+                            <div class="avatar-hover-tip">换图</div>
+                        </div>
+                        <div class="tw-motto-wrap">
+                            <!-- ⚠️ 关键：标签内容为空，placeholder 由 CSS ::before 显示 -->
+                            <div class="tw-motto" id="twMotto" contenteditable="true" spellcheck="false"
+                                data-placeholder="幸好爱是小小的奇迹"></div>
+                        </div>
                     </div>
-                    <div class="widget-img-wrap" id="widgetLeftImgWrap">
-                        <input type="file" accept="image/*" id="widgetLeftFile" class="file-input" />
-                        <label for="widgetLeftFile" class="img-placeholder" id="widgetLeftPlaceholder">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <rect x="2" y="4" width="24" height="18" rx="2.5" stroke="#bbb" stroke-width="1.3" />
-                                <circle cx="9" cy="11" r="2.5" stroke="#bbb" stroke-width="1.3" />
-                                <path d="M2 18l6-5 5 5 4-3 9 5" stroke="#bbb" stroke-width="1.3"
-                                    stroke-linejoin="round" />
+                    <div class="tw-row tw-info-row">
+                        <span class="tw-label">Baby</span>
+                        <div class="tw-field" id="twBaby" contenteditable="true" spellcheck="false"
+                            data-placeholder="call Aero"></div>
+                    </div>
+                    <div class="tw-row tw-info-row">
+                        <span class="tw-label">Contact</span>
+                        <div class="tw-field" id="twContact" contenteditable="true" spellcheck="false"
+                            data-placeholder="http://>Aero's love.com"></div>
+                    </div>
+                </div>
+
+                <!-- 时钟小组件（替代顶部信息卡） -->
+                <div class="clock-widget glass-widget hidden" id="clockWidget">
+                    <div class="cw-time" id="cwTime">00:00</div>
+                    <div class="cw-date" id="cwDate">星期一 · 1月1日</div>
+                    <div class="cw-bottom">
+                        <div class="cw-location" id="cwLocation">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M12 2a7 7 0 017 7c0 5-7 13-7 13S5 14 5 9a7 7 0 017-7z" />
+                                <circle cx="12" cy="9" r="2.5" />
+                            </svg>
+                            <span id="cwLocationText">定位中…</span>
+                        </div>
+                        <div class="cw-weather" id="cwWeather">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <circle cx="12" cy="12" r="4" />
+                                <path
+                                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                            </svg>
+                            <span id="cwWeatherText">— °C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ② 双小组件行 -->
+                <div class="mini-widgets-row">
+                    <div class="mini-widget glass-widget widget-note" id="widgetNote">
+                        <div class="clip-deco">
+                            <svg viewBox="0 0 12 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M6 2 C2 2 2 8 2 10 L2 22 C2 26 10 26 10 22 L10 10 C10 6 8 4 6 4 C4 4 3 5.5 3 7 L3 21 C3 23 9 23 9 21 L9 10" />
+                            </svg>
+                        </div>
+                        <div class="note-img-area" id="noteImgArea" onclick="triggerImgUpload('noteImg')">
+                            <div class="img-placeholder" id="noteImgPlaceholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                                <span>点击添加图片</span>
+                            </div>
+                            <img id="noteImg" class="widget-img hidden" alt="" />
+                        </div>
+                        <!-- ⚠️ 关键：标签内容为空 -->
+                        <div class="note-label" id="noteLabel" contenteditable="true" spellcheck="false"
+                            data-placeholder="First Choice"></div>
+                    </div>
+
+                    <div class="mini-widget widget-photo dashed-widget" id="widgetPhoto"
+                        onclick="triggerImgUpload('photoImg')">
+                        <div class="img-placeholder" id="photoImgPlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="M21 15l-5-5L5 21" />
                             </svg>
                             <span>点击添加图片</span>
-                        </label>
-                    </div>
-                    <div class="widget-caption-wrap">
-                        <input class="widget-caption" id="widgetLeftCaption" type="text" placeholder="First Choice"
-                            maxlength="16" />
+                        </div>
+                        <img id="photoImg" class="widget-img hidden" alt="" />
                     </div>
                 </div>
 
-                <!-- 右侧：纯图片框（虚线边） -->
-                <div class="widget-square widget-right glass-widget" id="widgetRight">
-                    <div class="widget-img-wrap" id="widgetRightImgWrap">
-                        <input type="file" accept="image/*" id="widgetRightFile" class="file-input" />
-                        <label for="widgetRightFile" class="img-placeholder" id="widgetRightPlaceholder">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <rect x="2" y="3" width="20" height="16" rx="2.5" stroke="#bbb" stroke-width="1.3" />
-                                <circle cx="8" cy="9" r="2" stroke="#bbb" stroke-width="1.3" />
-                                <path d="M2 15l5-4 4 4 3-2.5 8 4.5" stroke="#bbb" stroke-width="1.3"
-                                    stroke-linejoin="round" />
+                <!-- 页面指示点 -->
+                <div class="page-dots">
+                    <span class="dot active"></span>
+                </div>
+
+                <!-- ③ APP 网格（6个，去掉聊天/世界书，dock已有） -->
+                <div class="apps-grid" id="appsGrid">
+
+                    <div class="app-item" onclick="openApp('voice')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M16 4a5 5 0 015 5v7a5 5 0 01-10 0V9a5 5 0 015-5z" />
+                                <path d="M7 18a9 9 0 0018 0" />
+                                <line x1="16" y1="27" x2="16" y2="30" />
+                                <line x1="12" y1="30" x2="20" y2="30" />
                             </svg>
-                            <span>点击添加图片</span>
-                        </label>
+                        </div>
+                        <span class="app-name">心声</span>
+                    </div>
+
+                    <div class="app-item" onclick="openApp('forum')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <rect x="4" y="4" width="24" height="18" rx="2" />
+                                <line x1="8" y1="11" x2="24" y2="11" />
+                                <line x1="8" y1="15" x2="20" y2="15" />
+                                <line x1="8" y1="19" x2="17" y2="19" />
+                            </svg>
+                        </div>
+                        <span class="app-name">论坛</span>
+                    </div>
+
+                    <div class="app-item" onclick="openApp('diary')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <rect x="5" y="3" width="18" height="26" rx="2" />
+                                <path d="M5 3h3a2 2 0 012 2v22a2 2 0 01-2 2H5" stroke-width="1.4" />
+                                <line x1="13" y1="10" x2="20" y2="10" />
+                                <line x1="13" y1="15" x2="20" y2="15" />
+                                <line x1="13" y1="20" x2="18" y2="20" />
+                            </svg>
+                        </div>
+                        <span class="app-name">小芽日记</span>
+                    </div>
+
+                    <div class="app-item" onclick="openApp('street')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M16 6a5 5 0 015 5c0 4-5 10-5 10S11 15 11 11a5 5 0 015-5z" />
+                                <circle cx="16" cy="11" r="2" fill="currentColor" stroke="none" />
+                                <path d="M6 28l3-8h14l3 8" />
+                            </svg>
+                        </div>
+                        <span class="app-name">街の声</span>
+                    </div>
+
+                    <div class="app-item" onclick="openApp('candy')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <circle cx="16" cy="16" r="7" />
+                                <path d="M9 9l-4-4M23 9l4-4M9 23l-4 4M23 23l4 4" />
+                                <circle cx="16" cy="16" r="2.5" fill="currentColor" stroke="none" />
+                            </svg>
+                        </div>
+                        <span class="app-name">糖果铺</span>
+                    </div>
+
+                    <div class="app-item" onclick="openApp('music')">
+                        <div class="app-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M12 26V12l14-3v14" />
+                                <circle cx="9" cy="26" r="3" />
+                                <circle cx="23" cy="23" r="3" />
+                            </svg>
+                        </div>
+                        <span class="app-name">音乐</span>
+                    </div>
+
+                </div><!-- /apps-grid -->
+
+                <!-- ④ Dock 栏 -->
+                <div class="dock-bar glass-dock">
+                    <div class="dock-item" onclick="openApp('chat')">
+                        <div class="dock-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M4 6h24v16a2 2 0 01-2 2H8l-4 4V8a2 2 0 012-2z" />
+                                <circle cx="11" cy="14" r="1.5" fill="currentColor" stroke="none" />
+                                <circle cx="16" cy="14" r="1.5" fill="currentColor" stroke="none" />
+                                <circle cx="21" cy="14" r="1.5" fill="currentColor" stroke="none" />
+                            </svg>
+                        </div>
+                        <span class="dock-name">聊天</span>
+                    </div>
+                    <div class="dock-item" onclick="openApp('worldbook')">
+                        <div class="dock-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <circle cx="16" cy="16" r="11" />
+                                <path d="M5 16h22M16 5c-3 3-5 7-5 11s2 8 5 11M16 5c3 3 5 7 5 11s-2 8-5 11" />
+                            </svg>
+                        </div>
+                        <span class="dock-name">世界书</span>
+                    </div>
+                    <div class="dock-item" onclick="openApp('settings')">
+                        <div class="dock-icon glass-icon">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <circle cx="16" cy="16" r="3.5" />
+                                <path
+                                    d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2.1 2.1M22.4 22.4l2.1 2.1M7.5 24.5l2.1-2.1M22.4 9.6l2.1-2.1" />
+                            </svg>
+                        </div>
+                        <span class="dock-name">设置</span>
+                    </div>
+                </div>
+
+            </div><!-- /home-screen -->
+
+            <!-- APP 覆盖层（未开发提示） -->
+            <div class="app-overlay hidden" id="appOverlay">
+                <div class="app-overlay-back" onclick="closeApp()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </div>
+                <div class="app-overlay-content">
+                    <div class="coming-soon-icon">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <circle cx="32" cy="32" r="28" />
+                            <path d="M32 20v14M32 40v2" />
+                        </svg>
+                    </div>
+                    <p class="coming-soon-name" id="overlayAppName">APP</p>
+                    <p class="coming-soon-text">即将开放</p>
+                    <p class="coming-soon-sub">此板块正在开发中</p>
+                </div>
+            </div>
+
+            <!-- ═══════════════ 设置 APP ═══════════════ -->
+            <div class="settings-app hidden" id="settingsApp">
+
+                <!-- 设置主页 -->
+                <div class="sa-page" id="saHome">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="closeSettingsApp()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">设置</span>
+                    </div>
+                    <div class="sa-scroll">
+                        <div class="sa-section-label">系统</div>
+                        <div class="sa-menu-group">
+                            <div class="sa-menu-item" onclick="saNav('saApiPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                                        <path d="M8 21h8M12 17v4" />
+                                        <path d="M7 8l3 3-3 3M13 14h4" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">API 设置</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                            <div class="sa-menu-item" onclick="saNav('saScreenPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="2" y="4" width="20" height="14" rx="2" />
+                                        <path d="M8 20h8M12 18v2" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">屏幕调整</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                            <div class="sa-menu-item" onclick="saNav('saWallpaperPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <path d="M21 15l-5-5L5 21" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">壁纸更换</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                            <div class="sa-menu-item" onclick="saNav('saIconPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="3" y="3" width="8" height="8" rx="1.5" />
+                                        <rect x="13" y="3" width="8" height="8" rx="1.5" />
+                                        <rect x="3" y="13" width="8" height="8" rx="1.5" />
+                                        <rect x="13" y="13" width="8" height="8" rx="1.5" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">应用图标更换</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                            <div class="sa-menu-item" onclick="saNav('saFontPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M4 20l4-10 4 10M6 15h4M16 4v16M13 7h6" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">字体更换</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                            <div class="sa-menu-item sa-menu-item--danger" onclick="saNav('saDataPage')">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                        <path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+                                        <path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">数据管理</span>
+                                <div class="sa-menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg></div>
+                            </div>
+                        </div>
+
+                        <div class="sa-section-label">关于</div>
+                        <div class="sa-menu-group">
+                            <div class="sa-menu-item sa-menu-item--static">
+                                <div class="sa-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <polygon
+                                            points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+                                    </svg>
+                                </div>
+                                <span class="sa-menu-text">星星机</span>
+                                <span class="sa-menu-badge">v1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── API 设置页 ── -->
+                <div class="sa-page hidden" id="saApiPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">API 设置</span>
+                    </div>
+                    <div class="sa-scroll">
+
+                        <!-- AI 配置卡片 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">AI 模型配置</div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">API 名称</label>
+                                <input class="sa-input" id="apiName" type="text" placeholder="例：OpenAI / 月之暗面" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">API URL</label>
+                                <input class="sa-input" id="apiUrl" type="url"
+                                    placeholder="https://api.openai.com/v1" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">API Key</label>
+                                <div class="sa-input-eye">
+                                    <input class="sa-input" id="apiKey" type="password" placeholder="sk-..." />
+                                    <button class="sa-eye-btn" onclick="toggleApiKeyVisible()" title="显示/隐藏">
+                                        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.4">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="sa-btn sa-btn--ghost" id="fetchModelsBtn" onclick="fetchModels()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                    <path d="M1 4v6h6M23 20v-6h-6" />
+                                    <path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15" />
+                                </svg>
+                                拉取模型
+                            </button>
+                        </div>
+
+                        <!-- 模型选择卡片 -->
+                        <div class="sa-card" id="modelSelectCard">
+                            <div class="sa-card-title">选取模型</div>
+                            <div class="sa-select-wrap">
+                                <select class="sa-select" id="modelSelect">
+                                    <option value="">— 请先拉取模型 —</option>
+                                </select>
+                            </div>
+                            <div class="sa-row">
+                                <button class="sa-btn sa-btn--ghost" onclick="testModel()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    测试模型
+                                </button>
+                                <button class="sa-btn sa-btn--solid" onclick="saveModel()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                        <polyline points="17 21 17 13 7 13 7 21" />
+                                        <polyline points="7 3 7 8 15 8" />
+                                    </svg>
+                                    保存模型
+                                </button>
+                            </div>
+                            <div class="sa-test-result hidden" id="testResult"></div>
+                        </div>
+
+                        <!-- 已保存模型列表 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">模型列表
+                                <span class="sa-card-badge" id="modelCountBadge">0</span>
+                            </div>
+                            <div class="sa-model-list" id="savedModelList">
+                                <div class="sa-empty-tip">暂无保存的模型</div>
+                            </div>
+                        </div>
+
+                        <!-- MiniMax 语音配置 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">MiniMax 语音配置</div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">MiniMax API Key</label>
+                                <div class="sa-input-eye">
+                                    <input class="sa-input" id="minimaxKey" type="password"
+                                        placeholder="输入 MiniMax API Key" />
+                                    <button class="sa-eye-btn" onclick="toggleMinimaxKeyVisible()" title="显示/隐藏">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">Group ID</label>
+                                <input class="sa-input" id="minimaxGroupId" type="text" placeholder="输入 Group ID" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">Voice ID</label>
+                                <input class="sa-input" id="minimaxVoice" type="text"
+                                    placeholder="输入音色 Voice ID，如 female-shaonv" />
+                                <div class="sa-voice-hint">
+                                    可在 MiniMax 控制台复制 Voice ID 填入此处
+                                </div>
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">语速 <span class="sa-range-val"
+                                        id="minimaxSpeedVal">1.0</span></label>
+                                <input class="sa-range" id="minimaxSpeed" type="range" min="0.5" max="2.0" step="0.1"
+                                    value="1.0"
+                                    oninput="document.getElementById('minimaxSpeedVal').textContent=parseFloat(this.value).toFixed(1)" />
+                            </div>
+                            <button class="sa-btn sa-btn--solid" onclick="saveMinimaxConfig()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                保存语音配置
+                            </button>
+                        </div>
+
+                        <!-- 试听卡片 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">试听语音</div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">试听文本</label>
+                                <textarea class="sa-input sa-textarea" id="minimaxPreviewText" placeholder="输入想试听的文字…"
+                                    rows="3"></textarea>
+                            </div>
+                            <div class="sa-row">
+                                <button class="sa-btn sa-btn--ghost" id="previewPlayBtn"
+                                    onclick="previewMinimaxVoice()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <polygon points="5 3 19 12 5 21 5 3" />
+                                    </svg>
+                                    试听
+                                </button>
+                                <button class="sa-btn sa-btn--ghost" id="previewStopBtn" onclick="stopMinimaxPreview()"
+                                    style="display:none">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="6" y="6" width="12" height="12" rx="1" />
+                                    </svg>
+                                    停止
+                                </button>
+                            </div>
+                            <div class="sa-voice-preview-status hidden" id="previewStatus"></div>
+                            <audio id="minimaxPreviewAudio" style="display:none"></audio>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ── 屏幕调整页 ── -->
+                <div class="sa-page hidden" id="saScreenPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">屏幕调整</span>
+                    </div>
+                    <div class="sa-scroll">
+
+                        <!-- 色调滤镜 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">色调滤镜</div>
+                            <div class="sc-filter-grid">
+                                <div class="sc-filter-item active" data-filter="none" onclick="selectFilter('none')">
+                                    <div class="sc-filter-preview sc-filter-none">Aa</div>
+                                    <span>原色</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="retro" onclick="selectFilter('retro')">
+                                    <div class="sc-filter-preview sc-filter-retro">Aa</div>
+                                    <span>复古</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="dopamine" onclick="selectFilter('dopamine')">
+                                    <div class="sc-filter-preview sc-filter-dopamine">Aa</div>
+                                    <span>多巴胺</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="cream" onclick="selectFilter('cream')">
+                                    <div class="sc-filter-preview sc-filter-cream">Aa</div>
+                                    <span>奶油</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="cool" onclick="selectFilter('cool')">
+                                    <div class="sc-filter-preview sc-filter-cool">Aa</div>
+                                    <span>清冷</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="warm" onclick="selectFilter('warm')">
+                                    <div class="sc-filter-preview sc-filter-warm">Aa</div>
+                                    <span>暖阳</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="ink" onclick="selectFilter('ink')">
+                                    <div class="sc-filter-preview sc-filter-ink">Aa</div>
+                                    <span>水墨</span>
+                                </div>
+                                <div class="sc-filter-item" data-filter="sakura" onclick="selectFilter('sakura')">
+                                    <div class="sc-filter-preview sc-filter-sakura">Aa</div>
+                                    <span>樱花</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 夜间 & 护眼 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">视觉保护</div>
+                            <div class="sc-toggle-row">
+                                <div class="sc-toggle-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                                    </svg>
+                                    <div>
+                                        <div class="sc-toggle-label">夜间模式</div>
+                                        <div class="sc-toggle-sub">深色低亮，保护夜间视力</div>
+                                    </div>
+                                </div>
+                                <label class="sc-switch">
+                                    <input type="checkbox" id="nightModeToggle"
+                                        onchange="toggleNightMode(this.checked)" />
+                                    <span class="sc-switch-thumb"></span>
+                                </label>
+                            </div>
+                            <div class="sc-divider"></div>
+                            <div class="sc-toggle-row">
+                                <div class="sc-toggle-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <circle cx="12" cy="12" r="5" />
+                                        <path
+                                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                    </svg>
+                                    <div>
+                                        <div class="sc-toggle-label">护眼模式</div>
+                                        <div class="sc-toggle-sub">暖色色调，减少蓝光刺激</div>
+                                    </div>
+                                </div>
+                                <label class="sc-switch">
+                                    <input type="checkbox" id="eyeCareToggle" onchange="toggleEyeCare(this.checked)" />
+                                    <span class="sc-switch-thumb"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 亮度 & 缩放 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">显示调节</div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">亮度 <span class="sa-range-val"
+                                        id="brightnessVal">100%</span></label>
+                                <input class="sa-range" id="brightnessRange" type="range" min="30" max="100" step="5"
+                                    value="100" oninput="previewBrightness(this.value)" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">界面缩放 <span class="sa-range-val"
+                                        id="scaleVal">100%</span></label>
+                                <input class="sa-range" id="scaleRange" type="range" min="80" max="120" step="5"
+                                    value="100" oninput="previewScale(this.value)" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">图标间距 <span class="sa-range-val"
+                                        id="gridGapVal">16px</span></label>
+                                <input class="sa-range" id="gridGapRange" type="range" min="8" max="32" step="2"
+                                    value="16" oninput="previewGridGap(this.value)" />
+                            </div>
+                            <button class="sa-btn sa-btn--solid" onclick="applyDisplaySettings()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                保存显示设置
+                            </button>
+                        </div>
+
+                        <!-- 屏幕位置 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">屏幕位置
+                                <span class="sa-card-badge">适配不同手机</span>
+                            </div>
+                            <div class="sc-position-pad">
+                                <div class="sc-pos-row">
+                                    <button class="sc-pos-btn" onclick="nudgeScreen('up')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M12 19V5M5 12l7-7 7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="sc-pos-row sc-pos-mid">
+                                    <button class="sc-pos-btn" onclick="nudgeScreen('left')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <button class="sc-pos-btn sc-pos-reset" onclick="resetScreenPosition()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                            <path d="M1 4v6h6M23 20v-6h-6" />
+                                            <path
+                                                d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15" />
+                                        </svg>
+                                    </button>
+                                    <button class="sc-pos-btn" onclick="nudgeScreen('right')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M5 12h14M12 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="sc-pos-row">
+                                    <button class="sc-pos-btn" onclick="nudgeScreen('down')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M12 5v14M19 12l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="sc-pos-info" id="screenPosInfo">偏移：X +0px Y +0px</div>
+                            <div class="sa-field-group" style="margin-top:12px">
+                                <label class="sa-label">精细调节步长 <span class="sa-range-val"
+                                        id="nudgeStepVal">4px</span></label>
+                                <input class="sa-range" id="nudgeStepRange" type="range" min="1" max="20" step="1"
+                                    value="4"
+                                    oninput="document.getElementById('nudgeStepVal').textContent=this.value+'px'" />
+                            </div>
+                        </div>
+
+                        <!-- 状态栏 & 灵动岛 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">系统元素显示</div>
+                            <div class="sc-toggle-row">
+                                <div class="sc-toggle-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="1" y="3" width="22" height="5" rx="1" />
+                                        <path d="M5 6h1M18 6h1" />
+                                    </svg>
+                                    <div>
+                                        <div class="sc-toggle-label">隐藏顶部状态栏</div>
+                                        <div class="sc-toggle-sub">隐藏时间、信号、电量显示</div>
+                                    </div>
+                                </div>
+                                <label class="sc-switch">
+                                    <input type="checkbox" id="hideStatusBar"
+                                        onchange="toggleStatusBar(this.checked)" />
+                                    <span class="sc-switch-thumb"></span>
+                                </label>
+                            </div>
+                            <div class="sc-divider"></div>
+                            <div class="sc-toggle-row">
+                                <div class="sc-toggle-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="8" y="2" width="8" height="4" rx="2" />
+                                        <path d="M5 4h14" stroke-dasharray="2 2" />
+                                    </svg>
+                                    <div>
+                                        <div class="sc-toggle-label">隐藏灵动岛</div>
+                                        <div class="sc-toggle-sub">隐藏顶部动态岛装饰</div>
+                                    </div>
+                                </div>
+                                <label class="sc-switch">
+                                    <input type="checkbox" id="hideDynamicIsland"
+                                        onchange="toggleDynamicIsland(this.checked)" />
+                                    <span class="sc-switch-thumb"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 顶部小组件切换 -->
+                        <div class="sa-card">
+                            <div class="sa-card-title">顶部小组件</div>
+                            <div class="sc-widget-switch-list">
+                                <div class="sc-widget-opt active" data-widget="info" onclick="selectTopWidget('info')">
+                                    <div class="sc-widget-opt-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                            <circle cx="8" cy="8" r="4" />
+                                            <path d="M14 10h6M14 14h4M4 16h16" />
+                                        </svg>
+                                    </div>
+                                    <div class="sc-widget-opt-info">
+                                        <div class="sc-widget-opt-name">个人信息卡</div>
+                                        <div class="sc-widget-opt-sub">头像、格言、联系方式</div>
+                                    </div>
+                                </div>
+                                <div class="sc-widget-opt" data-widget="clock" onclick="selectTopWidget('clock')">
+                                    <div class="sc-widget-opt-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                            <circle cx="12" cy="12" r="9" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                    </div>
+                                    <div class="sc-widget-opt-info">
+                                        <div class="sc-widget-opt-name">时间计时小组件</div>
+                                        <div class="sc-widget-opt-sub">时间、日期、地址、天气</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 时区选择（时间计时小组件配套） -->
+                        <div class="sa-card" id="timezoneCard">
+                            <div class="sa-card-title">时区 / 地区时间</div>
+                            <div class="sc-tz-grid" id="tzGrid">
+                                <div class="sc-tz-item active" data-tz="local" onclick="selectTimezone('local')">
+                                    <span class="sc-tz-flag">🌐</span>
+                                    <span class="sc-tz-name">本地</span>
+                                    <span class="sc-tz-time" id="tz-local">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="America/New_York"
+                                    onclick="selectTimezone('America/New_York')">
+                                    <span class="sc-tz-flag">🇺🇸</span>
+                                    <span class="sc-tz-name">美国纽约</span>
+                                    <span class="sc-tz-time" id="tz-America/New_York">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="America/Los_Angeles"
+                                    onclick="selectTimezone('America/Los_Angeles')">
+                                    <span class="sc-tz-flag">🇺🇸</span>
+                                    <span class="sc-tz-name">美国洛杉矶</span>
+                                    <span class="sc-tz-time" id="tz-America/Los_Angeles">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Asia/Tokyo" onclick="selectTimezone('Asia/Tokyo')">
+                                    <span class="sc-tz-flag">🇯🇵</span>
+                                    <span class="sc-tz-name">日本东京</span>
+                                    <span class="sc-tz-time" id="tz-Asia/Tokyo">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Asia/Seoul" onclick="selectTimezone('Asia/Seoul')">
+                                    <span class="sc-tz-flag">🇰🇷</span>
+                                    <span class="sc-tz-name">韩国首尔</span>
+                                    <span class="sc-tz-time" id="tz-Asia/Seoul">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Europe/London"
+                                    onclick="selectTimezone('Europe/London')">
+                                    <span class="sc-tz-flag">🇬🇧</span>
+                                    <span class="sc-tz-name">英国伦敦</span>
+                                    <span class="sc-tz-time" id="tz-Europe/London">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Europe/Paris" onclick="selectTimezone('Europe/Paris')">
+                                    <span class="sc-tz-flag">🇫🇷</span>
+                                    <span class="sc-tz-name">法国巴黎</span>
+                                    <span class="sc-tz-time" id="tz-Europe/Paris">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Asia/Shanghai"
+                                    onclick="selectTimezone('Asia/Shanghai')">
+                                    <span class="sc-tz-flag">🇨🇳</span>
+                                    <span class="sc-tz-name">中国上海</span>
+                                    <span class="sc-tz-time" id="tz-Asia/Shanghai">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Asia/Singapore"
+                                    onclick="selectTimezone('Asia/Singapore')">
+                                    <span class="sc-tz-flag">🇸🇬</span>
+                                    <span class="sc-tz-name">新加坡</span>
+                                    <span class="sc-tz-time" id="tz-Asia/Singapore">--:--</span>
+                                </div>
+                                <div class="sc-tz-item" data-tz="Australia/Sydney"
+                                    onclick="selectTimezone('Australia/Sydney')">
+                                    <span class="sc-tz-flag">🇦🇺</span>
+                                    <span class="sc-tz-name">澳大利亚</span>
+                                    <span class="sc-tz-time" id="tz-Australia/Sydney">--:--</span>
+                                </div>
+                            </div>
+                            <div class="sa-field-group" style="margin-top:12px">
+                                <label class="sa-label">天气城市（OpenWeather城市名）</label>
+                                <input class="sa-input" id="weatherCity" type="text"
+                                    placeholder="如：Beijing / Tokyo / Seoul" />
+                            </div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">OpenWeather API Key（可选）</label>
+                                <input class="sa-input" id="weatherApiKey" type="text" placeholder="填入后自动获取真实天气" />
+                            </div>
+                            <button class="sa-btn sa-btn--solid" onclick="saveClockWidgetConfig()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                保存时钟配置
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ── 壁纸更换页 ── -->
+                <div class="sa-page hidden" id="saWallpaperPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">壁纸更换</span>
+                    </div>
+                    <div class="sa-scroll">
+                        <div class="sa-card">
+                            <div class="sa-card-title">上传自定义壁纸</div>
+                            <div class="sa-upload-zone" onclick="document.getElementById('wallpaperInput').click()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                                <span>点击选择图片</span>
+                            </div>
+                            <input type="file" id="wallpaperInput" accept="image/*" class="hidden"
+                                onchange="handleWallpaperUpload(event)" />
+                            <div class="sa-wp-preview hidden" id="wpPreview">
+                                <img id="wpPreviewImg" alt="壁纸预览" />
+                                <div class="sa-wp-actions">
+                                    <button class="sa-btn sa-btn--solid" onclick="applyWallpaper()">设为壁纸</button>
+                                    <button class="sa-btn sa-btn--ghost" onclick="resetWallpaper()">恢复默认</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sa-card">
+                            <div class="sa-card-title">预设颜色</div>
+                            <div class="sa-color-grid">
+                                <div class="sa-color-chip" style="background:#dfdfdd"
+                                    onclick="applyColorWallpaper('#dfdfdd')" title="默认灰"></div>
+                                <div class="sa-color-chip" style="background:#f0ece4"
+                                    onclick="applyColorWallpaper('#f0ece4')" title="米白"></div>
+                                <div class="sa-color-chip" style="background:#e8e4ec"
+                                    onclick="applyColorWallpaper('#e8e4ec')" title="淡紫"></div>
+                                <div class="sa-color-chip" style="background:#e4ecec"
+                                    onclick="applyColorWallpaper('#e4ecec')" title="霜蓝"></div>
+                                <div class="sa-color-chip" style="background:#ece8e4"
+                                    onclick="applyColorWallpaper('#ece8e4')" title="暖米"></div>
+                                <div class="sa-color-chip" style="background:#e4ece8"
+                                    onclick="applyColorWallpaper('#e4ece8')" title="薄荷"></div>
+                                <div class="sa-color-chip" style="background:#2a2a2a"
+                                    onclick="applyColorWallpaper('#2a2a2a')" title="深夜黑"></div>
+                                <div class="sa-color-chip" style="background:#1a1a2e"
+                                    onclick="applyColorWallpaper('#1a1a2e')" title="午夜蓝"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 应用图标更换页 ── -->
+                <div class="sa-page hidden" id="saIconPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">应用图标更换</span>
+                    </div>
+                    <div class="sa-scroll">
+                        <div class="sa-card">
+                            <div class="sa-card-title">图标风格</div>
+                            <div class="sa-icon-style-list" id="iconStyleList">
+                                <div class="sa-icon-style-item active" data-style="default"
+                                    onclick="selectIconStyle('default')">
+                                    <div class="sa-icon-style-preview style-default">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                            <circle cx="12" cy="12" r="8" />
+                                        </svg>
+                                    </div>
+                                    <span>线条风</span>
+                                </div>
+                                <div class="sa-icon-style-item" data-style="filled" onclick="selectIconStyle('filled')">
+                                    <div class="sa-icon-style-preview style-filled">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <circle cx="12" cy="12" r="8" />
+                                        </svg>
+                                    </div>
+                                    <span>填充风</span>
+                                </div>
+                                <div class="sa-icon-style-item" data-style="rounded"
+                                    onclick="selectIconStyle('rounded')">
+                                    <div class="sa-icon-style-preview style-rounded">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="8" />
+                                        </svg>
+                                    </div>
+                                    <span>粗线风</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sa-card">
+                            <div class="sa-card-title">图标背景</div>
+                            <div class="sa-icon-bg-list">
+                                <div class="sa-icon-bg-item active" data-bg="glass" onclick="selectIconBg('glass')">毛玻璃
+                                </div>
+                                <div class="sa-icon-bg-item" data-bg="white" onclick="selectIconBg('white')">纯白</div>
+                                <div class="sa-icon-bg-item" data-bg="dark" onclick="selectIconBg('dark')">深色</div>
+                                <div class="sa-icon-bg-item" data-bg="none" onclick="selectIconBg('none')">无背景</div>
+                            </div>
+                        </div>
+                        <div class="sa-tip">图标更换后实时生效，重启 APP 永久保存</div>
+                    </div>
+                </div>
+
+                <!-- ── 字体更换页 ── -->
+                <div class="sa-page hidden" id="saFontPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">字体更换</span>
+                    </div>
+                    <div class="sa-scroll">
+                        <div class="sa-card">
+                            <div class="sa-card-title">系统字体</div>
+                            <div class="sa-font-list" id="fontList">
+                                <div class="sa-font-item active" data-font="system" onclick="selectFont('system')">
+                                    <span class="sa-font-preview"
+                                        style="font-family:-apple-system,'PingFang SC',sans-serif">星星机 Xingxingji</span>
+                                    <span class="sa-font-name">系统默认</span>
+                                </div>
+                                <div class="sa-font-item" data-font="serif" onclick="selectFont('serif')">
+                                    <span class="sa-font-preview" style="font-family:Georgia,serif">星星机
+                                        Xingxingji</span>
+                                    <span class="sa-font-name">衬线体</span>
+                                </div>
+                                <div class="sa-font-item" data-font="mono" onclick="selectFont('mono')">
+                                    <span class="sa-font-preview" style="font-family:'Courier New',monospace">星星机
+                                        Xingxingji</span>
+                                    <span class="sa-font-name">等宽体</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sa-card">
+                            <div class="sa-card-title">字号大小</div>
+                            <div class="sa-field-group">
+                                <label class="sa-label">全局字号 <span class="sa-range-val"
+                                        id="fontSizeVal">100%</span></label>
+                                <input class="sa-range" id="fontSizeRange" type="range" min="85" max="120" step="5"
+                                    value="100" oninput="previewFontSize(this.value)" />
+                            </div>
+                            <button class="sa-btn sa-btn--solid" onclick="applyFont()">应用字体设置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 数据管理页 ── -->
+                <div class="sa-page hidden" id="saDataPage">
+                    <div class="sa-header">
+                        <button class="sa-back" onclick="saBack('saHome')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="sa-title">数据管理</span>
+                    </div>
+                    <div class="sa-scroll">
+                        <div class="sa-card">
+                            <div class="sa-card-title">存储概览</div>
+                            <div class="sa-storage-info" id="storageInfo">
+                                <div class="sa-storage-row">
+                                    <span>文字数据</span><span id="textDataSize">计算中…</span>
+                                </div>
+                                <div class="sa-storage-row">
+                                    <span>图片数据</span><span id="imgDataSize">计算中…</span>
+                                </div>
+                                <div class="sa-storage-row sa-storage-row--total">
+                                    <span>合计</span><span id="totalDataSize">计算中…</span>
+                                </div>
+                            </div>
+                            <button class="sa-btn sa-btn--ghost" onclick="calcStorage()">刷新用量</button>
+                        </div>
+                        <div class="sa-card">
+                            <div class="sa-card-title">导出 / 导入</div>
+                            <div class="sa-row">
+                                <button class="sa-btn sa-btn--ghost" onclick="exportData()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                    导出备份
+                                </button>
+                                <button class="sa-btn sa-btn--ghost"
+                                    onclick="document.getElementById('importInput').click()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                        <polyline points="17 8 12 3 7 8" />
+                                        <line x1="12" y1="3" x2="12" y2="15" />
+                                    </svg>
+                                    导入备份
+                                </button>
+                            </div>
+                            <input type="file" id="importInput" accept=".json" class="hidden"
+                                onchange="importData(event)" />
+                        </div>
+                        <div class="sa-card sa-card--danger">
+                            <div class="sa-card-title sa-card-title--danger">危险操作</div>
+                            <div class="sa-danger-list">
+                                <button class="sa-btn sa-btn--danger" onclick="clearTextData()">清除所有文字数据</button>
+                                <button class="sa-btn sa-btn--danger" onclick="clearImgData()">清除所有图片数据</button>
+                                <button class="sa-btn sa-btn--danger sa-btn--danger-full"
+                                    onclick="clearAllData()">重置全部数据</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
+            <!-- ═══════════════ /设置 APP ═══════════════ -->
 
-            <!-- ③ 分页指示点 -->
-            <div class="page-dots">
-                <span class="dot active"></span>
-            </div>
+        </div><!-- /phone-screen -->
+    </div><!-- /phone-shell -->
 
-            <!-- ④ APP 网格：心声 / 论坛 / 小芽日记 / 街の声 / 糖果铺 / 音乐 -->
-            <!--    聊天、世界书、设置已在 Dock，此处不重复                 -->
-            <div class="apps-grid" id="appsGrid">
+    <!-- 隐藏上传框 -->
+    <input type="file" id="fileInputAvatar" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
+    <input type="file" id="fileInputImg" accept="image/*" class="hidden" onchange="handleImgUpload(event)" />
+    <input type="file" id="wallpaperFileInput" accept="image/*" class="hidden"
+        onchange="handleWallpaperUpload(event)" />
 
-                <!-- 心声 -->
-                <div class="app-item" data-app="voice">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <path d="M15 5v20M10 9v12M5 12v6M20 9v12M25 12v6" stroke="#555" stroke-width="1.5"
-                                stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="app-label">心声</span>
-                </div>
-
-                <!-- 论坛 -->
-                <div class="app-item" data-app="forum">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <rect x="4" y="7" width="14" height="10" rx="2" stroke="#555" stroke-width="1.4" />
-                            <path d="M8 17v3l4-3" stroke="#555" stroke-width="1.4" stroke-linejoin="round" />
-                            <path d="M14 12h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H18l-4 3v-3h-2" stroke="#555"
-                                stroke-width="1.4" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <span class="app-label">论坛</span>
-                </div>
-
-                <!-- 小芽日记 -->
-                <div class="app-item" data-app="diary">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <rect x="7" y="4" width="16" height="22" rx="2" stroke="#555" stroke-width="1.4" />
-                            <line x1="11" y1="10" x2="19" y2="10" stroke="#555" stroke-width="1.3"
-                                stroke-linecap="round" />
-                            <line x1="11" y1="14" x2="19" y2="14" stroke="#555" stroke-width="1.3"
-                                stroke-linecap="round" />
-                            <line x1="11" y1="18" x2="15" y2="18" stroke="#555" stroke-width="1.3"
-                                stroke-linecap="round" />
-                            <circle cx="20" cy="23" r="5" fill="white" stroke="#555" stroke-width="1.2" />
-                            <path d="M18 23l1.5 1.5L22.5 21" stroke="#555" stroke-width="1.2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <span class="app-label">小芽日记</span>
-                </div>
-
-                <!-- 街の声 -->
-                <div class="app-item" data-app="street">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <path d="M5 25l5-14h10l5 14" stroke="#555" stroke-width="1.4" stroke-linejoin="round" />
-                            <path d="M10 25V14" stroke="#555" stroke-width="1.2" stroke-dasharray="2 2" />
-                            <path d="M20 25V14" stroke="#555" stroke-width="1.2" stroke-dasharray="2 2" />
-                            <line x1="5" y1="25" x2="25" y2="25" stroke="#555" stroke-width="1.4"
-                                stroke-linecap="round" />
-                            <rect x="12" y="17" width="6" height="8" rx="1" stroke="#555" stroke-width="1.2" />
-                            <rect x="7" y="17" width="4" height="4" rx="0.8" stroke="#555" stroke-width="1.1" />
-                            <rect x="19" y="17" width="4" height="4" rx="0.8" stroke="#555" stroke-width="1.1" />
-                            <path d="M9 8c0-3 6-3 6 0s6 0 6-3" stroke="#555" stroke-width="1.2"
-                                stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="app-label">街の声</span>
-                </div>
-
-                <!-- 糖果铺 -->
-                <div class="app-item" data-app="candy">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <circle cx="15" cy="16" r="8" stroke="#555" stroke-width="1.4" />
-                            <path d="M15 8V5M12 6l3-3 3 3" stroke="#555" stroke-width="1.3" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M11 14c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#555" stroke-width="1.3"
-                                stroke-linecap="round" />
-                            <circle cx="12.5" cy="17" r="1" fill="#555" />
-                            <circle cx="17.5" cy="17" r="1" fill="#555" />
-                            <path d="M12 20c.8 1 4.2 1 6 0" stroke="#555" stroke-width="1.2" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="app-label">糖果铺</span>
-                </div>
-
-                <!-- 音乐 -->
-                <div class="app-item" data-app="music">
-                    <div class="app-icon glass-icon">
-                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <path d="M12 22V10l13-3v12" stroke="#555" stroke-width="1.4" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <circle cx="10" cy="22" r="3" stroke="#555" stroke-width="1.4" />
-                            <circle cx="23" cy="19" r="3" stroke="#555" stroke-width="1.4" />
-                        </svg>
-                    </div>
-                    <span class="app-label">音乐</span>
-                </div>
-
-            </div>
-            <!-- /apps-grid -->
-
-        </div>
-        <!-- /home-screen -->
-
-        <!-- Dock 栏：聊天 / 世界书 / 设置 -->
-        <div class="dock-bar">
-            <div class="dock-inner glass-dock">
-
-                <!-- 聊天 -->
-                <div class="dock-item" data-app="chat">
-                    <div class="dock-icon">
-                        <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
-                            <path d="M5 6h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9l-5 4V8a2 2 0 0 1 2-2z" stroke="#444"
-                                stroke-width="1.5" stroke-linejoin="round" />
-                            <circle cx="10" cy="13" r="1.2" fill="#444" />
-                            <circle cx="15" cy="13" r="1.2" fill="#444" />
-                            <circle cx="20" cy="13" r="1.2" fill="#444" />
-                        </svg>
-                    </div>
-                    <span class="dock-label">聊天</span>
-                </div>
-
-                <!-- 世界书 -->
-                <div class="dock-item" data-app="worldbook">
-                    <div class="dock-icon">
-                        <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
-                            <circle cx="15" cy="15" r="10" stroke="#444" stroke-width="1.5" />
-                            <ellipse cx="15" cy="15" rx="4.5" ry="10" stroke="#444" stroke-width="1.5" />
-                            <line x1="5" y1="15" x2="25" y2="15" stroke="#444" stroke-width="1.5" />
-                            <line x1="6.5" y1="10" x2="23.5" y2="10" stroke="#444" stroke-width="1" />
-                            <line x1="6.5" y1="20" x2="23.5" y2="20" stroke="#444" stroke-width="1" />
-                        </svg>
-                    </div>
-                    <span class="dock-label">世界书</span>
-                </div>
-
-                <!-- 设置 -->
-                <div class="dock-item" data-app="settings">
-                    <div class="dock-icon">
-                        <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
-                            <circle cx="15" cy="15" r="3.5" stroke="#444" stroke-width="1.4" />
-                            <path d="M15 4v3M15 23v3M4 15h3M23 15h3
-                       M7.05 7.05l2.12 2.12M20.83 20.83l2.12 2.12
-                       M7.05 22.95l2.12-2.12M20.83 9.17l2.12-2.12" stroke="#444" stroke-width="1.4"
-                                stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <span class="dock-label">设置</span>
-                </div>
-
-            </div>
-            <div class="home-indicator"></div>
-        </div>
-
-    </div>
-    <!-- /phone-shell -->
-
-    <!-- 未开发弹窗 -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-card glass-modal">
-            <div class="modal-icon">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                    <circle cx="18" cy="18" r="16" stroke="#888" stroke-width="1.5" />
-                    <path d="M18 11v8M18 22v2" stroke="#888" stroke-width="1.8" stroke-linecap="round" />
-                </svg>
-            </div>
-            <h3 class="modal-title" id="modalTitle">该模块开发中</h3>
-            <p class="modal-desc">星星机 · 此功能正在建设中<br />敬请期待</p>
-            <button class="modal-close" id="modalClose">知道了</button>
-        </div>
-    </div>
-
-    <!-- 壁纸更换按钮 -->
-    <div class="wallpaper-btn" id="wallpaperBtn" title="更换壁纸">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <rect x="2" y="3" width="16" height="13" rx="2" stroke="#888" stroke-width="1.3" />
-            <circle cx="7" cy="8" r="1.8" stroke="#888" stroke-width="1.2" />
-            <path d="M2 13l4-4 3 3 3-2.5 6 4" stroke="#888" stroke-width="1.2" stroke-linejoin="round" />
-        </svg>
-    </div>
-    <input type="file" accept="image/*" id="wallpaperFile" style="display:none" />
-
-    <script src="js/storage.js"></script>
-    <script src="js/grid.js"></script>
     <script src="js/widgets.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

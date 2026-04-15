@@ -1,164 +1,244 @@
-/**
- * widgets.js — 小组件编辑交互
- * 图片上传、文字编辑、头像更换、壁纸更换
- */
+/* ═══════════════════════════════════════════════════════
+   widgets.js  v3
+   图片 → IndexedDB（无容量限制）
+   文字 → localStorage（独立 key，互不干扰）
+   刷新后 100% 恢复
+═══════════════════════════════════════════════════════ */
+'use strict';
 
-/**
- * 读取文件为 DataURL（base64），适合小图片存 localStorage
- * 大图片建议改用 IndexedDB（见注释）
- */
-function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
+/* ════════════════════════════════════════════════
+   1. IndexedDB 封装（专存图片 Blob/dataURL）
+════════════════════════════════════════════════ */
+const ImgDB = (() => {
+    const DB_NAME = 'xingxingji_imgs';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'images';
+    let _db = null;
+
+    function _open() {
+        return new Promise((resolve, reject) => {
+            if (_db) { resolve(_db); return; }
+            const req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = (e) => {
+                e.target.result.createObjectStore(STORE_NAME);
+            };
+            req.onsuccess = (e) => { _db = e.target.result; resolve(_db); };
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    return {
+        /* 存储 dataURL 字符串 */
+        set(key, dataUrl) {
+            return _open().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const req = tx.objectStore(STORE_NAME).put(dataUrl, key);
+                req.onsuccess = () => resolve();
+                req.onerror = (e) => reject(e.target.error);
+            }));
+        },
+
+        /* 读取 dataURL，不存在返回 null */
+        get(key) {
+            return _open().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const req = tx.objectStore(STORE_NAME).get(key);
+                req.onsuccess = (e) => resolve(e.target.result ?? null);
+                req.onerror = (e) => reject(e.target.error);
+            }));
+        },
+
+        /* 删除 */
+        remove(key) {
+            return _open().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const req = tx.objectStore(STORE_NAME).delete(key);
+                req.onsuccess = () => resolve();
+                req.onerror = (e) => reject(e.target.error);
+            }));
+        }
+    };
+})();
+
+/* ════════════════════════════════════════════════
+   2. 文字存储（localStorage，每个字段独立 key）
+════════════════════════════════════════════════ */
+const TextStore = {
+    PREFIX: 'xxj_text_',
+
+    set(fieldId, value) {
+        try {
+            localStorage.setItem(this.PREFIX + fieldId, value);
+        } catch (e) {
+            console.warn('文字存储失败:', e);
+        }
+    },
+
+    get(fieldId) {
+        try {
+            return localStorage.getItem(this.PREFIX + fieldId); // 不存在返回 null
+        } catch {
+            return null;
+        }
+    }
+};
+
+/* ════════════════════════════════════════════════
+   3. 图片上传入口
+════════════════════════════════════════════════ */
+let _currentImgTarget = null;
+
+function triggerImgUpload(imgId) {
+    _currentImgTarget = imgId;
+    const input = document.getElementById('fileInputImg');
+    input.value = '';
+    input.click();
 }
 
-/**
- * 将 dataURL 设置为某容器的背景图片，并隐藏 placeholder
- */
-function applyImageToWidget(imgWrap, placeholderId, dataUrl) {
-    // 移除旧预览
-    const oldImg = imgWrap.querySelector('.widget-preview-img');
-    if (oldImg) oldImg.remove();
+function handleImgUpload(event) {
+    const file = event.target.files[0];
+    if (!file || !_currentImgTarget) return;
+    const target = _currentImgTarget; // 闭包固定，防止异步问题
+    _currentImgTarget = null;
 
-    // 创建新预览
-    const img = document.createElement('img');
-    img.className = 'widget-preview-img';
-    img.src = dataUrl;
-    imgWrap.appendChild(img);
-
-    // 隐藏 placeholder
-    const ph = document.getElementById(placeholderId);
-    if (ph) ph.style.opacity = '0';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        _applyWidgetImg(target, dataUrl);      // 立刻渲染
+        ImgDB.set('img_' + target, dataUrl)   // 异步存 IndexedDB
+            .catch(err => console.warn('图片保存失败:', err));
+    };
+    reader.readAsDataURL(file);
 }
 
-function initWidgets() {
-    /* ---- 左侧图片组件 ---- */
-    const leftFile = document.getElementById('widgetLeftFile');
-    const leftWrap = document.getElementById('widgetLeftImgWrap');
+function triggerAvatarUpload() {
+    const input = document.getElementById('fileInputAvatar');
+    input.value = '';
+    input.click();
+}
 
-    leftFile.addEventListener('change', async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const url = await readFileAsDataURL(file);
-            applyImageToWidget(leftWrap, 'widgetLeftPlaceholder', url);
-            Storage.save('widgetLeftImg', url);
-        } catch { /* 文件读取失败静默 */ }
-        leftFile.value = '';
+function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        _applyAvatar(dataUrl);
+        ImgDB.set('img_avatar', dataUrl)
+            .catch(err => console.warn('头像保存失败:', err));
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ════════════════════════════════════════════════
+   4. DOM 渲染函数
+════════════════════════════════════════════════ */
+
+function _applyWidgetImg(imgId, dataUrl) {
+    const imgEl = document.getElementById(imgId);
+    if (!imgEl) return;
+    imgEl.src = dataUrl;
+    imgEl.classList.remove('hidden');
+
+    const ph = document.getElementById(imgId + 'Placeholder');
+    if (ph) ph.classList.add('hidden');
+
+    _attachRemoveBtn(imgId);
+}
+
+function _applyAvatar(dataUrl) {
+    const defaultEl = document.getElementById('avatarDefault');
+    const imgEl = document.getElementById('avatarImg');
+    if (defaultEl) defaultEl.classList.add('hidden');
+    if (imgEl) {
+        imgEl.src = dataUrl;
+        imgEl.classList.remove('hidden');
+    }
+}
+
+function _attachRemoveBtn(imgId) {
+    const parent = imgId === 'noteImg'
+        ? document.getElementById('noteImgArea')
+        : document.getElementById('widgetPhoto');
+    if (!parent || parent.querySelector('.img-remove-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'img-remove-btn';
+    btn.textContent = '×';
+    btn.title = '移除图片';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _removeWidgetImg(imgId);
     });
+    parent.appendChild(btn);
+}
 
-    /* ---- 右侧图片组件 ---- */
-    const rightFile = document.getElementById('widgetRightFile');
-    const rightWrap = document.getElementById('widgetRightImgWrap');
+function _removeWidgetImg(imgId) {
+    const imgEl = document.getElementById(imgId);
+    if (imgEl) { imgEl.src = ''; imgEl.classList.add('hidden'); }
 
-    rightFile.addEventListener('change', async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const url = await readFileAsDataURL(file);
-            applyImageToWidget(rightWrap, 'widgetRightPlaceholder', url);
-            Storage.save('widgetRightImg', url);
-        } catch { }
-        rightFile.value = '';
-    });
+    const ph = document.getElementById(imgId + 'Placeholder');
+    if (ph) ph.classList.remove('hidden');
 
-    /* ---- 头像 ---- */
-    const avatar = document.getElementById('infoAvatar');
-    const avatarInput = document.createElement('input');
-    avatarInput.type = 'file';
-    avatarInput.accept = 'image/*';
-    avatarInput.style.display = 'none';
-    document.body.appendChild(avatarInput);
+    const parent = imgId === 'noteImg'
+        ? document.getElementById('noteImgArea')
+        : document.getElementById('widgetPhoto');
+    if (parent) {
+        const btn = parent.querySelector('.img-remove-btn');
+        if (btn) btn.remove();
+    }
 
-    avatar.addEventListener('click', () => avatarInput.click());
-    avatarInput.addEventListener('change', async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const url = await readFileAsDataURL(file);
-            applyAvatarImg(url);
-            Storage.save('avatarUrl', url);
-        } catch { }
-        avatarInput.value = '';
-    });
+    ImgDB.remove('img_' + imgId).catch(() => { });
+}
 
-    /* ---- 壁纸更换 ---- */
-    const wallpaperBtn = document.getElementById('wallpaperBtn');
-    const wallpaperFile = document.getElementById('wallpaperFile');
+/* ════════════════════════════════════════════════
+   5. 文字编辑绑定
+════════════════════════════════════════════════ */
+const TEXT_FIELDS = ['twMotto', 'twBaby', 'twContact', 'noteLabel'];
 
-    wallpaperBtn.addEventListener('click', () => wallpaperFile.click());
-    wallpaperFile.addEventListener('change', async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const url = await readFileAsDataURL(file);
-            applyWallpaper(url);
-            Storage.save('wallpaper', url);
-            Storage.save('wallpaperType', 'image');
-        } catch { }
-        wallpaperFile.value = '';
-    });
-
-    /* ---- 文字输入实时保存 ---- */
-    const textFields = [
-        { id: 'infoMotto', key: 'motto' },
-        { id: 'infoBaby', key: 'baby' },
-        { id: 'infoContact', key: 'contact' },
-        { id: 'widgetLeftCaption', key: 'widgetLeftCaption' }
-    ];
-    textFields.forEach(({ id, key }) => {
+function bindTextEdits() {
+    TEXT_FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        el.addEventListener('input', () => Storage.save(key, el.value));
+
+        el.addEventListener('input', () => {
+            TextStore.set(id, el.innerText);
+        });
+
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        });
+
+        el.addEventListener('blur', () => {
+            TextStore.set(id, el.innerText);
+        });
     });
 }
 
-function applyAvatarImg(url) {
-    const avatar = document.getElementById('infoAvatar');
-    avatar.innerHTML = `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-}
-
-function applyWallpaper(url) {
-    const shell = document.getElementById('phoneShell');
-    shell.style.backgroundImage = `url(${url})`;
-    shell.style.backgroundSize = 'cover';
-    shell.style.backgroundPosition = 'center';
-}
-
-/**
- * 从 Storage 恢复所有小组件状态
- */
+/* ════════════════════════════════════════════════
+   6. 恢复所有数据（刷新后调用）
+   文字：同步恢复（localStorage）
+   图片：异步恢复（IndexedDB）
+════════════════════════════════════════════════ */
 function restoreWidgets() {
-    const s = Storage.load();
+    /* ── 文字（同步，立刻执行） ── */
+    TEXT_FIELDS.forEach(id => {
+        const saved = TextStore.get(id);
+        const el = document.getElementById(id);
+        /* saved 为 null 说明用户从未编辑过，保持空白让 CSS placeholder 生效 */
+        if (saved !== null && el) {
+            el.innerText = saved;
+        }
+    });
 
-    if (s.motto) document.getElementById('infoMotto').value = s.motto;
-    if (s.baby) document.getElementById('infoBaby').value = s.baby;
-    if (s.contact) document.getElementById('infoContact').value = s.contact;
-    if (s.widgetLeftCaption) document.getElementById('widgetLeftCaption').value = s.widgetLeftCaption;
+    /* ── 图片（异步，Promise 链） ── */
+    ImgDB.get('img_avatar').then(dataUrl => {
+        if (dataUrl) _applyAvatar(dataUrl);
+    }).catch(() => { });
 
-    if (s.avatarUrl) applyAvatarImg(s.avatarUrl);
-
-    if (s.widgetLeftImg) {
-        applyImageToWidget(
-            document.getElementById('widgetLeftImgWrap'),
-            'widgetLeftPlaceholder',
-            s.widgetLeftImg
-        );
-    }
-
-    if (s.widgetRightImg) {
-        applyImageToWidget(
-            document.getElementById('widgetRightImgWrap'),
-            'widgetRightPlaceholder',
-            s.widgetRightImg
-        );
-    }
-
-    if (s.wallpaper && s.wallpaperType === 'image') {
-        applyWallpaper(s.wallpaper);
-    }
+    ['noteImg', 'photoImg'].forEach(id => {
+        ImgDB.get('img_' + id).then(dataUrl => {
+            if (dataUrl) _applyWidgetImg(id, dataUrl);
+        }).catch(() => { });
+    });
 }
