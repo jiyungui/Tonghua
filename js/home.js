@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   home.js  主屏幕：APP 路由
-═══════════════════════════════════════════════════════ */
+/* ─── home.js 完整替换 ─── */
 'use strict';
 
 const APP_NAMES = {
@@ -15,29 +13,21 @@ const APP_NAMES = {
     settings: '设置'
 };
 
-/* settings / worldbook 已开发，其余后续追加 */
-const DEVELOPED_APPS = ['settings', 'worldbook'];
+const DEVELOPED_APPS = ['settings', 'worldbook', 'chat'];
 
 function openApp(appId) {
-    if (appId === 'settings') {
-        openSettingsApp();       /* 来自 settings.js */
-        return;
-    }
-    if (appId === 'worldbook') {
-        openWorldbookApp();      /* 来自 worldbook.js */
-        return;
-    }
-    if (DEVELOPED_APPS.includes(appId)) {
-        return;
-    }
+    if (appId === 'settings') { openSettingsApp(); return; }
+    if (appId === 'worldbook') { openWorldbookApp(); return; }
     if (appId === 'chat') { openChatApp(); return; }
-    /* 未开发提示 */
-    const overlay = document.getElementById('appOverlay');
-    document.getElementById('overlayAppName').textContent = APP_NAMES[appId] || appId;
-    overlay.style.animation = '';
-    overlay.classList.remove('hidden');
-    void overlay.offsetWidth;
-    overlay.style.animation = 'slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1)';
+
+    if (!DEVELOPED_APPS.includes(appId)) {
+        const overlay = document.getElementById('appOverlay');
+        document.getElementById('overlayAppName').textContent = APP_NAMES[appId] || appId;
+        overlay.style.animation = '';
+        overlay.classList.remove('hidden');
+        void overlay.offsetWidth;
+        overlay.style.animation = 'slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1)';
+    }
 }
 
 function closeApp() {

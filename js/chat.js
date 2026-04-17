@@ -1,10 +1,62 @@
-/* ═══════════════════════════════════════════════════════
-   chat.js  聊天 APP · 个人主页 · User 身份
-═══════════════════════════════════════════════════════ */
-'use strict';
+const ChatImgDB = (() => {
+    const DB_NAME = 'xxj_chat_img';
+    const DB_VER = 1;
+    const STORE = 'imgs';
+    let _db = null;
+
+    function open() {
+        if (_db) return Promise.resolve(_db);
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, DB_VER);
+            req.onupgradeneeded = e => {
+                e.target.result.createObjectStore(STORE);
+            };
+            req.onsuccess = e => { _db = e.target.result; resolve(_db); };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    function put(key, dataUrl) {
+        return open().then(db => new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE, 'readwrite');
+            const req = tx.objectStore(STORE).put(dataUrl, key);
+            req.onsuccess = () => resolve(true);
+            req.onerror = e => reject(e.target.error);
+        }));
+    }
+
+    function get(key) {
+        return open().then(db => new Promise((resolve, reject) => {
+            const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(key);
+            req.onsuccess = e => resolve(e.target.result || null);
+            req.onerror = e => reject(e.target.error);
+        }));
+    }
+
+    function del(key) {
+        return open().then(db => new Promise((resolve, reject) => {
+            const req = db.transaction(STORE, 'readwrite').objectStore(STORE).delete(key);
+            req.onsuccess = () => resolve();
+            req.onerror = e => reject(e.target.error);
+        }));
+    }
+
+    return { put, get, del };
+})();
 
 /* ════════════════════════════════
-   存储
+   读取文件为 DataURL（不压缩）
+════════════════════════════════ */
+function _chatReadFile(file) {
+    return new Promise(resolve => {
+        const r = new FileReader();
+        r.onload = e => resolve(e.target.result);
+        r.readAsDataURL(file);
+    });
+}
+
+/* ════════════════════════════════
+   存储层 — 文字走 localStorage，图片走 IndexedDB
 ════════════════════════════════ */
 const ChatStore = {
     PROFILE_KEY: 'xxj_chat_profile',
@@ -14,12 +66,15 @@ const ChatStore = {
     getProfile() {
         try {
             const v = localStorage.getItem(this.PROFILE_KEY);
-            return v ? JSON.parse(v) : { banner: null, avatar: null, nickname: '', bio: '' };
-        } catch { return { banner: null, avatar: null, nickname: '', bio: '' }; }
+            return v ? JSON.parse(v) : { nickname: '', bio: '' };
+        } catch { return { nickname: '', bio: '' }; }
     },
     saveProfile(d) {
-        try { localStorage.setItem(this.PROFILE_KEY, JSON.stringify(d)); } catch { }
+        /* profile 只存文字，不存图片 */
+        const slim = { nickname: d.nickname || '', bio: d.bio || '' };
+        try { localStorage.setItem(this.PROFILE_KEY, JSON.stringify(slim)); } catch { }
     },
+
     getUsers() {
         try {
             const v = localStorage.getItem(this.USERS_KEY);
@@ -27,11 +82,19 @@ const ChatStore = {
         } catch { return []; }
     },
     saveUsers(arr) {
-        try { localStorage.setItem(this.USERS_KEY, JSON.stringify(arr)); } catch { }
+        /* users 只存文字字段，头像图片单独存 IndexedDB */
+        const slim = arr.map(u => ({
+            id: u.id, name: u.name, gender: u.gender,
+            age: u.age, country: u.country, city: u.city,
+            bio: u.bio, createdAt: u.createdAt,
+            hasAvatar: !!u._avatarDirty || undefined   /* 内部标记，不持久化 */
+        }));
+        try { localStorage.setItem(this.USERS_KEY, JSON.stringify(slim)); } catch (err) {
+            console.warn('[ChatStore] saveUsers 失败:', err);
+        }
     },
-    getActiveId() {
-        return localStorage.getItem(this.ACTIVE_KEY) || null;
-    },
+
+    getActiveId() { return localStorage.getItem(this.ACTIVE_KEY) || null; },
     setActiveId(id) {
         if (id) localStorage.setItem(this.ACTIVE_KEY, id);
         else localStorage.removeItem(this.ACTIVE_KEY);
@@ -43,11 +106,12 @@ const ChatStore = {
 ════════════════════════════════ */
 function openChatApp() {
     const el = document.getElementById('chatApp');
+    if (!el) return;
     el.classList.remove('hidden');
     el.style.animation = '';
     void el.offsetWidth;
     el.style.animation = 'chatSlideIn 0.3s cubic-bezier(0.34,1.1,0.64,1)';
-    chatSwitchTab('profile');
+    chatSwitchTab('talk');
 }
 
 function closeChatApp() {
@@ -57,116 +121,118 @@ function closeChatApp() {
 }
 
 /* ════════════════════════════════
-   Tab 切换
+   个人主页渲染 — 异步读 IndexedDB 图片
 ════════════════════════════════ */
-function chatSwitchTab(tab) {
-    ['talk', 'feed', 'profile'].forEach(t => {
-        document.getElementById(`chatPanel-${t}`).classList.toggle('hidden', t !== tab);
-        document.getElementById(`chatDock-${t}`).classList.toggle('chat-dock-active', t === tab);
-    });
-    if (tab === 'profile') chatRenderProfile();
+async function chatRenderProfile() {
+    /* ── Banner（背景图，改为只操作 cpStripBg，不再依赖 cpBannerImg） ── */
+    const bannerPH = document.getElementById('cpBannerPH');
+    const stripBg = document.getElementById('cpStripBg');
+    const bannerData = await ChatImgDB.get('cp_banner').catch(() => null);
+    if (bannerData) {
+        if (stripBg) stripBg.style.backgroundImage = `url(${bannerData})`;
+        if (bannerPH) bannerPH.style.display = 'none';
+    } else {
+        if (stripBg) stripBg.style.backgroundImage = '';
+        if (bannerPH) bannerPH.style.display = 'flex';
+    }
+
+    /* ── 前方头像（独立） ── */
+    const avatarImg = document.getElementById('cpAvatarImg');
+    const avatarPH = document.getElementById('cpAvatarPH');
+    const avatarData = await ChatImgDB.get('cp_avatar').catch(() => null);
+    if (avatarData) {
+        avatarImg.src = avatarData;
+        avatarImg.style.display = 'block';
+        if (avatarPH) avatarPH.style.display = 'none';
+    } else {
+        avatarImg.style.display = 'none';
+        if (avatarPH) avatarPH.style.display = 'flex';
+    }
+
+    /* ── 后方头像（独立） ── */
+    const avatarBackImg = document.getElementById('cpAvatarBackImg');
+    const avatarBackPH = document.getElementById('cpAvatarBackPH');
+    const avatarBackData = await ChatImgDB.get('cp_avatar_back').catch(() => null);
+    if (avatarBackData && avatarBackImg) {
+        avatarBackImg.src = avatarBackData;
+        avatarBackImg.style.display = 'block';
+        if (avatarBackPH) avatarBackPH.style.display = 'none';
+    } else {
+        if (avatarBackImg) avatarBackImg.style.display = 'none';
+        if (avatarBackPH) avatarBackPH.style.display = 'flex';
+    }
 }
 
 /* ════════════════════════════════
-   个人主页渲染
+   个人主页 — 头像上传处理
 ════════════════════════════════ */
-function chatRenderProfile() {
-    const p = ChatStore.getProfile();
 
-    /* Banner */
-    const bannerImg = document.getElementById('cpBannerImg');
-    const bannerPH = document.getElementById('cpBannerPH');
-    if (p.banner) {
-        bannerImg.src = p.banner;
-        bannerImg.classList.remove('hidden');
-        bannerPH.classList.add('hidden');
-    } else {
-        bannerImg.classList.add('hidden');
-        bannerPH.classList.remove('hidden');
-    }
-
-    /* 头像 */
-    const avatarImg = document.getElementById('cpAvatarImg');
-    const avatarPH = document.getElementById('cpAvatarPH');
-    if (p.avatar) {
-        avatarImg.src = p.avatar;
-        avatarImg.classList.remove('hidden');
-        avatarPH.classList.add('hidden');
-    } else {
-        avatarImg.classList.add('hidden');
-        avatarPH.classList.remove('hidden');
-    }
-
-    /* 昵称 / 简介 */
-    const nn = document.getElementById('cpNickname');
-    const bio = document.getElementById('cpBio');
-    nn.textContent = p.nickname || '';
-    bio.textContent = p.bio || '';
-}
-
-/* ── Banner 上传 ── */
+/* Banner 上传（同时同步下方延伸条背景） */
 function cpTriggerBanner() {
-    document.getElementById('cpBannerInput').click();
+    document.getElementById('cpBannerInput')?.click();
 }
-function cpHandleBanner(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-        const p = ChatStore.getProfile();
-        p.banner = ev.target.result;
-        ChatStore.saveProfile(p);
-        chatRenderProfile();
-    };
-    reader.readAsDataURL(file);
+async function cpHandleBanner(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await _chatReadFile(file);
+    await ChatImgDB.put('cp_banner', dataUrl);
+    /* 只操作 stripBg，cpBannerImg 已不存在 */
+    const stripBg = document.getElementById('cpStripBg');
+    const ph = document.getElementById('cpBannerPH');
+    if (stripBg) stripBg.style.backgroundImage = `url(${dataUrl})`;
+    if (ph) ph.style.display = 'none';
     e.target.value = '';
 }
 
-/* ── 头像上传 ── */
+/* 前方头像 */
 function cpTriggerAvatar() {
-    document.getElementById('cpAvatarInput').click();
+    document.getElementById('cpAvatarInput')?.click();
 }
-function cpHandleAvatar(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-        const p = ChatStore.getProfile();
-        p.avatar = ev.target.result;
-        ChatStore.saveProfile(p);
-        chatRenderProfile();
-    };
-    reader.readAsDataURL(file);
+async function cpHandleAvatar(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await _chatReadFile(file);
+    await ChatImgDB.put('cp_avatar', dataUrl);
+    const img = document.getElementById('cpAvatarImg');
+    const ph = document.getElementById('cpAvatarPH');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    if (ph) { ph.style.display = 'none'; }
     e.target.value = '';
 }
 
-/* ── 昵称 / 简介 实时保存 ── */
-function cpBlurNickname() {
-    const p = ChatStore.getProfile();
-    p.nickname = document.getElementById('cpNickname').textContent.trim();
-    ChatStore.saveProfile(p);
+/* 后方头像 */
+function cpTriggerAvatarBack() {
+    document.getElementById('cpAvatarBackInput')?.click();
 }
-function cpBlurBio() {
-    const p = ChatStore.getProfile();
-    p.bio = document.getElementById('cpBio').textContent.trim();
-    ChatStore.saveProfile(p);
+async function cpHandleAvatarBack(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await _chatReadFile(file);
+    await ChatImgDB.put('cp_avatar_back', dataUrl);
+    const img = document.getElementById('cpAvatarBackImg');
+    const ph = document.getElementById('cpAvatarBackPH');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    if (ph) { ph.style.display = 'none'; }
+    e.target.value = '';
 }
 
 /* ════════════════════════════════
    User 身份 浮层
 ════════════════════════════════ */
-let cuEditingId = null;   // null = 新建
-let cuAvatarData = null;   // base64
+let cuEditingId = null;
+let cuAvatarData = null;   /* 当前选择的头像 DataURL（内存中） */
 let cuGender = '';
+let cuFormOpen = false;
 
 function openUserIdentity() {
-    cuEditingId = null;
-    cuAvatarData = null;
-    cuGender = '';
-    _cuResetForm();
+    cuEditingId = null; cuAvatarData = null; cuGender = ''; cuFormOpen = false;
     const sheet = document.getElementById('cuSheet');
+    if (!sheet) return;
     sheet.classList.remove('hidden');
     sheet.style.animation = '';
     void sheet.offsetWidth;
     sheet.style.animation = 'cuSlideIn 0.28s cubic-bezier(0.34,1.1,0.64,1)';
+    _cuSetFormVisible(false);
     cuRenderUserList();
 }
 
@@ -176,36 +242,59 @@ function closeUserIdentity() {
     setTimeout(() => { sheet.classList.add('hidden'); sheet.style.animation = ''; }, 220);
 }
 
+/* ── 显隐表单（全用 style.display，不碰 class） ── */
+function _cuSetFormVisible(show) {
+    cuFormOpen = show;
+    const fa = document.getElementById('cuFormArea');
+    if (fa) fa.style.display = show ? 'block' : 'none';
+    const btn = document.getElementById('cuAddBtn');
+    if (btn) btn.innerHTML = show
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+           </svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+           </svg>`;
+}
+
+function cuToggleForm() {
+    if (cuFormOpen) {
+        cuEditingId = null; cuAvatarData = null; cuGender = '';
+        _cuResetForm(); _cuSetFormVisible(false);
+    } else {
+        cuEditingId = null; cuAvatarData = null; cuGender = '';
+        _cuResetForm(); _cuSetFormVisible(true);
+        setTimeout(() => {
+            const sc = document.getElementById('cuScroll');
+            if (sc) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+        }, 80);
+    }
+}
+
 function _cuResetForm() {
-    cuAvatarData = null; cuGender = '';
     const img = document.getElementById('cuAvatarImg');
     const ph = document.getElementById('cuAvatarPH');
-    img.classList.add('hidden'); ph.classList.remove('hidden');
-    document.getElementById('cuAge').value = '';
-    document.getElementById('cuOriginCountry').value = '';
-    document.getElementById('cuOriginCity').value = '';
-    document.getElementById('cuBio').value = '';
+    if (img) { img.style.display = 'none'; img.src = ''; }
+    if (ph) ph.style.display = 'flex';
+    ['cuNickname', 'cuAge', 'cuBio'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const co = document.getElementById('cuOriginCountry');
+    const ci = document.getElementById('cuOriginCity');
+    if (co) co.value = ''; if (ci) ci.value = '';
     document.querySelectorAll('.cu-gender-btn').forEach(b => b.classList.remove('cu-gender-active'));
     cuUpdateCityOptions();
 }
 
-/* ── 头像 ── */
-function cuTriggerAvatar() {
-    document.getElementById('cuAvatarInput').click();
-}
-function cuHandleAvatar(e) {
+/* ── User 头像上传（不压缩，IndexedDB） ── */
+function cuTriggerAvatar() { document.getElementById('cuAvatarInput').click(); }
+async function cuHandleAvatar(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-        cuAvatarData = ev.target.result;
-        const img = document.getElementById('cuAvatarImg');
-        const ph = document.getElementById('cuAvatarPH');
-        img.src = cuAvatarData;
-        img.classList.remove('hidden');
-        ph.classList.add('hidden');
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+    cuAvatarData = await _chatReadFile(file);   /* 存内存，保存时写 DB */
+    const img = document.getElementById('cuAvatarImg');
+    const ph = document.getElementById('cuAvatarPH');
+    img.src = cuAvatarData; img.style.display = 'block'; ph.style.display = 'none';
 }
 
 /* ── 性别 ── */
@@ -215,7 +304,7 @@ function cuSetGender(g, btn) {
     btn.classList.add('cu-gender-active');
 }
 
-/* ── 出生地城市联动 ── */
+/* ── 城市联动 ── */
 const CU_CITIES = {
     '中国': ['北京', '上海', '广州', '深圳', '成都', '重庆', '杭州', '武汉', '南京', '西安', '天津', '苏州', '长沙', '郑州', '青岛', '厦门', '沈阳', '哈尔滨', '昆明', '大连', '宁波', '合肥', '济南', '福州', '兰州', '太原', '南宁', '贵阳', '乌鲁木齐', '拉萨', '呼和浩特', '海口', '三亚', '其他'],
     '日本': ['东京', '大阪', '京都', '横滨', '名古屋', '神户', '福冈', '札幌', '仙台', '广岛', '奈良', '长崎', '冲绳', '其他'],
@@ -244,91 +333,111 @@ const CU_CITIES = {
 };
 
 function cuUpdateCityOptions() {
-    const country = document.getElementById('cuOriginCountry').value;
-    const cityEl = document.getElementById('cuOriginCity');
-    const cities = CU_CITIES[country] || [];
-    cityEl.innerHTML = '<option value="">— 请选择城市 —</option>' +
+    const co = document.getElementById('cuOriginCountry');
+    const ci = document.getElementById('cuOriginCity');
+    if (!co || !ci) return;
+    const cities = CU_CITIES[co.value] || [];
+    ci.innerHTML = '<option value="">— 请选择城市 —</option>' +
         cities.map(c => `<option value="${c}">${c}</option>`).join('');
 }
 
-/* ── 保存 ── */
-function cuSaveUser() {
-    const name = document.getElementById('cuNickname').value.trim() ||
-        document.getElementById('cpNickname').textContent.trim() ||
-        '未命名';
-    const age = document.getElementById('cuAge').value.trim();
-    const country = document.getElementById('cuOriginCountry').value;
-    const city = document.getElementById('cuOriginCity').value;
-    const bio = document.getElementById('cuBio').value.trim();
+/* ── 保存用户 ── */
+async function cuSaveUser() {
+    const name = (document.getElementById('cuNickname')?.value.trim()) || '未命名';
+    const age = (document.getElementById('cuAge')?.value.trim()) || '';
+    const bio = (document.getElementById('cuBio')?.value.trim()) || '';
+    const country = document.getElementById('cuOriginCountry')?.value || '';
+    const city = document.getElementById('cuOriginCity')?.value || '';
 
     const users = ChatStore.getUsers();
 
     if (cuEditingId) {
+        /* ── 编辑已有 ── */
         const u = users.find(x => x.id === cuEditingId);
         if (u) {
             u.name = name; u.gender = cuGender;
-            u.age = age; u.country = country; u.city = city;
-            u.bio = bio;
-            if (cuAvatarData) u.avatar = cuAvatarData;
+            u.age = age; u.country = country; u.city = city; u.bio = bio;
+            if (cuAvatarData) {
+                await ChatImgDB.put('cu_avatar_' + u.id, cuAvatarData);
+            }
         }
     } else {
-        const u = {
-            id: 'u_' + Date.now(),
-            name, gender: cuGender,
-            age, country, city, bio,
-            avatar: cuAvatarData || null,
-            createdAt: Date.now()
-        };
+        /* ── 新建 ── */
+        const uid = 'u_' + Date.now();
+        const u = { id: uid, name, gender: cuGender, age, country, city, bio, createdAt: Date.now() };
         users.push(u);
-        /* 如果是第一个，自动激活 */
-        if (users.length === 1) ChatStore.setActiveId(u.id);
+        if (cuAvatarData) {
+            await ChatImgDB.put('cu_avatar_' + uid, cuAvatarData);
+        }
+        if (users.length === 1) ChatStore.setActiveId(uid);
     }
 
     ChatStore.saveUsers(users);
+
+    /* 重置表单状态 */
+    cuEditingId = null; cuAvatarData = null; cuGender = '';
     _cuResetForm();
-    cuEditingId = null;
-    cuRenderUserList();
-    _cuShowToast('保存成功');
+    _cuSetFormVisible(false);
+
+    /* 先渲染列表，再同步主页 */
+    await cuRenderUserList();
+    chatRenderProfile();
+    _cuShowToast('保存成功 ✓');
 }
 
+/* ── Toast ── */
 function _cuShowToast(msg) {
-    const t = document.getElementById('cuToast');
+    const t = document.getElementById('cuToast'); if (!t) return;
     t.textContent = msg;
     t.classList.add('cu-toast-show');
-    setTimeout(() => t.classList.remove('cu-toast-show'), 2000);
+    setTimeout(() => t.classList.remove('cu-toast-show'), 2200);
 }
 
-/* ── 渲染用户列表 ── */
-function cuRenderUserList() {
+/* ── 渲染用户列表（异步，需要从 IndexedDB 加载头像） ── */
+async function cuRenderUserList() {
     const users = ChatStore.getUsers();
     const activeId = ChatStore.getActiveId();
     const wrap = document.getElementById('cuUserList');
-    const emptyEl = document.getElementById('cuUserListEmpty');
-    const card = document.getElementById('cuListCard');
+    if (!wrap) return;
 
-    if (users.length === 0) {
-        card.classList.add('hidden');
-        return;
-    }
-    card.classList.remove('hidden');
-    emptyEl.classList.add('hidden');
-
+    /* 清除旧条目，保留 empty 节点 */
     Array.from(wrap.children).forEach(c => {
         if (c.id !== 'cuUserListEmpty') c.remove();
     });
 
-    users.forEach(u => {
+    const emptyEl = document.getElementById('cuUserListEmpty');
+
+    if (users.length === 0) {
+        if (emptyEl) emptyEl.style.display = 'block';
+        return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    for (const u of users) {
         const isActive = u.id === activeId;
+
+        /* 从 IndexedDB 读头像 */
+        const avatarData = await ChatImgDB.get('cu_avatar_' + u.id).catch(() => null);
+
+        const avatarHTML = avatarData
+            ? `<img src="${avatarData}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
+            : `<div class="cu-user-avatar-default">
+                   <svg viewBox="0 0 40 40" fill="none">
+                       <circle cx="20" cy="20" r="20" fill="#e4e4e2"/>
+                       <circle cx="20" cy="15" r="7" fill="#c8c8c5"/>
+                       <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/>
+                   </svg>
+               </div>`;
+
+        const sub = [
+            u.gender,
+            u.age ? u.age + '岁' : '',
+            [u.country, u.city].filter(Boolean).join(' · ')
+        ].filter(Boolean).join(' · ');
+
         const div = document.createElement('div');
         div.className = 'cu-user-item' + (isActive ? ' cu-user-active' : '');
         div.dataset.uid = u.id;
-
-        const avatarHTML = u.avatar
-            ? `<img src="${u.avatar}" alt="" />`
-            : `<div class="cu-user-avatar-default"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#e4e4e2"/><circle cx="20" cy="15" r="7" fill="#c8c8c5"/><ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/></svg></div>`;
-
-        const sub = [u.gender, u.age ? u.age + '岁' : '', [u.country, u.city].filter(Boolean).join(' · ')].filter(Boolean).join(' · ');
-
         div.innerHTML = `
             <div class="cu-user-avatar">${avatarHTML}</div>
             <div class="cu-user-info">
@@ -337,80 +446,1432 @@ function cuRenderUserList() {
             </div>
             ${isActive ? '<span class="cu-active-badge">当前</span>' : ''}
             <div class="cu-user-actions">
-                <button class="cu-user-switch" onclick="event.stopPropagation();cuSwitchUser('${u.id}')">${isActive ? '已启用' : '切换'}</button>
-                <button class="cu-user-del" onclick="event.stopPropagation();cuDeleteUser('${u.id}')" title="删除">
+                <button class="cu-user-switch"
+                    onclick="event.stopPropagation();cuSwitchUser('${u.id}')">
+                    ${isActive ? '已启用' : '切换'}
+                </button>
+                <button class="cu-user-del"
+                    onclick="event.stopPropagation();cuDeleteUser('${u.id}')" title="删除">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
                         <path d="M10 11v6M14 11v6"/>
                     </svg>
                 </button>
-            </div>
-        `;
+            </div>`;
         div.addEventListener('click', () => cuEditUser(u.id));
         wrap.appendChild(div);
-    });
+    }
 }
 
 /* ── 切换激活用户 ── */
 function cuSwitchUser(uid) {
     ChatStore.setActiveId(uid);
     cuRenderUserList();
-    _cuShowToast('已切换身份');
+    chatRenderProfile();
+    _cuShowToast('已切换身份 ✓');
 }
 
 /* ── 删除用户 ── */
-function cuDeleteUser(uid) {
+async function cuDeleteUser(uid) {
     if (!confirm('确定删除该身份？')) return;
-    let users = ChatStore.getUsers();
-    users = users.filter(u => u.id !== uid);
+    await ChatImgDB.del('cu_avatar_' + uid).catch(() => { });
+    let users = ChatStore.getUsers().filter(u => u.id !== uid);
     ChatStore.saveUsers(users);
     if (ChatStore.getActiveId() === uid) {
         ChatStore.setActiveId(users.length ? users[0].id : null);
     }
     cuRenderUserList();
+    chatRenderProfile();
 }
 
 /* ── 编辑用户 ── */
-function cuEditUser(uid) {
-    const users = ChatStore.getUsers();
-    const u = users.find(x => x.id === uid);
+async function cuEditUser(uid) {
+    const u = ChatStore.getUsers().find(x => x.id === uid);
     if (!u) return;
+
     cuEditingId = uid;
-    cuAvatarData = u.avatar || null;
     cuGender = u.gender || '';
 
-    /* 填充头像 */
+    /* 从 IndexedDB 读头像 */
+    cuAvatarData = await ChatImgDB.get('cu_avatar_' + uid).catch(() => null);
     const img = document.getElementById('cuAvatarImg');
     const ph = document.getElementById('cuAvatarPH');
-    if (u.avatar) { img.src = u.avatar; img.classList.remove('hidden'); ph.classList.add('hidden'); }
-    else { img.classList.add('hidden'); ph.classList.remove('hidden'); }
+    if (cuAvatarData) {
+        img.src = cuAvatarData; img.style.display = 'block'; ph.style.display = 'none';
+    } else {
+        img.style.display = 'none'; ph.style.display = 'flex';
+    }
 
-    /* 填充字段 */
     document.getElementById('cuNickname').value = u.name || '';
     document.getElementById('cuAge').value = u.age || '';
     document.getElementById('cuBio').value = u.bio || '';
-
-    /* 性别 */
+    document.getElementById('cuOriginCountry').value = u.country || '';
+    cuUpdateCityOptions();
+    document.getElementById('cuOriginCity').value = u.city || '';
     document.querySelectorAll('.cu-gender-btn').forEach(b => {
         b.classList.toggle('cu-gender-active', b.dataset.gender === cuGender);
     });
 
-    /* 国家 → 城市联动 */
-    document.getElementById('cuOriginCountry').value = u.country || '';
-    cuUpdateCityOptions();
-    document.getElementById('cuOriginCity').value = u.city || '';
-
-    /* 滚动到表单顶部 */
-    document.getElementById('cuScroll').scrollTo({ top: 0, behavior: 'smooth' });
+    _cuSetFormVisible(true);
+    setTimeout(() => {
+        const sc = document.getElementById('cuScroll');
+        if (sc) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+    }, 80);
 }
 
-/* ── 工具 ── */
+/* ── HTML 转义 ── */
 function _cuEsc(str) {
     return String(str || '')
         .replace(/&/g, '&amp;').replace(/</g, '&lt;')
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/* ── 姓名输入框（复用个人主页昵称或独立） ── */
-/* 保存时优先取 cuNickname 输入 */
+/* ═══════════════════════════════════════════════════════
+   对话面板 (Talk) — 分组 · 创建角色 · 会话列表
+═══════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────
+   数据层：分组 & 角色
+──────────────────────────────── */
+const TalkStore = {
+    GROUPS_KEY: 'xxj_talk_groups',
+    CHARS_KEY: 'xxj_talk_chars',
+    CONVS_KEY: 'xxj_talk_convs',
+
+    /* 分组：[{id, name}]  "default" 为内置全部 */
+    getGroups() {
+        try { return JSON.parse(localStorage.getItem(this.GROUPS_KEY)) || []; }
+        catch { return []; }
+    },
+    saveGroups(arr) {
+        try {
+            localStorage.setItem(this.GROUPS_KEY, JSON.stringify(arr));
+        } catch (e) {
+            console.error('[TalkStore] saveGroups 失败:', e);
+        }
+    },
+
+    /* 角色：[{id, name, nickname, gender, groupId, country, city, detail, voiceId, voiceEnabled, createdAt}] */
+    getChars() {
+        try { return JSON.parse(localStorage.getItem(this.CHARS_KEY)) || []; }
+        catch { return []; }
+    },
+    saveChars(arr) {
+        try {
+            localStorage.setItem(this.CHARS_KEY, JSON.stringify(arr));
+        } catch (e) {
+            console.error('[TalkStore] saveChars 失败，存储可能已满:', e);
+            /* 尝试清理旧的图片残留 key，释放空间后重试 */
+            try {
+                const toDelete = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('_idb_')) toDelete.push(k);
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+                localStorage.setItem(this.CHARS_KEY, JSON.stringify(arr));
+                console.log('[TalkStore] 清理旧图片 key 后重试 saveChars 成功');
+            } catch (e2) {
+                console.error('[TalkStore] 清理后仍失败:', e2);
+                alert('存储空间不足，角色保存失败！\n请按 F12 打开控制台查看详情。');
+            }
+        }
+    },
+
+    /* 会话：[{id, charId, lastMsg, lastTime, unread}] */
+    getConvs() {
+        try { return JSON.parse(localStorage.getItem(this.CONVS_KEY)) || []; }
+        catch { return []; }
+    },
+    saveConvs(arr) {
+        try {
+            localStorage.setItem(this.CONVS_KEY, JSON.stringify(arr));
+        } catch (e) {
+            console.error('[TalkStore] saveConvs 失败:', e);
+        }
+    }
+};
+
+/* ────────────────────────────────
+   当前激活分组
+──────────────────────────────── */
+let _talkActiveGroup = 'default';
+
+/* ────────────────────────────────
+   Tab 切换时初始化对话面板
+──────────────────────────────── */
+function chatSwitchTab(tab) {
+    ['talk', 'feed', 'profile'].forEach(t => {
+        const panel = document.getElementById(`chatPanel-${t}`);
+        const dock = document.getElementById(`chatDock-${t}`);
+        if (panel) panel.classList.toggle('hidden', t !== tab);
+        if (dock) dock.classList.toggle('chat-dock-active', t === tab);
+    });
+    // 顶栏加号按钮：只在 talk 面板显示
+    const addBtn = document.getElementById('talkTopbarAddBtn');
+    const addPH = document.getElementById('talkTopbarAddPlaceholder');
+    if (addBtn && addPH) {
+        addBtn.style.display = (tab === 'talk') ? 'flex' : 'none';
+        addPH.style.display = (tab === 'talk') ? 'none' : 'block';
+    }
+    if (tab === 'profile') chatRenderProfile();
+    if (tab === 'talk') talkInit();
+}
+
+/* ────────────────────────────────
+   初始化对话面板
+──────────────────────────────── */
+function talkInit() {
+    talkRenderGroupBar();
+    talkRenderConvList();
+    talkRenderUserCard();
+}
+
+/* ────────────────────────────────
+   渲染分组胶囊
+──────────────────────────────── */
+function talkRenderGroupBar() {
+    const scroll = document.getElementById('talkGroupScroll');
+    if (!scroll) return;
+
+    /* 清除旧胶囊（保留加号按钮） */
+    Array.from(scroll.children).forEach(c => {
+        if (!c.classList.contains('talk-group-add')) c.remove();
+    });
+
+    const addBtn = scroll.querySelector('.talk-group-add');
+
+    /* 全部胶囊 */
+    const allPill = _makePill('default', '全部', _talkActiveGroup === 'default');
+    scroll.insertBefore(allPill, addBtn);
+
+    /* 用户自定义分组 */
+    TalkStore.getGroups().forEach(g => {
+        scroll.insertBefore(_makePill(g.id, g.name, _talkActiveGroup === g.id), addBtn);
+    });
+}
+
+function _makePill(gid, name, active) {
+    const btn = document.createElement('button');
+    btn.className = 'talk-group-pill' + (active ? ' talk-group-active' : '');
+    btn.dataset.gid = gid;
+    btn.textContent = name;
+    btn.onclick = () => talkSwitchGroup(gid, btn);
+    return btn;
+}
+
+/* ────────────────────────────────
+   切换分组
+──────────────────────────────── */
+function talkSwitchGroup(gid, btn) {
+    _talkActiveGroup = gid;
+    document.querySelectorAll('.talk-group-pill').forEach(p => {
+        p.classList.toggle('talk-group-active', p.dataset.gid === gid);
+    });
+    talkRenderConvList();
+}
+
+/* ────────────────────────────────
+   新增分组
+──────────────────────────────── */
+function talkAddGroup() {
+    const name = prompt('请输入分组名称：');
+    if (!name || !name.trim()) return;
+    const groups = TalkStore.getGroups();
+    const gid = 'g_' + Date.now();
+    groups.push({ id: gid, name: name.trim() });
+    TalkStore.saveGroups(groups);
+    talkRenderGroupBar();
+    talkSwitchGroup(gid, null);
+}
+
+/* ────────────────────────────────
+   渲染会话列表
+──────────────────────────────── */
+async function talkRenderConvList() {
+    const listEl = document.getElementById('talkList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const chars = TalkStore.getChars();
+    const convs = TalkStore.getConvs();
+
+    /* 过滤当前分组 */
+    let filteredChars = chars;
+    if (_talkActiveGroup !== 'default') {
+        filteredChars = chars.filter(c => c.groupId === _talkActiveGroup);
+    }
+
+    if (filteredChars.length === 0) {
+        listEl.innerHTML = `
+            <div class="talk-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                </svg>
+                <span>暂无对话，点击右上角 + 创建</span>
+            </div>`;
+        return;
+    }
+
+    /* ── 构建所有条目 DOM ── */
+    const items = [];
+    for (const char of filteredChars) {
+        const conv = convs.find(c => c.charId === char.id) || null;
+        const avData = await ChatImgDB.get('char_avatar_' + char.id).catch(() => null);
+
+        const avatarHTML = avData
+            ? `<img src="${avData}" alt=""/>`
+            : `<div class="talk-conv-avatar-default">
+                   <svg viewBox="0 0 40 40" fill="none">
+                       <circle cx="20" cy="20" r="20" fill="#e4e4e2"/>
+                       <circle cx="20" cy="15" r="7" fill="#c8c8c5"/>
+                       <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/>
+                   </svg>
+               </div>`;
+
+        const lastMsg = conv ? conv.lastMsg : '开始聊天吧…';
+        const lastTime = conv ? _talkFmtTime(conv.lastTime) : '';
+
+        const item = document.createElement('div');
+        item.className = 'talk-conv-item';
+        item.dataset.charId = char.id;
+        item.innerHTML = `
+            <div class="talk-conv-avatar">${avatarHTML}</div>
+            <div class="talk-conv-info">
+                <div class="talk-conv-name">${_cuEsc(char.name)}</div>
+                <div class="talk-conv-last">${_cuEsc(lastMsg)}</div>
+            </div>
+            <div class="talk-conv-meta">
+                <span class="talk-conv-time">${lastTime}</span>
+            </div>`;
+        item.addEventListener('click', () => talkOpenConv(char.id));
+        items.push(item);
+    }
+
+    /* ── 按 2-3-2-3… 分组，每组包进圆角卡片 ── */
+    const pattern = [2, 3];
+    let idx = 0, patIdx = 0;
+    while (idx < items.length) {
+        const groupSize = pattern[patIdx % pattern.length];
+        const group = document.createElement('div');
+        group.className = 'talk-conv-group';
+        const slice = items.slice(idx, idx + groupSize);
+        slice.forEach(item => group.appendChild(item));
+        listEl.appendChild(group);
+        idx += groupSize;
+        patIdx++;
+    }
+}
+
+function _talkFmtTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts), now = new Date();
+    if (d.toDateString() === now.toDateString()) {
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    }
+    return (d.getMonth() + 1) + '/' + d.getDate();
+}
+
+/* ────────────────────────────────
+   顶栏加号菜单 开/关
+──────────────────────────────── */
+function talkToggleFabMenu() {
+    const menu = document.getElementById('talkFabMenu');
+    if (!menu) return;
+    menu.classList.toggle('hidden');
+}
+
+function talkCloseFabMenu() {
+    document.getElementById('talkFabMenu')?.classList.add('hidden');
+}
+
+/* ────────────────────────────────
+   打开 / 关闭「创建角色」浮层
+──────────────────────────────── */
+let _charAvatarData = null;
+let _charGender = '';
+
+function talkOpenCreateChar() {
+    talkCloseFabMenu();
+    _charAvatarData = null; _charGender = ''; _charLinkedUserId = '';
+    _charResetForm();
+    _charRefreshMinimaxStatus();
+    _charFillGroupSelect();
+    _charFillUserPick();
+    const sheet = document.getElementById('charCreateSheet');
+    if (sheet) sheet.classList.remove('hidden');
+}
+
+function talkCloseCreateChar() {
+    document.getElementById('charCreateSheet')?.classList.add('hidden');
+}
+
+function talkOpenCreateGroup() {
+    talkCloseFabMenu();
+    document.getElementById('groupCreateSheet')?.classList.remove('hidden');
+}
+
+function talkCloseCreateGroup() {
+    document.getElementById('groupCreateSheet')?.classList.add('hidden');
+}
+
+/* ── 重置创建角色表单 ── */
+function _charResetForm() {
+    const img = document.getElementById('charAvatarImg');
+    const ph = document.getElementById('charAvatarPH');
+    if (img) { img.style.display = 'none'; img.src = ''; }
+    if (ph) ph.style.display = 'flex';
+    ['charName', 'charNickname', 'charVoiceId'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const det = document.getElementById('charDetail'); if (det) det.value = '';
+    const ve = document.getElementById('charVoiceEnabled'); if (ve) ve.checked = false;
+    document.querySelectorAll('#charCreateSheet .cu-gender-btn')
+        .forEach(b => b.classList.remove('cu-gender-active'));
+    const cc = document.getElementById('charCountry'); if (cc) cc.value = '';
+    charUpdateCityOptions();
+    _charGender = '';
+}
+
+/* ── 填充分组选择 ── */
+function _charFillGroupSelect() {
+    const sel = document.getElementById('charGroupSelect');
+    if (!sel) return;
+    const groups = TalkStore.getGroups();
+    sel.innerHTML = '<option value="default">全部（无分组）</option>' +
+        groups.map(g => `<option value="${g.id}">${_cuEsc(g.name)}</option>`).join('');
+    /* 默认选中当前激活分组 */
+    if (_talkActiveGroup !== 'default') sel.value = _talkActiveGroup;
+}
+
+/* ── MiniMax 状态显示 ── */
+function _charRefreshMinimaxStatus() {
+    const el = document.getElementById('charMinimaxStatus');
+    if (!el) return;
+    const key = localStorage.getItem('xxj_minimax_key') || '';
+    const gid = localStorage.getItem('xxj_minimax_group') || '';
+    const vid = localStorage.getItem('xxj_minimax_voice') || '';
+    if (key) {
+        el.className = 'char-minimax-status ok';
+        el.textContent = `✓ API 已配置，可直接对话${(key && gid) ? `（语音：${vid || '未启用'}）` : '（未配置语音，对话仍可用）'}`;
+    } else {
+        el.className = 'char-minimax-status err';
+        el.textContent = '⚠ 未配置 API Key，请前往 设置 → API 设置 填写（语音可选，不填仍可对话）';
+    }
+}
+
+/* ── 头像 ── */
+function charTriggerAvatar() {
+    document.getElementById('charAvatarInput')?.click();
+}
+async function charHandleAvatar(e) {
+    const file = e.target.files[0]; if (!file) return;
+    e.target.value = '';
+    _charAvatarData = await _chatReadFile(file);
+    const img = document.getElementById('charAvatarImg');
+    const ph = document.getElementById('charAvatarPH');
+    img.src = _charAvatarData; img.style.display = 'block'; ph.style.display = 'none';
+}
+
+/* ── 性别 ── */
+function charSetGender(g, btn) {
+    _charGender = g;
+    document.querySelectorAll('#charCreateSheet .cu-gender-btn')
+        .forEach(b => b.classList.remove('cu-gender-active'));
+    btn.classList.add('cu-gender-active');
+}
+
+/* ── 城市联动（复用 CU_CITIES） ── */
+function charUpdateCityOptions() {
+    const co = document.getElementById('charCountry');
+    const ci = document.getElementById('charCity');
+    if (!co || !ci) return;
+    const cities = CU_CITIES[co.value] || [];
+    ci.innerHTML = '<option value="">— 请选择城市 —</option>' +
+        cities.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+/* ── 保存创建角色 ── */
+async function charSaveCreate() {
+    const name = document.getElementById('charName')?.value.trim();
+    if (!name) { alert('请填写角色姓名'); return; }
+
+    const cid = 'ch_' + Date.now();
+    const char = {
+        id: cid,
+        name: name,
+        nickname: document.getElementById('charNickname')?.value.trim() || '',
+        gender: _charGender,
+        groupId: document.getElementById('charGroupSelect')?.value || 'default',
+        country: document.getElementById('charCountry')?.value || '',
+        city: document.getElementById('charCity')?.value || '',
+        detail: document.getElementById('charDetail')?.value.trim() || '',
+        voiceId: document.getElementById('charVoiceId')?.value.trim() || '',
+        voiceEnabled: document.getElementById('charVoiceEnabled')?.checked || false,
+        linkedUserId: _charLinkedUserId || '',
+        createdAt: Date.now()
+    };
+
+    /* 存头像 */
+    if (_charAvatarData) {
+        await ChatImgDB.put('char_avatar_' + cid, _charAvatarData);
+    }
+
+    /* 存角色 */
+    const chars = TalkStore.getChars();
+    chars.push(char);
+    TalkStore.saveChars(chars);
+
+    /* 创建会话条目 */
+    const convs = TalkStore.getConvs();
+    convs.unshift({ id: 'cv_' + Date.now(), charId: cid, lastMsg: '', lastTime: Date.now(), unread: 0 });
+    TalkStore.saveConvs(convs);
+
+    /* 关闭浮层，切换到对应分组，刷新列表 */
+    talkCloseCreateChar();
+    _charResetForm();                     /* 顺手重置表单 */
+    _talkActiveGroup = char.groupId || 'default';
+    talkRenderGroupBar();
+    await talkRenderConvList();           /* 直接 await，无需延迟 */
+
+    _cuShowToast('角色已创建 ✓');
+}
+
+/* ── 打开对话 ── */
+async function talkOpenConv(charId) {
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+
+    _talkActiveCharId = charId;
+
+    /* 顶栏：char 名称 + 地区 */
+    const nameEl = document.getElementById('tcpCharName');
+    const locEl = document.getElementById('tcpCharLoc');
+    if (nameEl) nameEl.textContent = char.name || '';
+    if (locEl) locEl.textContent = [char.country, char.city].filter(Boolean).join(' · ');
+
+    /* char 头像 */
+    const charAvImg = document.getElementById('tcpCharAvImg');
+    const charAvPH = document.querySelector('#tcpCharAv .tcp-av-ph');
+    const charAvData = await ChatImgDB.get('char_avatar_' + charId).catch(() => null);
+    if (charAvData && charAvImg) {
+        charAvImg.src = charAvData;
+        charAvImg.classList.remove('hidden');
+        if (charAvPH) charAvPH.style.display = 'none';
+    } else {
+        if (charAvImg) charAvImg.classList.add('hidden');
+        if (charAvPH) charAvPH.style.display = 'flex';
+    }
+
+    /* user 头像：优先 char.linkedUserId，否则全局 activeUser */
+    const users = ChatStore.getUsers();
+    const activeId = ChatStore.getActiveId();
+    const uid = char.linkedUserId || activeId;
+    const userAvImg = document.getElementById('tcpUserAvImg');
+    const userAvPH = document.querySelector('#tcpUserAv .tcp-av-ph');
+    const userAvData = uid
+        ? await ChatImgDB.get('cu_avatar_' + uid).catch(() => null)
+        : null;
+    if (userAvData && userAvImg) {
+        userAvImg.src = userAvData;
+        userAvImg.classList.remove('hidden');
+        if (userAvPH) userAvPH.style.display = 'none';
+    } else {
+        if (userAvImg) userAvImg.classList.add('hidden');
+        if (userAvPH) userAvPH.style.display = 'flex';
+    }
+
+    /* 渲染历史消息 */
+    _tcpRenderMessages(charId);
+
+    /* 打开页面 */
+    const page = document.getElementById('talkConvPage');
+    if (page) page.classList.remove('hidden');
+}
+
+let _talkActiveCharId = null;
+
+function talkCloseConv() {
+    document.getElementById('talkConvPage')?.classList.add('hidden');
+    _talkActiveCharId = null;
+}
+
+/* ── 消息存储键 ── */
+function _tcpMsgsKey(charId) { return 'xxj_msgs_' + charId; }
+
+function _tcpGetMsgs(charId) {
+    try { return JSON.parse(localStorage.getItem(_tcpMsgsKey(charId))) || []; }
+    catch { return []; }
+}
+
+function _tcpSaveMsgs(charId, arr) {
+    try { localStorage.setItem(_tcpMsgsKey(charId), JSON.stringify(arr)); } catch { }
+}
+
+/* ── 渲染消息 ── */
+async function _tcpRenderMessages(charId) {
+    const box = document.getElementById('tcpMessages');
+    if (!box) return;
+    box.innerHTML = '';
+
+    const msgs = _tcpGetMsgs(charId);
+    const charAvData = await ChatImgDB.get('char_avatar_' + charId).catch(() => null);
+
+    const avHTML = charAvData
+        ? `<div class="tcp-bubble-av"><img src="${charAvData}" alt=""/></div>`
+        : `<div class="tcp-bubble-av"><svg viewBox="0 0 40 40" fill="none">
+               <circle cx="20" cy="20" r="20" fill="#e4e4e2"/>
+               <circle cx="20" cy="15" r="7" fill="#c8c8c5"/>
+               <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/>
+           </svg></div>`;
+
+    /* 多选模式状态 */
+    if (!box._multiSelect) box._multiSelect = false;
+
+    msgs.forEach((m, i) => {
+        /* 撤回消息：显示通知行 */
+        if (m.recalled) {
+            const recallEl = document.createElement('div');
+            recallEl.className = 'tcp-recall-notice';
+            const charName = (() => { try { return TalkStore.getChars().find(c => c.id === charId)?.name || '对方'; } catch { return '对方'; } })();
+            recallEl.textContent = m.role === 'user' ? '你撤回了一条消息' : `${charName}撤回了一条消息`;
+            recallEl.dataset.msgIndex = i;
+            box.appendChild(recallEl);
+            return;
+        }
+
+        /* 引用消息：构建引用块 HTML */
+        let quoteHTML = '';
+        if (m.quoteIndex !== undefined && msgs[m.quoteIndex]) {
+            const qm = msgs[m.quoteIndex];
+            const charName = (() => { try { return TalkStore.getChars().find(c => c.id === charId)?.name || '对方'; } catch { return '对方'; } })();
+            const qSender = qm.role === 'user' ? '你' : charName;
+            quoteHTML = `<div class="tcp-quote-block" data-qi="${m.quoteIndex}">
+                <span class="tcp-quote-sender">${_cuEsc(qSender)}</span>
+                <span class="tcp-quote-text">${_cuEsc(qm.text.slice(0, 40))}${qm.text.length > 40 ? '…' : ''}</span>
+            </div>`;
+        }
+
+        const wrap = document.createElement('div');
+        const isChar = m.role === 'char';
+        const prevIsChar = i > 0 && msgs[i - 1]?.role === 'char' && !msgs[i - 1]?.recalled;
+        const nextIsChar = i < msgs.length - 1 && msgs[i + 1]?.role === 'char' && !msgs[i + 1]?.recalled;
+
+        if (isChar) {
+            wrap.className = 'tcp-bubble-wrap char' + (prevIsChar ? ' tcp-no-av' : '');
+            const showTime = !nextIsChar;
+            wrap.innerHTML = avHTML +
+                `<div class="tcp-bubble" data-index="${i}">${quoteHTML}${_cuEsc(m.text)}</div>` +
+                (showTime ? `<span class="tcp-bubble-time">${_tcpFmtTime(m.ts)}</span>` : '');
+        } else {
+            wrap.className = 'tcp-bubble-wrap user';
+            wrap.innerHTML =
+                `<span class="tcp-bubble-time">${_tcpFmtTime(m.ts)}</span>
+                 <div class="tcp-bubble" data-index="${i}">${quoteHTML}${_cuEsc(m.text)}</div>`;
+        }
+
+        /* 气泡点击 → 弹出横排菜单 */
+        const bubble = wrap.querySelector('.tcp-bubble');
+        bubble.addEventListener('click', e => {
+            e.stopPropagation();
+            if (box._multiSelect) {
+                _tcpToggleSelect(wrap, i);
+                return;
+            }
+            _tcpShowBubbleMenu(bubble, i, m.role, charId, msgs);
+        });
+
+        /* 多选勾选框（默认隐藏） */
+        const chk = document.createElement('div');
+        chk.className = 'tcp-multisel-chk';
+        chk.dataset.index = i;
+        wrap.appendChild(chk);
+
+        box.appendChild(wrap);
+    });
+
+    /* 多选工具栏 */
+    _tcpRenderMultiBar(charId);
+
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30);
+}
+
+/* ── 横排气泡菜单 ── */
+function _tcpShowBubbleMenu(bubble, index, role, charId, msgs) {
+    /* 先移除旧菜单 */
+    document.getElementById('tcpBubbleMenu')?.remove();
+
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    const charName = char?.name || '对方';
+    const isUser = role === 'user';
+
+    const menu = document.createElement('div');
+    menu.id = 'tcpBubbleMenu';
+    menu.className = 'tcp-bubble-menu' + (isUser ? ' tcp-bubble-menu-user' : ' tcp-bubble-menu-char');
+
+    const actions = [
+        { label: '重回', icon: '↩', show: role === 'char', fn: () => _tcpRegret(index, charId) },
+        { label: '编辑', icon: '✏', show: true, fn: () => _tcpEditMsg(index, charId) },
+        { label: '收藏', icon: '☆', show: true, fn: () => _tcpFavorite(index, charId, msgs) },
+        { label: '撤回', icon: '⊘', show: true, fn: () => _tcpRecall(index, charId, charName, role) },
+        { label: '引用', icon: '❝', show: true, fn: () => _tcpQuote(index, charId) },
+        { label: '删除', icon: '✕', show: true, fn: () => _tcpDeleteMsg(index, charId) },
+        { label: '多选', icon: '☑', show: true, fn: () => _tcpEnterMultiSelect(charId) },
+    ];
+
+    actions.filter(a => a.show).forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = 'tcp-bmenu-btn';
+        btn.innerHTML = `<span class="tcp-bmenu-icon">${a.icon}</span><span class="tcp-bmenu-label">${a.label}</span>`;
+        btn.onclick = e => { e.stopPropagation(); menu.remove(); a.fn(); };
+        menu.appendChild(btn);
+    });
+
+    /* ── 挂到消息容器上，用绝对定位悬浮在气泡正上方 ── */
+    const box = document.getElementById('tcpMessages');
+    if (!box) return;
+    /* tcpMessages 需要 position:relative，样式已加 */
+    box.appendChild(menu);
+
+    /* 计算气泡的位置，将菜单定位到气泡正上方 */
+    requestAnimationFrame(() => {
+        const bubbleRect = bubble.getBoundingClientRect();
+        const boxRect = box.getBoundingClientRect();
+        const menuW = menu.offsetWidth;
+        const menuH = menu.offsetHeight;
+
+        /* 垂直：气泡顶部上方 8px */
+        let top = bubbleRect.top - boxRect.top + box.scrollTop - menuH - 8;
+        if (top < box.scrollTop + 4) top = bubbleRect.bottom - boxRect.top + box.scrollTop + 8; /* 若顶部空间不足改到气泡下方 */
+
+        /* 水平：user气泡右对齐菜单右边；char气泡左对齐菜单左边 */
+        let left;
+        if (isUser) {
+            left = bubbleRect.right - boxRect.left - menuW;
+        } else {
+            left = bubbleRect.left - boxRect.left;
+        }
+        /* 防止超出左右边界 */
+        const maxLeft = boxRect.width - menuW - 4;
+        left = Math.max(4, Math.min(left, maxLeft));
+
+        menu.style.top = top + 'px';
+        menu.style.left = left + 'px';
+    });
+
+    /* 点击其他区域关闭 */
+    setTimeout(() => {
+        document.addEventListener('click', function _close() {
+            menu.remove();
+            document.removeEventListener('click', _close);
+        }, { once: true });
+    }, 10);
+}
+
+/* ── 重回（重新生成，支持风格提示） ── */
+function _tcpRegret(index, charId) {
+    const styleHint = prompt('重回期望风格（可不填，直接确认）\n例如：温柔一点、主动一些、更简短', '');
+    if (styleHint === null) return; /* 取消 */
+
+    const msgs = _tcpGetMsgs(charId);
+    /* 删除从 index 开始往后所有 char 的连续消息（本次AI回复组） */
+    let end = index;
+    while (end < msgs.length && msgs[end].role === 'char') end++;
+    msgs.splice(index, end - index);
+    _tcpSaveMsgs(charId, msgs);
+
+    /* 触发重新生成，携带风格提示 */
+    _tcpContinueWithStyle(charId, styleHint.trim());
+}
+
+async function _tcpContinueWithStyle(charId, styleHint) {
+    if (_tcpIsGenerating) return;
+
+    let apiKey = '', apiUrl = '', apiModel = '';
+    if (typeof getActiveModel === 'function') {
+        const m = getActiveModel();
+        if (m && m.key && m.url && m.model) {
+            apiKey = m.key;
+            apiUrl = m.url.replace(/\/$/, '') + '/chat/completions';
+            apiModel = m.model;
+        }
+    }
+    if (!apiKey) return;
+
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+
+    const users = ChatStore.getUsers();
+    const activeId = ChatStore.getActiveId();
+    const uid = char.linkedUserId || activeId;
+    const user = users.find(u => u.id === uid) || null;
+
+    const msgs = _tcpGetMsgs(charId);
+
+    _tcpIsGenerating = true;
+    _tcpShowTyping();
+
+    try {
+        const history = msgs.slice(-20).map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.text
+        }));
+
+        let systemPrompt = _tcpBuildSystemPrompt(char, user);
+        if (styleHint) {
+            systemPrompt += `\n\n【本次风格要求】在不OOC、严格符合人设的前提下，请尽量做到：${styleHint}`;
+        }
+
+        const resp = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({ model: apiModel, messages: [{ role: 'system', content: systemPrompt }, ...history], temperature: 0.9, top_p: 0.95, max_tokens: 2000 })
+        });
+
+        if (!resp.ok) throw new Error(`API错误 ${resp.status}: ${await resp.text()}`);
+        const data = await resp.json();
+        const rawText = data?.choices?.[0]?.message?.content || '';
+        if (!rawText) throw new Error('API返回空内容');
+
+        const parts = rawText.split(/\n?---\n?/).map(s => s.trim()).filter(s => s.length > 0);
+        const now = Date.now();
+        const storedMsgs = _tcpGetMsgs(charId);
+        parts.forEach((text, i) => storedMsgs.push({ role: 'char', text, ts: now + i * 300 }));
+        _tcpSaveMsgs(charId, storedMsgs);
+
+        const convs = TalkStore.getConvs();
+        const conv = convs.find(c => c.charId === charId);
+        if (conv) { conv.lastMsg = parts[parts.length - 1]; conv.lastTime = now + (parts.length - 1) * 300; }
+        TalkStore.saveConvs(convs);
+
+    } catch (err) {
+        console.error('[重回]', err);
+        const storedMsgs = _tcpGetMsgs(charId);
+        storedMsgs.push({ role: 'char', text: `（回复失败：${err.message}）`, ts: Date.now() });
+        _tcpSaveMsgs(charId, storedMsgs);
+    } finally {
+        _tcpIsGenerating = false;
+        _tcpHideTyping();
+        _tcpRenderMessages(charId);
+    }
+}
+
+/* ── 编辑消息 ── */
+function _tcpEditMsg(index, charId) {
+    const msgs = _tcpGetMsgs(charId);
+    const m = msgs[index];
+    if (!m) return;
+    const newText = prompt('编辑消息内容：', m.text);
+    if (newText === null) return;
+    if (newText.trim() === '') return;
+    msgs[index].text = newText.trim();
+    msgs[index].edited = true;
+    _tcpSaveMsgs(charId, msgs);
+    _tcpRenderMessages(charId);
+}
+
+/* ── 收藏消息（存入个人主页收藏板块） ── */
+function _tcpFavorite(index, charId, msgs) {
+    const m = msgs[index];
+    if (!m) return;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    const charName = char?.name || '对方';
+
+    const favKey = 'xxj_chat_favorites';
+    let favs = [];
+    try { favs = JSON.parse(localStorage.getItem(favKey) || '[]'); } catch { }
+
+    const item = {
+        id: Date.now() + '_' + Math.random().toString(36).slice(2),
+        charId, charName,
+        role: m.role,
+        text: m.text,
+        ts: m.ts,
+        savedAt: Date.now()
+    };
+    favs.unshift(item);
+    try { localStorage.setItem(favKey, JSON.stringify(favs)); } catch { }
+
+    /* 视觉反馈 */
+    const box = document.getElementById('tcpMessages');
+    const bubble = box?.querySelector(`.tcp-bubble[data-index="${index}"]`);
+    if (bubble) {
+        bubble.classList.add('tcp-bubble-faved');
+        setTimeout(() => bubble.classList.remove('tcp-bubble-faved'), 1200);
+    }
+}
+
+/* ── 撤回消息 ── */
+function _tcpRecall(index, charId, charName, role) {
+    const msgs = _tcpGetMsgs(charId);
+    if (!msgs[index]) return;
+    msgs[index].recalled = true;
+    _tcpSaveMsgs(charId, msgs);
+    _tcpRenderMessages(charId);
+}
+
+/* ── 引用消息 ── */
+function _tcpQuote(index, charId) {
+    /* 在输入框上方显示引用预览，发送时附带 quoteIndex */
+    const msgs = _tcpGetMsgs(charId);
+    const m = msgs[index];
+    if (!m) return;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    const sender = m.role === 'user' ? '你' : (char?.name || '对方');
+
+    /* 移除旧引用 */
+    document.getElementById('tcpQuoteBar')?.remove();
+
+    const bar = document.createElement('div');
+    bar.id = 'tcpQuoteBar';
+    bar.className = 'tcp-quote-bar';
+    bar.dataset.quoteIndex = index;
+    bar.innerHTML = `
+        <div class="tcp-quote-bar-inner">
+            <span class="tcp-quote-bar-sender">${_cuEsc(sender)}</span>
+            <span class="tcp-quote-bar-text">${_cuEsc(m.text.slice(0, 60))}${m.text.length > 60 ? '…' : ''}</span>
+        </div>
+        <button class="tcp-quote-bar-close" onclick="document.getElementById('tcpQuoteBar')?.remove()">✕</button>`;
+
+    const bottom = document.querySelector('.tcp-bottom');
+    if (bottom) bottom.insertBefore(bar, bottom.firstChild);
+}
+
+/* ── 删除消息 ── */
+function _tcpDeleteMsg(index, charId) {
+    if (!confirm('确认删除这条消息？')) return;
+    const msgs = _tcpGetMsgs(charId);
+    msgs.splice(index, 1);
+    _tcpSaveMsgs(charId, msgs);
+    _tcpRenderMessages(charId);
+}
+
+/* ── 多选模式 ── */
+function _tcpEnterMultiSelect(charId) {
+    const box = document.getElementById('tcpMessages');
+    if (!box) return;
+    box._multiSelect = true;
+    box._multiSelected = new Set();
+    box.classList.add('tcp-multisel-mode');
+    _tcpRenderMessages(charId);
+}
+
+function _tcpToggleSelect(wrap, index) {
+    const box = document.getElementById('tcpMessages');
+    const sel = box._multiSelected;
+    if (sel.has(index)) { sel.delete(index); wrap.classList.remove('tcp-multisel-on'); }
+    else { sel.add(index); wrap.classList.add('tcp-multisel-on'); }
+    const bar = document.getElementById('tcpMultiBar');
+    if (bar) bar.querySelector('.tcp-multibar-count').textContent = `已选 ${sel.size} 条`;
+}
+
+function _tcpRenderMultiBar(charId) {
+    document.getElementById('tcpMultiBar')?.remove();
+    const box = document.getElementById('tcpMessages');
+    if (!box?._multiSelect) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'tcpMultiBar';
+    bar.className = 'tcp-multibar';
+    bar.innerHTML = `
+        <button class="tcp-multibar-cancel" onclick="_tcpExitMultiSelect('${charId}')">取消</button>
+        <span class="tcp-multibar-count">已选 0 条</span>
+        <button class="tcp-multibar-del" onclick="_tcpMultiDelete('${charId}')">删除</button>`;
+    document.querySelector('.tcp-bottom')?.insertAdjacentElement('beforebegin', bar);
+}
+
+function _tcpExitMultiSelect(charId) {
+    const box = document.getElementById('tcpMessages');
+    if (box) { box._multiSelect = false; box._multiSelected = new Set(); box.classList.remove('tcp-multisel-mode'); }
+    document.getElementById('tcpMultiBar')?.remove();
+    _tcpRenderMessages(charId);
+}
+
+function _tcpMultiDelete(charId) {
+    const box = document.getElementById('tcpMessages');
+    const sel = box?._multiSelected;
+    if (!sel || sel.size === 0) return;
+    if (!confirm(`确认删除选中的 ${sel.size} 条消息？`)) return;
+    const msgs = _tcpGetMsgs(charId);
+    const indices = Array.from(sel).sort((a, b) => b - a); /* 从后往前删，保持index正确 */
+    indices.forEach(i => msgs.splice(i, 1));
+    _tcpSaveMsgs(charId, msgs);
+    box._multiSelect = false;
+    box._multiSelected = new Set();
+    box.classList.remove('tcp-multisel-mode');
+    document.getElementById('tcpMultiBar')?.remove();
+    _tcpRenderMessages(charId);
+}
+
+function _tcpFmtTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+}
+
+/* ════════════════════════════════
+   发送消息（只存消息，不触发AI）
+════════════════════════════════ */
+function talkConvSend() {
+    const input = document.getElementById('tcpInput');
+    if (!input || !_talkActiveCharId) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    const msgs = _tcpGetMsgs(_talkActiveCharId);
+    const newMsg = { role: 'user', text, ts: Date.now() };
+
+    /* 携带引用 */
+    const quoteBar = document.getElementById('tcpQuoteBar');
+    if (quoteBar) {
+        const qi = parseInt(quoteBar.dataset.quoteIndex);
+        if (!isNaN(qi)) newMsg.quoteIndex = qi;
+        quoteBar.remove();
+    }
+
+    msgs.push(newMsg);
+    _tcpSaveMsgs(_talkActiveCharId, msgs);
+
+    const convs = TalkStore.getConvs();
+    const conv = convs.find(c => c.charId === _talkActiveCharId);
+    if (conv) { conv.lastMsg = text; conv.lastTime = Date.now(); }
+    TalkStore.saveConvs(convs);
+
+    input.value = '';
+    tcpAutoResize(input);
+    _tcpRenderMessages(_talkActiveCharId);
+}
+
+/* ── 输入框自动伸缩 ── */
+function tcpAutoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+/* ── Enter 只发送，不触发AI ── */
+function tcpKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        talkConvSend();
+    }
+}
+
+function talkConvTool() { /* 工具栏占位 */ }
+function talkConvEmoji() { /* 表情占位 */ }
+function talkConvSettings() { /* 设置占位 */ }
+
+/* ════════════════════════════════
+   构建 char 系统提示（读取人设+user信息）
+════════════════════════════════ */
+function _tcpBuildSystemPrompt(char, user) {
+    const charDetail = char.detail || '';
+    const charName = char.name || '角色';
+    const charNickname = char.nickname || '';
+    const charGender = char.gender || '';
+    const charLoc = [char.country, char.city].filter(Boolean).join(' · ');
+
+    let userDesc = '';
+    if (user) {
+        const parts = [];
+        if (user.name) parts.push(`名字：${user.name}`);
+        if (user.gender) parts.push(`性别：${user.gender}`);
+        if (user.age) parts.push(`年龄：${user.age}`);
+        const userLoc = [user.country, user.city].filter(Boolean).join(' · ');
+        if (userLoc) parts.push(`地区：${userLoc}`);
+        if (user.bio) parts.push(`简介：${user.bio}`);
+        userDesc = parts.join('，');
+    }
+
+    return `你现在扮演角色「${charName}」，请严格遵守以下设定进行回复，绝对不得出戏（OOC）。
+
+【角色基本信息】
+姓名：${charName}${charNickname ? `（昵称：${charNickname}）` : ''}
+性别：${charGender || '不明'}
+地区：${charLoc || '不明'}
+
+【角色详细设定】
+${charDetail || '（无详细设定，根据姓名和基本信息自由发挥）'}
+
+【对话对象（User）信息】
+${userDesc || '（无具体信息）'}
+
+【回复规则】
+1. 严格遵守角色人设，包括口癖、口头禅、说话习惯、性格、背景等所有设定内容。
+2. 不得以任何形式暴露"我是AI"或跳出角色。
+3. 回复风格、用语、语气必须符合角色设定。
+4. 回复内容用"---"分隔成多条短消息（每条对应一个气泡），每条不超过50字，自然分段，就像真实聊天一样。不要只有一条长消息。
+5. 分隔数量根据内容自然决定，通常2~4条，不要强行凑数。
+6. 只输出角色说的话，不要描述动作，不要加括号说明。`;
+}
+
+/* ════════════════════════════════
+   续写键 — 消耗API，思考一次，多条气泡回复
+════════════════════════════════ */
+let _tcpIsGenerating = false;
+
+async function talkConvContinue() {
+    if (!_talkActiveCharId || _tcpIsGenerating) return;
+
+    /* ── 优先读取通用 API 配置（settings.js 的 getActiveModel）── */
+    let apiKey = '', apiUrl = '', apiModel = '';
+    if (typeof getActiveModel === 'function') {
+        const m = getActiveModel();
+        if (m && m.key && m.url && m.model) {
+            apiKey = m.key;
+            /* ⚠️ 必须拼接 /chat/completions，与 testModel 保持一致 */
+            apiUrl = m.url.replace(/\/$/, '') + '/chat/completions';
+            apiModel = m.model;
+        }
+    }
+
+    /* 通用 API 未配置 → 静默返回，不弹框，不尝试 MiniMax */
+    if (!apiKey) return;
+
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === _talkActiveCharId);
+    if (!char) return;
+
+    /* 获取关联 user 信息 */
+    const users = ChatStore.getUsers();
+    const activeId = ChatStore.getActiveId();
+    const uid = char.linkedUserId || activeId;
+    const user = users.find(u => u.id === uid) || null;
+
+    const msgs = _tcpGetMsgs(_talkActiveCharId);
+    if (msgs.length === 0) {
+        alert('还没有任何消息，请先发送消息再续写');
+        return;
+    }
+
+    /* ── 防重复，标记生成中 ── */
+    _tcpIsGenerating = true;
+    _tcpShowTyping();
+
+    try {
+        /* 构建消息历史（最近20条，避免token过多） */
+        const history = msgs.slice(-20).map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.text
+        }));
+
+        const systemPrompt = _tcpBuildSystemPrompt(char, user);
+
+        /* ── 调用 API（兼容 OpenAI 格式 + MiniMax） ── */
+        const resp = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: apiModel,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    ...history
+                ],
+                temperature: 0.9,
+                top_p: 0.95,
+                max_tokens: 2000
+            })
+        });
+
+        if (!resp.ok) {
+            const errText = await resp.text();
+            throw new Error(`API错误 ${resp.status}: ${errText}`);
+        }
+
+        const data = await resp.json();
+        const rawText = data?.choices?.[0]?.message?.content || '';
+        if (!rawText) throw new Error('API返回空内容');
+
+        /* ── 按 "---" 拆分成多条气泡 ── */
+        const parts = rawText
+            .split(/\n?---\n?/)
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+
+        /* ── 依次存入消息 ── */
+        const now = Date.now();
+        const storedMsgs = _tcpGetMsgs(_talkActiveCharId);
+        parts.forEach((text, i) => {
+            storedMsgs.push({ role: 'char', text, ts: now + i * 300 });
+        });
+        _tcpSaveMsgs(_talkActiveCharId, storedMsgs);
+
+        /* 更新会话列表 */
+        const convs = TalkStore.getConvs();
+        const conv = convs.find(c => c.charId === _talkActiveCharId);
+        if (conv) {
+            conv.lastMsg = parts[parts.length - 1];
+            conv.lastTime = now + (parts.length - 1) * 300;
+        }
+        TalkStore.saveConvs(convs);
+
+    } catch (err) {
+        console.error('[续写]', err);
+        const storedMsgs = _tcpGetMsgs(_talkActiveCharId);
+        storedMsgs.push({ role: 'char', text: `（回复失败：${err.message}）`, ts: Date.now() });
+        _tcpSaveMsgs(_talkActiveCharId, storedMsgs);
+    } finally {
+        _tcpIsGenerating = false;
+        _tcpHideTyping();
+        _tcpRenderMessages(_talkActiveCharId);
+    }
+}
+
+/* ── 思考中 loading 气泡 ── */
+function _tcpShowTyping() {
+    const box = document.getElementById('tcpMessages');
+    if (!box) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'tcp-typing-wrap';
+    wrap.id = 'tcpTypingWrap';
+
+    /* 先用默认头像占位，再异步替换为真实头像（与气泡渲染逻辑一致） */
+    const defaultAvSVG = `<svg viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="20" fill="#e4e4e2"/>
+        <circle cx="20" cy="15" r="7" fill="#c8c8c5"/>
+        <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/>
+    </svg>`;
+
+    wrap.innerHTML = `
+        <div class="tcp-bubble-av" id="tcpTypingAv">${defaultAvSVG}</div>
+        <div class="tcp-typing-bubble">
+            <div class="tcp-typing-dot"></div>
+            <div class="tcp-typing-dot"></div>
+            <div class="tcp-typing-dot"></div>
+        </div>`;
+    box.appendChild(wrap);
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 30);
+
+    /* 异步加载真实头像，加载完成后替换（wrap 可能已被 hide 移除，需判断） */
+    if (_talkActiveCharId) {
+        ChatImgDB.get('char_avatar_' + _talkActiveCharId).then(data => {
+            if (!data) return;
+            const avEl = document.getElementById('tcpTypingAv');
+            if (avEl) avEl.innerHTML = `<img src="${data}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+        }).catch(() => { });
+    }
+}
+
+function _tcpHideTyping() {
+    document.getElementById('tcpTypingWrap')?.remove();
+}
+
+/* ── 关联 User 身份选择 ── */
+let _charLinkedUserId = '';
+
+async function _charFillUserPick() {
+    const wrap = document.getElementById('charUserPickList');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    const users = ChatStore.getUsers();
+    const activeId = ChatStore.getActiveId();
+
+    if (users.length === 0) {
+        wrap.innerHTML = '<div class="char-user-pick-empty">暂无 User 身份，请先创建</div>';
+        return;
+    }
+
+    /* 默认选中当前激活 user */
+    _charLinkedUserId = activeId || (users[0]?.id || '');
+
+    for (const u of users) {
+        const avData = await ChatImgDB.get('cu_avatar_' + u.id).catch(() => null);
+        const avHTML = avData
+            ? `<img src="${avData}" alt=""/>`
+            : `<svg viewBox="0 0 40 40" fill="none">
+                   <circle cx="20" cy="20" r="20" fill="#e4e4e2"/>
+                   <circle cx="20" cy="15" r="7" fill="#c8c8c5"/>
+                   <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5"/>
+               </svg>`;
+        const isActive = u.id === _charLinkedUserId;
+        const sub = [u.gender, u.country, u.city].filter(Boolean).join(' · ');
+
+        const btn = document.createElement('button');
+        btn.className = 'char-user-pick-item' + (isActive ? ' selected' : '');
+        btn.dataset.uid = u.id;
+        btn.innerHTML = `
+            <div class="char-user-pick-av">${avHTML}</div>
+            <div class="char-user-pick-info">
+                <div class="char-user-pick-name">${_cuEsc(u.name)}</div>
+                ${sub ? `<div class="char-user-pick-sub">${_cuEsc(sub)}</div>` : ''}
+            </div>
+            <div class="char-user-pick-check"></div>`;
+        btn.addEventListener('click', () => {
+            _charLinkedUserId = u.id;
+            wrap.querySelectorAll('.char-user-pick-item').forEach(b =>
+                b.classList.toggle('selected', b.dataset.uid === u.id)
+            );
+        });
+        wrap.appendChild(btn);
+    }
+}
+
+/* ════════════════════════════════
+   对话面板 — 顶部用户身份卡片渲染
+   同步：头像、昵称、个人主页简介
+════════════════════════════════ */
+async function talkRenderUserCard() {
+    const users = ChatStore.getUsers();
+    const activeId = ChatStore.getActiveId();
+    const activeU = users.find(u => u.id === activeId) || null;
+    const profile = ChatStore.getProfile();
+
+    /* ── 头像 ── */
+    const img = document.getElementById('tucAvatarImg');
+    const ph = document.getElementById('tucAvatarPH');
+    let avData = null;
+    if (activeU) {
+        avData = await ChatImgDB.get('cu_avatar_' + activeU.id).catch(() => null);
+    }
+    if (!avData) {
+        avData = await ChatImgDB.get('cp_avatar').catch(() => null);
+    }
+    if (avData && img) {
+        img.src = avData;
+        img.classList.remove('hidden');
+        if (ph) ph.style.display = 'none';
+    } else {
+        if (img) img.classList.add('hidden');
+        if (ph) ph.style.display = 'flex';
+    }
+
+    /* ── 大横幅图片（WeChat风顶部左侧图） ── */
+    const bannerImg = document.getElementById('tucBannerImg');
+    const bannerPH = document.getElementById('tucBannerPH');
+    const bannerData = await ChatImgDB.get('tuc_banner').catch(() => null);
+    if (bannerData && bannerImg) {
+        bannerImg.src = bannerData;
+        bannerImg.style.display = 'block';
+        if (bannerPH) bannerPH.style.display = 'none';
+    } else {
+        if (bannerImg) bannerImg.style.display = 'none';
+        if (bannerPH) bannerPH.style.display = 'flex';
+    }
+
+    /* ── 4张相册图片（Live 实况） ── */
+    for (let i = 0; i < 4; i++) {
+        const imgEl = document.getElementById(`tucPhoto${i}`);
+        const phEl = document.getElementById(`tucPhotoPH${i}`);
+        const liveTag = document.getElementById(`tucLiveTag${i}`);
+        const data = await ChatImgDB.get(`tuc_photo_${i}`).catch(() => null);
+        const isLive = localStorage.getItem(`tuc_photo_live_${i}`) === '1';
+        if (data && imgEl) {
+            imgEl.src = data;
+            imgEl.style.display = 'block';
+            if (phEl) phEl.style.display = 'none';
+        } else {
+            if (imgEl) imgEl.style.display = 'none';
+            if (phEl) phEl.style.display = 'flex';
+        }
+        if (liveTag) liveTag.style.display = isLive ? 'flex' : 'none';
+    }
+
+    /* ── 右侧文字信息 ── */
+    const nameEl = document.getElementById('tucName');
+    if (nameEl && document.activeElement !== nameEl) {
+        nameEl.textContent = (activeU && activeU.name) ? activeU.name : '未设置身份';
+    }
+    const bioEl = document.getElementById('tucBio');
+    if (bioEl && document.activeElement !== bioEl) {
+        bioEl.textContent = profile.bio || '';
+    }
+    /* ── 右侧可编辑标语 ── */
+    const mottoEl = document.getElementById('tucMotto');
+    if (mottoEl && document.activeElement !== mottoEl) {
+        mottoEl.textContent = localStorage.getItem('tuc_motto') || '';
+    }
+}
+
+/* ── 顶部横幅图上传 ── */
+function tucTriggerBanner() { document.getElementById('tucBannerInput').click(); }
+async function tucHandleBanner(e) {
+    const file = e.target.files[0]; if (!file) return;
+    e.target.value = '';
+    const data = await _chatReadFile(file);
+    await ChatImgDB.put('tuc_banner', data);
+    talkRenderUserCard();
+}
+
+/* ── 4张相册图片上传 ── */
+function tucTriggerPhoto(i) { document.getElementById('tucPhotoInput' + i).click(); }
+async function tucHandlePhoto(e, i) {
+    const file = e.target.files[0]; if (!file) return;
+    e.target.value = '';
+    const data = await _chatReadFile(file);
+    await ChatImgDB.put('tuc_photo_' + i, data);
+    talkRenderUserCard();
+}
+
+/* ── 切换 Live 标记 ── */
+function tucToggleLive(i, e) {
+    e.stopPropagation();
+    const cur = localStorage.getItem('tuc_photo_live_' + i) === '1';
+    localStorage.setItem('tuc_photo_live_' + i, cur ? '0' : '1');
+    talkRenderUserCard();
+}
+
+/* ── 右侧标语失焦保存 ── */
+function tucSaveMotto() {
+    const el = document.getElementById('tucMotto');
+    if (el) localStorage.setItem('tuc_motto', el.textContent.trim());
+}
+
+/* ════════════════════════════════
+   个人主页收藏板块
+════════════════════════════════ */
+function cpOpenFavorites() {
+    /* 创建全屏收藏页覆盖 */
+    document.getElementById('cpFavPage')?.remove();
+    const page = document.createElement('div');
+    page.id = 'cpFavPage';
+    page.className = 'cp-fav-page';
+
+    const favKey = 'xxj_chat_favorites';
+    let favs = [];
+    try { favs = JSON.parse(localStorage.getItem(favKey) || '[]'); } catch { }
+
+    const listHTML = favs.length === 0
+        ? '<div class="cp-fav-empty">暂无收藏</div>'
+        : favs.map(f => `
+            <div class="cp-fav-item" data-id="${f.id}">
+                <div class="cp-fav-meta">
+                    <span class="cp-fav-char">${_cuEsc(f.charName)}</span>
+                    <span class="cp-fav-role">${f.role === 'user' ? '我说' : '对方说'}</span>
+                    <span class="cp-fav-time">${new Date(f.savedAt).toLocaleDateString()}</span>
+                    <button class="cp-fav-del" onclick="_cpDelFav('${f.id}')">✕</button>
+                </div>
+                <div class="cp-fav-text">${_cuEsc(f.text)}</div>
+            </div>`).join('');
+
+    page.innerHTML = `
+        <div class="cp-fav-topbar">
+            <button class="cp-fav-back" onclick="document.getElementById('cpFavPage')?.remove()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <span class="cp-fav-title">收藏</span>
+        </div>
+        <div class="cp-fav-list">${listHTML}</div>`;
+
+    document.getElementById('chatPanel-profile')?.appendChild(page);
+}
+
+function _cpDelFav(id) {
+    if (!confirm('确认删除该收藏？')) return;
+    const favKey = 'xxj_chat_favorites';
+    let favs = [];
+    try { favs = JSON.parse(localStorage.getItem(favKey) || '[]'); } catch { }
+    favs = favs.filter(f => f.id !== id);
+    try { localStorage.setItem(favKey, JSON.stringify(favs)); } catch { }
+    cpOpenFavorites(); /* 刷新 */
+}

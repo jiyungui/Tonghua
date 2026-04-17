@@ -1921,25 +1921,422 @@
         <div class="chat-app hidden" id="chatApp">
 
             <!-- 顶栏 -->
-            <div class="chat-topbar">
-                <button class="chat-close" onclick="closeChatApp()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                </button>
-                <span class="chat-topbar-title">聊天</span>
-                <div style="width:32px"></div>
+            <div class="chat-topbar" id="chatTopbar">
+                <div class="chat-topbar-left">
+                    <button class="chat-close" onclick="closeChatApp()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <span class="chat-topbar-title">Messages</span>
+                </div>
+                <div class="chat-topbar-right">
+                    <button class="talk-topbar-add" id="talkTopbarAddBtn" onclick="talkToggleFabMenu()"
+                        style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </button>
+                    <div id="talkTopbarAddPlaceholder" style="width:32px"></div>
+                </div>
             </div>
 
             <!-- 内容体 -->
             <div class="chat-body">
 
-                <!-- 对话面板（占位） -->
+                <!-- 对话面板 -->
                 <div class="chat-panel hidden" id="chatPanel-talk">
-                    <div
-                        style="display:flex;align-items:center;justify-content:center;height:100%;color:#bbb;font-size:14px;">
-                        对话功能即将开放
+
+                    <!-- 卡片①-B：4张拍立得照片，横排各自独立悬浮 -->
+                    <div class="tuc-photos-card" id="tucPhotosCard">
+
+                        <!-- 拍立得 0 -->
+                        <div class="tuc-photo-cell" id="tucPhotoCell0" onclick="tucTriggerPhoto(0)">
+                            <div class="tuc-photo-ph" id="tucPhotoPH0">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                            </div>
+                            <img id="tucPhoto0" style="display:none" alt="" />
+                            <div class="tuc-live-tag" id="tucLiveTag0" onclick="tucToggleLive(0,event)">
+                                <svg viewBox="0 0 10 10" fill="currentColor" width="8" height="8">
+                                    <circle cx="5" cy="5" r="4" />
+                                </svg>
+                                LIVE
+                            </div>
+                            <div class="tuc-photo-overlay"></div>
+                        </div>
+                        <input type="file" id="tucPhotoInput0" accept="image/*" class="hidden"
+                            onchange="tucHandlePhoto(event,0)" />
+
+                        <!-- 拍立得 1 -->
+                        <div class="tuc-photo-cell" id="tucPhotoCell1" onclick="tucTriggerPhoto(1)">
+                            <div class="tuc-photo-ph" id="tucPhotoPH1">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                            </div>
+                            <img id="tucPhoto1" style="display:none" alt="" />
+                            <div class="tuc-live-tag" id="tucLiveTag1" onclick="tucToggleLive(1,event)">
+                                <svg viewBox="0 0 10 10" fill="currentColor" width="8" height="8">
+                                    <circle cx="5" cy="5" r="4" />
+                                </svg>
+                                LIVE
+                            </div>
+                            <div class="tuc-photo-overlay"></div>
+                        </div>
+                        <input type="file" id="tucPhotoInput1" accept="image/*" class="hidden"
+                            onchange="tucHandlePhoto(event,1)" />
+
+                        <!-- 拍立得 2 -->
+                        <div class="tuc-photo-cell" id="tucPhotoCell2" onclick="tucTriggerPhoto(2)">
+                            <div class="tuc-photo-ph" id="tucPhotoPH2">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                            </div>
+                            <img id="tucPhoto2" style="display:none" alt="" />
+                            <div class="tuc-live-tag" id="tucLiveTag2" onclick="tucToggleLive(2,event)">
+                                <svg viewBox="0 0 10 10" fill="currentColor" width="8" height="8">
+                                    <circle cx="5" cy="5" r="4" />
+                                </svg>
+                                LIVE
+                            </div>
+                            <div class="tuc-photo-overlay"></div>
+                        </div>
+                        <input type="file" id="tucPhotoInput2" accept="image/*" class="hidden"
+                            onchange="tucHandlePhoto(event,2)" />
+
+                        <!-- 拍立得 3 -->
+                        <div class="tuc-photo-cell" id="tucPhotoCell3" onclick="tucTriggerPhoto(3)">
+                            <div class="tuc-photo-ph" id="tucPhotoPH3">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <path d="M21 15l-5-5L5 21" />
+                                </svg>
+                            </div>
+                            <img id="tucPhoto3" style="display:none" alt="" />
+                            <div class="tuc-live-tag" id="tucLiveTag3" onclick="tucToggleLive(3,event)">
+                                <svg viewBox="0 0 10 10" fill="currentColor" width="8" height="8">
+                                    <circle cx="5" cy="5" r="4" />
+                                </svg>
+                                LIVE
+                            </div>
+                            <div class="tuc-photo-overlay"></div>
+                        </div>
+                        <input type="file" id="tucPhotoInput3" accept="image/*" class="hidden"
+                            onchange="tucHandlePhoto(event,3)" />
+
                     </div>
+
+                    <!-- 分组胶囊栏 -->
+                    <div class="talk-group-bar" id="talkGroupBar">
+                        <div class="talk-group-scroll" id="talkGroupScroll">
+                            <button class="talk-group-pill talk-group-active" data-gid="default"
+                                onclick="talkSwitchGroup('default',this)">全部</button>
+                            <!-- 动态分组胶囊由 JS 注入 -->
+                            <button class="talk-group-add" onclick="talkAddGroup()" title="新建分组">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 会话列表 -->
+                    <div class="talk-list" id="talkList"></div>
+
+                    <!-- 创建菜单浮层 -->
+                    <div class="talk-fab-menu hidden" id="talkFabMenu">
+                        <div class="talk-fab-backdrop" onclick="talkCloseFabMenu()"></div>
+                        <div class="talk-fab-panel">
+                            <button class="talk-fab-item" onclick="talkOpenCreateChar()">
+                                <div class="talk-fab-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <circle cx="12" cy="8" r="4" />
+                                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                        <line x1="19" y1="3" x2="19" y2="7" />
+                                        <line x1="17" y1="5" x2="21" y2="5" />
+                                    </svg>
+                                </div>
+                                <span>创建角色</span>
+                            </button>
+                            <button class="talk-fab-item" onclick="talkOpenCreateGroup()">
+                                <div class="talk-fab-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <circle cx="9" cy="8" r="3" />
+                                        <circle cx="16" cy="8" r="3" />
+                                        <path d="M2 20c0-3.3 3.1-6 7-6 1.3 0 2.5.3 3.5.9" />
+                                        <path d="M16 14c3.9 0 7 2.7 7 6" />
+                                        <line x1="19" y1="3" x2="19" y2="7" />
+                                        <line x1="17" y1="5" x2="21" y2="5" />
+                                    </svg>
+                                </div>
+                                <span>创建群聊</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 创建角色 浮层 -->
+                    <div class="talk-sheet hidden" id="charCreateSheet">
+                        <div class="talk-sheet-topbar">
+                            <button class="talk-sheet-back" onclick="talkCloseCreateChar()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+                            </button>
+                            <span class="talk-sheet-title">创建角色</span>
+                            <div style="width:32px"></div>
+                        </div>
+                        <div class="talk-sheet-scroll" id="charCreateScroll">
+
+                            <!-- 头像 -->
+                            <div class="cu-avatar-row">
+                                <div class="cu-avatar-pick" onclick="charTriggerAvatar()">
+                                    <div class="cu-avatar-pick-default" id="charAvatarPH">
+                                        <svg viewBox="0 0 40 40" fill="none">
+                                            <circle cx="20" cy="20" r="20" fill="#e4e4e2" />
+                                            <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
+                                            <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
+                                        </svg>
+                                    </div>
+                                    <img style="display:none;width:100%;height:100%;object-fit:cover;"
+                                        id="charAvatarImg" alt="avatar" />
+                                    <div class="cu-avatar-pick-tip">换图</div>
+                                </div>
+                                <input type="file" id="charAvatarInput" accept="image/*" class="hidden"
+                                    onchange="charHandleAvatar(event)" />
+                            </div>
+
+                            <!-- 基本信息 -->
+                            <div class="cu-card">
+                                <div class="cu-card-title">基本信息</div>
+                                <div class="cu-field">
+                                    <label class="cu-label">姓名 *</label>
+                                    <input class="cu-input" id="charName" type="text" placeholder="角色姓名" />
+                                </div>
+                                <div class="cu-field">
+                                    <label class="cu-label">昵称 / 小名 / 绰号</label>
+                                    <input class="cu-input" id="charNickname" type="text"
+                                        placeholder="其他称呼（可多个，逗号分隔）" />
+                                </div>
+                                <div class="cu-field">
+                                    <label class="cu-label">性别</label>
+                                    <div class="cu-gender-row">
+                                        <button class="cu-gender-btn" data-gender="女"
+                                            onclick="charSetGender('女',this)">女</button>
+                                        <button class="cu-gender-btn" data-gender="男"
+                                            onclick="charSetGender('男',this)">男</button>
+                                        <button class="cu-gender-btn" data-gender="不透露"
+                                            onclick="charSetGender('不透露',this)">不透露</button>
+                                    </div>
+                                </div>
+                                <div class="cu-field">
+                                    <label class="cu-label">所属分组</label>
+                                    <select class="cu-select" id="charGroupSelect">
+                                        <!-- 由 JS 动态注入 -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 国籍 / 出生地 -->
+                            <div class="cu-card">
+                                <div class="cu-card-title">国籍 / 出生地</div>
+                                <div class="cu-field">
+                                    <label class="cu-label">国家 / 地区</label>
+                                    <select class="cu-select" id="charCountry" onchange="charUpdateCityOptions()">
+                                        <option value="">— 请选择国家 —</option>
+                                        <option value="中国">中国</option>
+                                        <option value="日本">日本</option>
+                                        <option value="韩国">韩国</option>
+                                        <option value="美国">美国</option>
+                                        <option value="英国">英国</option>
+                                        <option value="法国">法国</option>
+                                        <option value="德国">德国</option>
+                                        <option value="意大利">意大利</option>
+                                        <option value="西班牙">西班牙</option>
+                                        <option value="澳大利亚">澳大利亚</option>
+                                        <option value="加拿大">加拿大</option>
+                                        <option value="新加坡">新加坡</option>
+                                        <option value="泰国">泰国</option>
+                                        <option value="越南">越南</option>
+                                        <option value="马来西亚">马来西亚</option>
+                                        <option value="印度">印度</option>
+                                        <option value="巴西">巴西</option>
+                                        <option value="阿根廷">阿根廷</option>
+                                        <option value="俄罗斯">俄罗斯</option>
+                                        <option value="土耳其">土耳其</option>
+                                        <option value="埃及">埃及</option>
+                                        <option value="南非">南非</option>
+                                        <option value="墨西哥">墨西哥</option>
+                                        <option value="其他国家/地区">其他国家/地区</option>
+                                    </select>
+                                </div>
+                                <div class="cu-field">
+                                    <label class="cu-label">城市</label>
+                                    <select class="cu-select" id="charCity">
+                                        <option value="">— 请先选择国家 —</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 详细内容 -->
+                            <div class="cu-card">
+                                <div class="cu-card-title">详细内容</div>
+                                <div class="cu-field">
+                                    <label class="cu-label">角色描述 / 性格 / 背景</label>
+                                    <textarea class="cu-textarea" id="charDetail" rows="6"
+                                        placeholder="描述角色的性格、背景故事、说话风格等…"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 关联 User 身份 -->
+                            <div class="cu-card">
+                                <div class="cu-card-title">关联 User 身份</div>
+                                <div class="cu-field">
+                                    <label class="cu-label">选择与此角色对话时使用的身份</label>
+                                    <div class="char-user-list" id="charUserPickList">
+                                        <!-- 由 JS 动态渲染 -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MiniMax 语音 -->
+                            <div class="cu-card">
+                                <div class="cu-card-title">MiniMax 语音配置</div>
+                                <div class="char-minimax-status" id="charMinimaxStatus"></div>
+                                <div class="cu-field" style="margin-top:10px">
+                                    <label class="cu-label">为此角色单独配置 Voice ID（可选）</label>
+                                    <input class="cu-input" id="charVoiceId" type="text"
+                                        placeholder="留空使用全局 Voice ID" />
+                                </div>
+                                <div class="char-minimax-toggle">
+                                    <span class="cu-label">启用语音</span>
+                                    <label class="char-switch">
+                                        <input type="checkbox" id="charVoiceEnabled" />
+                                        <span class="char-switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 创建按钮 -->
+                            <button class="cu-save-btn" onclick="charSaveCreate()">创建角色</button>
+
+                        </div>
+                    </div>
+
+                    <!-- 创建群聊 浮层（占位） -->
+                    <div class="talk-sheet hidden" id="groupCreateSheet">
+                        <div class="talk-sheet-topbar">
+                            <button class="talk-sheet-back" onclick="talkCloseCreateGroup()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+                            </button>
+                            <span class="talk-sheet-title">创建群聊</span>
+                            <div style="width:32px"></div>
+                        </div>
+                        <div class="talk-sheet-scroll">
+                            <div class="cu-card">
+                                <div style="text-align:center;color:#bbb;padding:32px 0;font-size:14px;">
+                                    群聊功能即将开放
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 聊天对话页 -->
+                    <div class="talk-conv-page hidden" id="talkConvPage">
+
+                        <!-- 对话顶栏：白底，左返回+名字（带小黑点）+副标题，右设置 -->
+                        <div class="tcp-topbar">
+                            <!-- 左：纯线条向左返回键 -->
+                            <button class="tcp-back" onclick="talkCloseConv()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+                            </button>
+                            <!-- 中：名字+小黑圆点，下方副标题 -->
+                            <div class="tcp-identity">
+                                <div class="tcp-name-wrap">
+                                    <div class="tcp-char-name-row">
+                                        <span class="tcp-char-name" id="tcpCharName">角色名</span>
+                                        <span class="tcp-char-dot"></span>
+                                    </div>
+                                    <div class="tcp-char-loc" id="tcpCharLoc"></div>
+                                </div>
+                            </div>
+                            <!-- 右：竖三点设置键 -->
+                            <button class="tcp-settings" onclick="talkConvSettings()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round">
+                                    <circle cx="12" cy="5" r="1.2" fill="currentColor" stroke="none" />
+                                    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+                                    <circle cx="12" cy="19" r="1.2" fill="currentColor" stroke="none" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 消息区 -->
+                        <div class="tcp-messages" id="tcpMessages">
+                            <!-- 消息气泡由 JS 渲染 -->
+                        </div>
+
+                        <!-- 底栏（ins风，参考p2） -->
+                        <div class="tcp-bottom">
+                            <!-- 左：工具加号（ins风圆圈加号） -->
+                            <button class="tcp-tool-btn" onclick="talkConvTool()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="16" />
+                                    <line x1="8" y1="12" x2="16" y2="12" />
+                                </svg>
+                            </button>
+                            <!-- 输入框区 -->
+                            <div class="tcp-input-wrap">
+                                <textarea class="tcp-input" id="tcpInput" rows="1" placeholder="发消息…"
+                                    oninput="tcpAutoResize(this)" onkeydown="tcpKeyDown(event)"></textarea>
+                                <!-- 表情（ins风笑脸） -->
+                                <button class="tcp-input-btn" title="表情" onclick="talkConvEmoji()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M8 13.5s1.5 2 4 2 4-2 4-2" />
+                                        <circle cx="9" cy="9.5" r="1" fill="currentColor" stroke="none" />
+                                        <circle cx="15" cy="9.5" r="1" fill="currentColor" stroke="none" />
+                                    </svg>
+                                </button>
+                                <!-- 续写（ins风闪电/魔法笔） -->
+                                <button class="tcp-input-btn" title="续写" onclick="talkConvContinue()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                                    </svg>
+                                </button>
+                                <!-- 发送：纯线条纸飞机，与表情/续写同风格 -->
+                                <button class="tcp-send-btn" id="tcpSendBtn" onclick="talkConvSend()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13" />
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
                 <!-- 动态面板（占位） -->
@@ -1951,152 +2348,193 @@
                 </div>
 
                 <!-- 个人主页面板 -->
-                <div class="chat-panel" id="chatPanel-profile">
+                <div class="chat-panel hidden" id="chatPanel-profile">
 
-                    <!-- Banner -->
-                    <div class="cp-banner" onclick="cpTriggerBanner()">
-                        <img class="cp-banner-img hidden" id="cpBannerImg" alt="banner" />
-                        <div class="cp-banner-placeholder" id="cpBannerPH">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <path d="M21 15l-5-5L5 21" />
-                            </svg>
-                            点击更换背景
-                        </div>
-                        <div class="cp-banner-overlay">
-                            <span class="cp-banner-tip">更换背景图</span>
-                        </div>
-                    </div>
-                    <input type="file" id="cpBannerInput" accept="image/*" class="hidden"
-                        onchange="cpHandleBanner(event)" />
-
-                    <!-- 信息卡 -->
-                    <div class="cp-info-card">
-
-                        <!-- 头像 -->
-                        <div class="cp-avatar-wrap">
-                            <div class="cp-avatar" onclick="cpTriggerAvatar()">
-                                <div class="cp-avatar-default" id="cpAvatarPH">
-                                    <svg viewBox="0 0 40 40" fill="none">
-                                        <circle cx="20" cy="20" r="20" fill="#e4e4e2" />
-                                        <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
-                                        <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
-                                    </svg>
-                                </div>
-                                <img class="hidden" id="cpAvatarImg" alt="avatar" />
-                                <div class="cp-avatar-tip">换头像</div>
-                            </div>
-                        </div>
-                        <input type="file" id="cpAvatarInput" accept="image/*" class="hidden"
-                            onchange="cpHandleAvatar(event)" />
-
-                        <!-- 昵称 / 简介 -->
-                        <div class="cp-info-top">
-                            <div class="cp-nickname" id="cpNickname" contenteditable="true" spellcheck="false"
-                                data-placeholder="你的昵称" onblur="cpBlurNickname()"></div>
-                        </div>
-                        <div class="cp-bio" id="cpBio" contenteditable="true" spellcheck="false"
-                            data-placeholder="写点什么介绍自己…" onblur="cpBlurBio()"></div>
-                    </div>
-
-                    <!-- 功能网格 -->
-                    <div class="cp-grid">
-
-                        <!-- User 身份 -->
-                        <button class="cp-grid-item" onclick="openUserIdentity()">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <circle cx="12" cy="8" r="4" />
-                                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">User 身份</span>
-                        </button>
-
-                        <!-- 聊天美化 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">聊天美化</span>
-                        </button>
-
-                        <!-- 购物中心 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                                    <line x1="3" y1="6" x2="21" y2="6" />
-                                    <path d="M16 10a4 4 0 01-8 0" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">购物中心</span>
-                        </button>
-
-                        <!-- 表情包 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <circle cx="12" cy="12" r="9" />
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                    <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5" stroke-linecap="round" />
-                                    <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5" stroke-linecap="round" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">表情包</span>
-                        </button>
-
-                        <!-- 收藏 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <path
-                                        d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">收藏</span>
-                        </button>
-
-                        <!-- 钱包管理 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" />
-                                    <path d="M16 3H8L2 7" />
-                                    <circle cx="16.5" cy="14" r="1.5" fill="currentColor" stroke="none" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">钱包管理</span>
-                        </button>
-
-                        <!-- 游戏 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                                    <rect x="2" y="6" width="20" height="13" rx="3" />
-                                    <path d="M8 12h4M10 10v4M16 11h.01M18 13h.01" stroke-linecap="round"
-                                        stroke-width="1.8" />
-                                </svg>
-                            </div>
-                            <span class="cp-grid-name">游戏</span>
-                        </button>
-
-                        <!-- 图片库 -->
-                        <button class="cp-grid-item" onclick="">
-                            <div class="cp-grid-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <!-- 整合：Banner图 + 双头像悬浮，合并为同一张图的完整区域 -->
+                    <div class="cp-profile-strip" id="cpProfileStrip">
+                        <!-- 背景图层（pointer-events:none，不拦截点击） -->
+                        <div class="cp-strip-bg" id="cpStripBg" style="pointer-events:none">
+                            <!-- 无背景时的占位提示 -->
+                            <div class="cp-banner-placeholder" id="cpBannerPH" style="display:flex;pointer-events:none">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
                                     <rect x="3" y="3" width="18" height="18" rx="2" />
                                     <circle cx="8.5" cy="8.5" r="1.5" />
                                     <path d="M21 15l-5-5L5 21" />
                                 </svg>
+                                点击更换背景
                             </div>
-                            <span class="cp-grid-name">图片库</span>
-                        </button>
+                        </div>
 
-                    </div><!-- /cp-grid -->
+                        <!-- 右下角提示文字（不做热区，整块 strip 都可点击） -->
+                        <div class="cp-banner-overlay" onclick="cpTriggerBanner()"
+                            style="pointer-events:auto;cursor:pointer">
+                            <span class="cp-banner-tip">更换背景图</span>
+                        </div>
+
+                        <!-- 双头像交叠区域（左下角悬浮） -->
+                        <div class="cp-dual-avatars">
+                            <!-- 后方头像 -->
+                            <div class="cp-avatar-back" onclick="event.stopPropagation();cpTriggerAvatarBack()"
+                                title="点击更换">
+                                <div class="cp-avatar-sq-default" id="cpAvatarBackPH">
+                                    <svg viewBox="0 0 40 40" fill="none">
+                                        <rect width="40" height="40" rx="10" fill="#d0d0ce" />
+                                        <circle cx="20" cy="15" r="7" fill="#b8b8b5" />
+                                        <ellipse cx="20" cy="33" rx="12" ry="8" fill="#b8b8b5" />
+                                    </svg>
+                                </div>
+                                <img style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;"
+                                    id="cpAvatarBackImg" alt="avatar-back" />
+                                <div class="cp-avatar-sq-tip">换头像</div>
+                            </div>
+                            <!-- 前方头像 -->
+                            <div class="cp-avatar-front" onclick="event.stopPropagation();cpTriggerAvatar()"
+                                title="点击更换">
+                                <div class="cp-avatar-sq-default" id="cpAvatarPH">
+                                    <svg viewBox="0 0 40 40" fill="none">
+                                        <rect width="40" height="40" rx="10" fill="#e4e4e2" />
+                                        <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
+                                        <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
+                                    </svg>
+                                </div>
+                                <img style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;"
+                                    id="cpAvatarImg" alt="avatar" />
+                                <div class="cp-avatar-sq-tip">换头像</div>
+                            </div>
+                        </div>
+
+                        <!-- 隐藏文件输入 -->
+                        <input type="file" id="cpBannerInput" accept="image/*" class="hidden"
+                            onchange="cpHandleBanner(event)" />
+                        <input type="file" id="cpAvatarInput" accept="image/*" class="hidden"
+                            onchange="cpHandleAvatar(event)" />
+                        <input type="file" id="cpAvatarBackInput" accept="image/*" class="hidden"
+                            onchange="cpHandleAvatarBack(event)" />
+                    </div>
+
+                    <!-- 功能列表 -->
+                    <div class="cp-menu-wrap">
+
+                        <!-- 分组一 -->
+                        <div class="cp-menu-group">
+                            <div class="cp-menu-item" onclick="openUserIdentity()">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <circle cx="12" cy="8" r="4" />
+                                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">User 身份 <span class="cp-menu-en">· Identity</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item" onclick="cpOpenChatStyle()">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">聊天美化 <span class="cp-menu-en">· Chat Style</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item" onclick="cpOpenShop()">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                                        <line x1="3" y1="6" x2="21" y2="6" />
+                                        <path d="M16 10a4 4 0 01-8 0" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">购物中心 <span class="cp-menu-en">· Shop</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item cp-menu-item--last" onclick="">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <circle cx="12" cy="12" r="9" />
+                                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                        <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5"
+                                            stroke-linecap="round" />
+                                        <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">表情包 <span class="cp-menu-en">· Stickers</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- 分组二 -->
+                        <div class="cp-menu-group">
+                            <div class="cp-menu-item" onclick="cpOpenFavorites()">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">收藏 <span class="cp-menu-en">· Favorites</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item" onclick="">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" />
+                                        <path d="M16 3H8L2 7" />
+                                        <circle cx="16.5" cy="14" r="1.5" fill="currentColor" stroke="none" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">钱包管理 <span class="cp-menu-en">· Wallet</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item" onclick="">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="2" y="6" width="20" height="13" rx="3" />
+                                        <path d="M8 12h4M10 10v4M16 11h.01M18 13h.01" stroke-linecap="round"
+                                            stroke-width="1.8" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">游戏 <span class="cp-menu-en">· Games</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                            <div class="cp-menu-item cp-menu-item--last" onclick="">
+                                <div class="cp-menu-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <path d="M21 15l-5-5L5 21" />
+                                    </svg>
+                                </div>
+                                <span class="cp-menu-name">图片库 <span class="cp-menu-en">· Gallery</span></span>
+                                <svg class="cp-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div><!-- /cp-menu-wrap -->
                 </div><!-- /chatPanel-profile -->
 
             </div><!-- /chat-body -->
@@ -2107,14 +2545,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                     </svg>
-                    对话
+                    Chats
                 </button>
                 <button class="chat-dock-item" id="chatDock-feed" onclick="chatSwitchTab('feed')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                         <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
-                    动态
+                    Feed
                 </button>
                 <button class="chat-dock-item chat-dock-active" id="chatDock-profile"
                     onclick="chatSwitchTab('profile')">
@@ -2122,14 +2560,14 @@
                         <circle cx="12" cy="8" r="4" />
                         <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                     </svg>
-                    个人主页
+                    Profile
                 </button>
             </div>
 
             <!-- ── User 身份 浮层 ── -->
             <div class="cu-sheet hidden" id="cuSheet">
 
-                <!-- 顶栏 -->
+                <!-- 顶栏：左返回 + 标题 + 右加号/叉号 -->
                 <div class="cu-topbar">
                     <button class="cu-back" onclick="closeUserIdentity()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2137,116 +2575,125 @@
                         </svg>
                     </button>
                     <span class="cu-title">User 身份</span>
+                    <button class="cu-add-btn" id="cuAddBtn" onclick="cuToggleForm()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </button>
                 </div>
 
-                <!-- 表单滚动区 -->
+                <!-- 滚动区 -->
                 <div class="cu-scroll" id="cuScroll">
 
-                    <!-- 头像选择 -->
-                    <div class="cu-avatar-row">
-                        <div class="cu-avatar-pick" onclick="cuTriggerAvatar()">
-                            <div class="cu-avatar-pick-default" id="cuAvatarPH">
-                                <svg viewBox="0 0 40 40" fill="none">
-                                    <circle cx="20" cy="20" r="20" fill="#e4e4e2" />
-                                    <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
-                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
-                                </svg>
-                            </div>
-                            <img class="hidden" id="cuAvatarImg" alt="avatar" />
-                            <div class="cu-avatar-pick-tip">换头像</div>
-                        </div>
-                        <input type="file" id="cuAvatarInput" accept="image/*" class="hidden"
-                            onchange="cuHandleAvatar(event)" />
-                    </div>
-
-                    <!-- 基本信息卡 -->
-                    <div class="cu-card">
-                        <div class="cu-card-title">基本信息</div>
-
-                        <div class="cu-field">
-                            <label class="cu-label">昵称</label>
-                            <input class="cu-input" id="cuNickname" type="text" placeholder="输入你的昵称…" />
-                        </div>
-
-                        <div class="cu-field">
-                            <label class="cu-label">性别</label>
-                            <div class="cu-gender-row">
-                                <button class="cu-gender-btn" data-gender="女" onclick="cuSetGender('女',this)">女</button>
-                                <button class="cu-gender-btn" data-gender="男" onclick="cuSetGender('男',this)">男</button>
-                                <button class="cu-gender-btn" data-gender="不透露"
-                                    onclick="cuSetGender('不透露',this)">不透露</button>
-                            </div>
-                        </div>
-
-                        <div class="cu-field">
-                            <label class="cu-label">年龄</label>
-                            <input class="cu-input" id="cuAge" type="number" min="1" max="120" placeholder="你的年龄" />
-                        </div>
-                    </div>
-
-                    <!-- 出生地卡 -->
-                    <div class="cu-card">
-                        <div class="cu-card-title">出生地</div>
-
-                        <div class="cu-field">
-                            <label class="cu-label">国家 / 地区</label>
-                            <select class="cu-select" id="cuOriginCountry" onchange="cuUpdateCityOptions()">
-                                <option value="">— 请选择国家 —</option>
-                                <option value="中国">中国</option>
-                                <option value="日本">日本</option>
-                                <option value="韩国">韩国</option>
-                                <option value="美国">美国</option>
-                                <option value="英国">英国</option>
-                                <option value="法国">法国</option>
-                                <option value="德国">德国</option>
-                                <option value="意大利">意大利</option>
-                                <option value="西班牙">西班牙</option>
-                                <option value="澳大利亚">澳大利亚</option>
-                                <option value="加拿大">加拿大</option>
-                                <option value="新加坡">新加坡</option>
-                                <option value="泰国">泰国</option>
-                                <option value="越南">越南</option>
-                                <option value="马来西亚">马来西亚</option>
-                                <option value="印度">印度</option>
-                                <option value="巴西">巴西</option>
-                                <option value="阿根廷">阿根廷</option>
-                                <option value="俄罗斯">俄罗斯</option>
-                                <option value="土耳其">土耳其</option>
-                                <option value="埃及">埃及</option>
-                                <option value="南非">南非</option>
-                                <option value="墨西哥">墨西哥</option>
-                                <option value="其他国家/地区">其他国家/地区</option>
-                            </select>
-                        </div>
-
-                        <div class="cu-field">
-                            <label class="cu-label">城市</label>
-                            <select class="cu-select" id="cuOriginCity">
-                                <option value="">— 请先选择国家 —</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 个人信息卡 -->
-                    <div class="cu-card">
-                        <div class="cu-card-title">个人信息</div>
-                        <div class="cu-field">
-                            <label class="cu-label">详细信息 / 个人简介</label>
-                            <textarea class="cu-input cu-textarea" id="cuBio" rows="5"
-                                placeholder="介绍一下自己，性格、爱好、背景故事等…"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 保存按钮 -->
-                    <button class="cu-save-btn" onclick="cuSaveUser()">保存</button>
-
-                    <!-- 用户列表卡 -->
-                    <div class="cu-list-card hidden" id="cuListCard">
-                        <div class="cu-list-title">已保存身份</div>
+                    <!-- ① 用户列表（始终显示在顶部） -->
+                    <div class="cu-list-card" id="cuListCard">
                         <div id="cuUserList">
-                            <div class="cu-list-empty" id="cuUserListEmpty">暂无身份</div>
+                            <div class="cu-list-empty" id="cuUserListEmpty" style="display:block">暂无身份，点击右上角 + 创建</div>
                         </div>
                     </div>
+
+                    <!-- ② 创建/编辑表单（默认隐藏，点加号展开） -->
+                    <div id="cuFormArea" style="display:none">
+
+                        <!-- 头像选择 -->
+                        <div class="cu-avatar-row">
+                            <div class="cu-avatar-pick" onclick="cuTriggerAvatar()">
+                                <div class="cu-avatar-pick-default" id="cuAvatarPH">
+                                    <svg viewBox="0 0 40 40" fill="none">
+                                        <circle cx="20" cy="20" r="20" fill="#e4e4e2" />
+                                        <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
+                                        <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
+                                    </svg>
+                                </div>
+                                <img style="display:none;width:100%;height:100%;object-fit:cover;" id="cuAvatarImg"
+                                    alt="avatar" />
+                                <div class="cu-avatar-pick-tip">换头像</div>
+                            </div>
+                            <input type="file" id="cuAvatarInput" accept="image/*" class="hidden"
+                                onchange="cuHandleAvatar(event)" />
+                        </div>
+
+                        <!-- 基本信息卡 -->
+                        <div class="cu-card">
+                            <div class="cu-card-title">基本信息</div>
+                            <div class="cu-field">
+                                <label class="cu-label">昵称</label>
+                                <input class="cu-input" id="cuNickname" type="text" placeholder="输入你的昵称…" />
+                            </div>
+                            <div class="cu-field">
+                                <label class="cu-label">性别</label>
+                                <div class="cu-gender-row">
+                                    <button class="cu-gender-btn" data-gender="女"
+                                        onclick="cuSetGender('女',this)">女</button>
+                                    <button class="cu-gender-btn" data-gender="男"
+                                        onclick="cuSetGender('男',this)">男</button>
+                                    <button class="cu-gender-btn" data-gender="不透露"
+                                        onclick="cuSetGender('不透露',this)">不透露</button>
+                                </div>
+                            </div>
+                            <div class="cu-field">
+                                <label class="cu-label">年龄</label>
+                                <input class="cu-input" id="cuAge" type="number" min="1" max="120" placeholder="你的年龄" />
+                            </div>
+                        </div>
+
+                        <!-- 出生地卡 -->
+                        <div class="cu-card">
+                            <div class="cu-card-title">出生地</div>
+                            <div class="cu-field">
+                                <label class="cu-label">国家 / 地区</label>
+                                <select class="cu-select" id="cuOriginCountry" onchange="cuUpdateCityOptions()">
+                                    <option value="">— 请选择国家 —</option>
+                                    <option value="中国">中国</option>
+                                    <option value="日本">日本</option>
+                                    <option value="韩国">韩国</option>
+                                    <option value="美国">美国</option>
+                                    <option value="英国">英国</option>
+                                    <option value="法国">法国</option>
+                                    <option value="德国">德国</option>
+                                    <option value="意大利">意大利</option>
+                                    <option value="西班牙">西班牙</option>
+                                    <option value="澳大利亚">澳大利亚</option>
+                                    <option value="加拿大">加拿大</option>
+                                    <option value="新加坡">新加坡</option>
+                                    <option value="泰国">泰国</option>
+                                    <option value="越南">越南</option>
+                                    <option value="马来西亚">马来西亚</option>
+                                    <option value="印度">印度</option>
+                                    <option value="巴西">巴西</option>
+                                    <option value="阿根廷">阿根廷</option>
+                                    <option value="俄罗斯">俄罗斯</option>
+                                    <option value="土耳其">土耳其</option>
+                                    <option value="埃及">埃及</option>
+                                    <option value="南非">南非</option>
+                                    <option value="墨西哥">墨西哥</option>
+                                    <option value="其他国家/地区">其他国家/地区</option>
+                                </select>
+                            </div>
+                            <div class="cu-field">
+                                <label class="cu-label">城市</label>
+                                <select class="cu-select" id="cuOriginCity">
+                                    <option value="">— 请先选择国家 —</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 个人信息卡 -->
+                        <div class="cu-card">
+                            <div class="cu-card-title">个人信息</div>
+                            <div class="cu-field">
+                                <label class="cu-label">详细信息 / 个人简介</label>
+                                <textarea class="cu-input cu-textarea" id="cuBio" rows="5"
+                                    placeholder="介绍一下自己，性格、爱好、背景故事等…"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 保存 -->
+                        <button class="cu-save-btn" onclick="cuSaveUser()">保存</button>
+
+                        <div style="height:16px"></div>
+                    </div><!-- /cuFormArea -->
 
                     <div style="height:20px"></div>
                 </div><!-- /cu-scroll -->
@@ -2255,7 +2702,6 @@
                 <div class="cu-toast" id="cuToast"></div>
 
             </div><!-- /cuSheet -->
-
         </div><!-- /chatApp -->
 
     </div><!-- /phone-screen -->
