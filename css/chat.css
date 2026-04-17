@@ -1282,7 +1282,7 @@
 .talk-sheet {
     position: absolute;
     inset: 0;
-    z-index: 500;
+    z-index: 600;
     display: flex;
     flex-direction: column;
     background: #f5f4f2;
