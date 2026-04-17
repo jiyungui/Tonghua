@@ -1017,6 +1017,15 @@ async function talkOpenConv(charId) {
     /* 渲染历史消息 */
     _tcpRenderMessages(charId);
 
+    /* ── 还原聊天壁纸 ── */
+    ChatImgDB.get('talk_wallpaper_' + charId).then(data => {
+        const msgArea = document.getElementById('tcpMessages');
+        if (!msgArea) return;
+        msgArea.style.backgroundImage = data ? `url(${data})` : '';
+        msgArea.style.backgroundSize = 'cover';
+        msgArea.style.backgroundPosition = 'center';
+    });
+
     /* 打开页面 */
     const page = document.getElementById('talkConvPage');
     if (page) page.classList.remove('hidden');
@@ -1495,7 +1504,383 @@ function tcpKeyDown(e) {
 
 function talkConvTool() { /* 工具栏占位 */ }
 function talkConvEmoji() { /* 表情占位 */ }
-function talkConvSettings() { /* 设置占位 */ }
+/* ════════════════════════════════════════════
+   聊天设置页
+════════════════════════════════════════════ */
+
+/* 打开 */
+function talkConvOpenSettings() {
+    const charId = _talkActiveCharId;
+    if (!charId) return;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+
+    const page = document.getElementById('tcpSettingsPage');
+    if (!page) return;
+
+    /* ── 填入备注 ── */
+    const remark = char.remark || '';
+    const remarkEl = document.getElementById('tcpSpRemark');
+    if (remarkEl) remarkEl.textContent = remark || '未设置';
+
+    /* ── 填入分组 ── */
+    const groups = TalkStore.getGroups();
+    const group = groups.find(g => g.id === char.groupId);
+    const groupEl = document.getElementById('tcpSpGroup');
+    if (groupEl) groupEl.textContent = group ? group.name : '默认';
+
+    /* ── 填入 user 身份 ── */
+    const users = ChatStore.getUsers();
+    const user = users.find(u => u.id === char.userId) || null;  /* ← 补上这行！ */
+    _tcpSpLoadAvatar('user', user ? user.id : null);
+    const userEl = document.getElementById('tcpSpUserName');
+    if (userEl) userEl.textContent = user ? (user.name || '已设置') : '未设置';
+
+    /* ── 填入各开关 ── */
+    const settings = char.settings || {};
+    ['translate', 'push', 'proactive', 'memSummary'].forEach(k => {
+        const el = document.getElementById('tcpSp' + k.charAt(0).toUpperCase() + k.slice(1));
+        if (el) el.checked = !!settings[k];
+    });
+
+    /* ── 记忆轮数 ── */
+    const memEl = document.getElementById('tcpSpMemRounds');
+    if (memEl) memEl.textContent = (settings.memRounds || 20) + '轮';
+
+    /* ── 时区 ── */
+    const tzEl = document.getElementById('tcpSpTimezone');
+    if (tzEl) tzEl.textContent = settings.timezone || '跟随系统';
+
+    /* ── 地点 ── */
+    const userLocEl = document.getElementById('tcpSpUserLoc');
+    if (userLocEl) userLocEl.textContent = settings.userLoc || '未设置';
+    const charLocEl = document.getElementById('tcpSpCharLoc2');
+    if (charLocEl) charLocEl.textContent = settings.charLoc || '未设置';
+
+    /* ── 世界书数量 ── */
+    const wbEl = document.getElementById('tcpSpWBCount');
+    if (wbEl) {
+        const cnt = (char.worldbooks || []).length;
+        wbEl.textContent = cnt ? `已关联 ${cnt} 本` : '未关联';
+    }
+
+    /* ── 壁纸状态 ── */
+    const wpEl = document.getElementById('tcpSpWallpaperVal');
+    if (wpEl) wpEl.textContent = settings.wallpaper ? '已设置' : '默认';
+
+    page.classList.remove('hidden');
+}
+
+/* 关闭 */
+function talkConvCloseSettings() {
+    const page = document.getElementById('tcpSettingsPage');
+    if (page) page.classList.add('hidden');
+}
+
+/* 头像加载 — 有图显图，无图显占位符，自动同步当前真实头像 */
+async function _tcpSpLoadAvatar(type, id) {
+    if (type === 'char') {
+        const img = document.getElementById('tcpSpCharAvImg');
+        const ph = document.getElementById('tcpSpCharAvPH');
+        if (!img) return;
+        /* 优先取对话专属头像，否则取通用角色头像 */
+        /* 按优先级查找：专属换头 > 系统通用头像 char_avatar_ */
+        const data = id ? (
+            await ChatImgDB.get('talk_char_av_' + id) ||
+            await ChatImgDB.get('char_avatar_' + id)
+        ) : null;
+        if (data) {
+            img.src = data;
+            img.classList.remove('hidden');
+            if (ph) ph.style.display = 'none';
+        } else {
+            img.classList.add('hidden');
+            if (ph) ph.style.display = '';
+        }
+    } else {
+        const img = document.getElementById('tcpSpUserAvImg');
+        const ph = document.getElementById('tcpSpUserAvPH');
+        if (!img) return;
+        /* user头像实际存储key是 cu_avatar_，不是 chat_user_av_ */
+        const data = id ? (
+            await ChatImgDB.get('chat_user_av_' + id) ||   /* 兼容旧key */
+            await ChatImgDB.get('cu_avatar_' + id)          /* 真实key */
+        ) : null;
+        if (data) {
+            img.src = data;
+            img.classList.remove('hidden');
+            if (ph) ph.style.display = 'none';
+        } else {
+            img.classList.add('hidden');
+            if (ph) ph.style.display = '';
+        }
+    }
+}
+
+/* 更换角色头像 */
+function tcpSpChangeCharAvatar() {
+    const charId = _talkActiveCharId;
+    if (!charId) return;
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const data = await _chatReadFile(file);
+        await ChatImgDB.put('talk_char_av_' + charId, data);
+        _tcpSpLoadAvatar('char', charId);
+        /* 同步更新对话顶栏头像 */
+        const topImg = document.getElementById('tcpCharAvImg');
+        if (topImg) { topImg.src = data; topImg.classList.remove('hidden'); }
+    };
+    input.click();
+}
+
+/* 更换 user 头像 */
+function tcpSpChangeUserAvatar() {
+    const charId = _talkActiveCharId;
+    if (!charId) return;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char || !char.userId) { alert('该角色尚未关联用户身份，请先在「User 身份」中设置。'); return; }
+    const userId = char.userId;
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const data = await _chatReadFile(file);
+        await ChatImgDB.put('cu_avatar_' + userId, data);
+        _tcpSpLoadAvatar('user', userId);
+    };
+    input.click();
+}
+
+/* 备注编辑 */
+function tcpSpEditRemark() {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    const v = prompt('修改备注（仅显示用，不影响角色自我认知）', char.remark || '');
+    if (v === null) return;
+    char.remark = v.trim();
+    TalkStore.saveChars(chars);
+    /* 同步对话顶栏名称 */
+    const nameEl = document.getElementById('tcpCharName');
+    if (nameEl) nameEl.textContent = char.remark || char.name || '';
+    document.getElementById('tcpSpRemark').textContent = char.remark || '未设置';
+}
+
+/* 分组编辑 */
+function tcpSpEditGroup() {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    const groups = TalkStore.getGroups();
+    if (!groups.length) { alert('暂无分组，请先在角色列表页创建分组。'); return; }
+    const options = ['默认', ...groups.map(g => g.name)];
+    const sel = prompt('选择分组（输入分组名）:\n' + options.join(' / '), groups.find(g => g.id === char.groupId)?.name || '默认');
+    if (sel === null) return;
+    const g = groups.find(g => g.name === sel.trim());
+    char.groupId = g ? g.id : null;
+    TalkStore.saveChars(chars);
+    document.getElementById('tcpSpGroup').textContent = g ? g.name : '默认';
+}
+
+/* 修改角色信息 → 复用现有编辑面板 */
+function tcpSpEditChar() {
+    talkConvCloseSettings();
+    /* 打开现有的角色编辑表单 */
+    if (typeof talkEditChar === 'function') talkEditChar(_talkActiveCharId);
+}
+
+/* User 身份 → 复用现有用户选择 */
+function tcpSpEditUser() {
+    talkConvCloseSettings();
+    if (typeof talkEditCharUser === 'function') talkEditCharUser(_talkActiveCharId);
+}
+
+/* 世界书关联 — 对接 WBStore */
+function tcpSpWorldbook() {
+    const charId = _talkActiveCharId;
+    if (!charId) return;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+
+    const wb = WBStore.get();
+    if (!char.worldbooks) char.worldbooks = [];
+
+    /* 已关联的id集合 */
+    const linked = new Set(char.worldbooks);
+
+    /* 全局已启用的条目 */
+    const globalEntries = wb.entries.filter(e => e.enabled);
+    /* 角色世界书条目（通过 entry.charId 关联） */
+    const charEntries = wb.entries.filter(e => e.charIds && e.charIds.includes(charId));
+
+    /* 构建选择弹窗 */
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:999;
+        display:flex;align-items:flex-end;
+    `;
+
+    const panel = document.createElement('div');
+    panel.style.cssText = `
+        background:#fff;border-radius:20px 20px 0 0;width:100%;
+        max-height:75%;display:flex;flex-direction:column;overflow:hidden;
+    `;
+
+    const makeSection = (title, entries) => {
+        if (!entries.length) return '';
+        return `
+            <div style="padding:10px 16px 4px;font-size:11px;color:#999;font-weight:600;letter-spacing:0.4px">${title}</div>
+            ${entries.map(e => `
+                <label style="display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(200,200,198,0.3)">
+                    <input type="checkbox" data-id="${e.id}" ${linked.has(e.id) ? 'checked' : ''}
+                        style="width:18px;height:18px;accent-color:#1a1a1a">
+                    <span style="font-size:14px;color:#1a1a1a">${e.name}</span>
+                </label>
+            `).join('')}
+        `;
+    };
+
+    panel.innerHTML = `
+        <div style="padding:16px 16px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(200,200,198,0.3)">
+            <span style="font-size:16px;font-weight:700;color:#1a1a1a">关联世界书</span>
+            <button id="_wbClose" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;line-height:1">×</button>
+        </div>
+        <div id="_wbList" style="overflow-y:auto;flex:1;padding-bottom:8px">
+            ${makeSection('── 角色世界书', charEntries)}
+            ${makeSection('── 全局已启用', globalEntries)}
+            ${(!charEntries.length && !globalEntries.length) ? '<div style="padding:32px;text-align:center;color:#bbb;font-size:14px">暂无可用世界书条目<br><span style="font-size:12px">请先在世界书 APP 中创建并启用条目</span></div>' : ''}
+        </div>
+        <div style="padding:10px 16px 16px">
+            <button id="_wbSave" style="width:100%;height:44px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">
+                保存
+            </button>
+        </div>
+    `;
+
+    overlay.appendChild(panel);
+    document.getElementById('talkConvPage').appendChild(overlay);
+
+    overlay.querySelector('#_wbClose').onclick = () => overlay.remove();
+    overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    overlay.querySelector('#_wbSave').onclick = () => {
+        const checked = [...overlay.querySelectorAll('input[data-id]:checked')].map(el => el.dataset.id);
+        char.worldbooks = checked;
+        TalkStore.saveChars(chars);
+        overlay.remove();
+        /* 更新计数 */
+        const wbEl = document.getElementById('tcpSpWBCount');
+        if (wbEl) wbEl.textContent = checked.length ? `已关联 ${checked.length} 条` : '未关联';
+    };
+}
+
+/* 表情包管理（占位） */
+function tcpSpEmoji() {
+    alert('表情包管理开发中，敬请期待！');
+}
+
+/* 保存开关类设置 */
+function tcpSpSaveToggle(key, val) {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    if (!char.settings) char.settings = {};
+    char.settings[key] = val;
+    TalkStore.saveChars(chars);
+}
+
+/* 地点感知 */
+function tcpSpEditLocation(type) {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    if (!char.settings) char.settings = {};
+    const label = type === 'user' ? '我的当前地点' : '角色当前地点';
+    const key = type === 'user' ? 'userLoc' : 'charLoc';
+    const v = prompt(label + '（如：日本·东京 / 中国·上海）', char.settings[key] || '');
+    if (v === null) return;
+    char.settings[key] = v.trim();
+    TalkStore.saveChars(chars);
+    const el = document.getElementById(type === 'user' ? 'tcpSpUserLoc' : 'tcpSpCharLoc2');
+    if (el) el.textContent = char.settings[key] || '未设置';
+}
+
+/* 时间感知 */
+function tcpSpEditTimezone() {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    if (!char.settings) char.settings = {};
+    const zones = ['跟随系统', '日本（UTC+9）', '中国（UTC+8）', '韩国（UTC+9）', '美国东部（UTC-5）', '美国西部（UTC-8）', '英国（UTC+0）', '法国（UTC+1）', '德国（UTC+1）', '澳大利亚东部（UTC+10）'];
+    const v = prompt('选择角色时间感知（输入选项）:\n' + zones.join('\n'), char.settings.timezone || '跟随系统');
+    if (v === null) return;
+    char.settings.timezone = zones.includes(v.trim()) ? v.trim() : '跟随系统';
+    TalkStore.saveChars(chars);
+    const el = document.getElementById('tcpSpTimezone');
+    if (el) el.textContent = char.settings.timezone;
+}
+
+/* 记忆轮数 */
+function tcpSpEditMemoryRounds() {
+    const charId = _talkActiveCharId;
+    const chars = TalkStore.getChars();
+    const char = chars.find(c => c.id === charId);
+    if (!char) return;
+    if (!char.settings) char.settings = {};
+    const v = prompt('设置记忆轮数（建议10~50，数字越大token消耗越多）', char.settings.memRounds || 20);
+    if (v === null) return;
+    const n = parseInt(v);
+    if (isNaN(n) || n < 1) { alert('请输入有效数字'); return; }
+    char.settings.memRounds = n;
+    TalkStore.saveChars(chars);
+    const el = document.getElementById('tcpSpMemRounds');
+    if (el) el.textContent = n + '轮';
+}
+
+/* 清除聊天记录 */
+function tcpSpClearChat() {
+    const charId = _talkActiveCharId;
+    if (!confirm('确定清除与该角色的所有聊天记录？\n清除后角色对此前对话内容一概不知。')) return;
+    const key = 'xxj_talk_msgs_' + charId;
+    TalkDB.set(key, []).then(() => {
+        /* 清空页面消息区 */
+        const msgEl = document.getElementById('tcpMessages');
+        if (msgEl) msgEl.innerHTML = '';
+        alert('聊天记录已清除。');
+    });
+}
+
+/* 删除好友 */
+function tcpSpDeleteFriend() {
+    const charId = _talkActiveCharId;
+    if (!confirm('确定删除该角色？\n删除后所有聊天记录和设置将一并清除，且不可恢复。')) return;
+    let chars = TalkStore.getChars();
+    chars = chars.filter(c => c.id !== charId);
+    TalkStore.saveChars(chars);
+    /* 清除消息 */
+    TalkDB.set('xxj_talk_msgs_' + charId, []);
+    /* 关闭设置页和对话页 */
+    talkConvCloseSettings();
+    talkCloseConv();
+    /* 刷新会话列表 */
+    let convs = TalkStore.getConvs().filter(c => c.charId !== charId);
+    TalkStore.saveConvs(convs);
+    talkRenderConvList();
+}
+
+/* 旧占位保持兼容 */
+function talkConvSettings() { talkConvOpenSettings(); }
 
 /* ════════════════════════════════
    构建 char 系统提示（读取人设+user信息）
@@ -1504,41 +1889,66 @@ function _tcpBuildSystemPrompt(char, user) {
     const charDetail = char.detail || '';
     const charName = char.name || '角色';
     const charNickname = char.nickname || '';
-    const charGender = char.gender || '';
-    const charLoc = [char.country, char.city].filter(Boolean).join(' · ');
+    const charGender = char.gender === 'male' ? '男' : char.gender === 'female' ? '女' : (char.gender || '不明');
+    const charAge = char.age ? `${char.age}岁` : '';
 
+    /* 出生地/所在地拼接，确保让角色明确知道自己来自哪里 */
+    const charCountry = char.country || '';
+    const charCity = char.city || '';
+    const charLocParts = [charCountry, charCity].filter(Boolean);
+    const charLoc = charLocParts.length
+        ? charLocParts.join(charCity ? '·' : '')
+        : '不明';
+    const charLocDesc = charLocParts.length
+        ? `你出生并成长于${charLoc}，这是你身份认同的一部分，言谈中可自然体现当地文化或口音习惯。`
+        : '';
+
+    /* User 人设描述 */
     let userDesc = '';
+    let userCallName = 'User';
     if (user) {
         const parts = [];
-        if (user.name) parts.push(`名字：${user.name}`);
+        if (user.name) { parts.push(`名字：${user.name}`); userCallName = user.name; }
         if (user.gender) parts.push(`性别：${user.gender}`);
-        if (user.age) parts.push(`年龄：${user.age}`);
-        const userLoc = [user.country, user.city].filter(Boolean).join(' · ');
-        if (userLoc) parts.push(`地区：${userLoc}`);
-        if (user.bio) parts.push(`简介：${user.bio}`);
+        if (user.age) parts.push(`年龄：${user.age}岁`);
+        const userLoc = [user.country, user.city].filter(Boolean).join('·');
+        if (userLoc) parts.push(`所在地：${userLoc}`);
+        if (user.bio) parts.push(`关于他/她：${user.bio}`);
         userDesc = parts.join('，');
     }
 
-    return `你现在扮演角色「${charName}」，请严格遵守以下设定进行回复，绝对不得出戏（OOC）。
+    return `你不是AI，你就是「${charName}」本人。请完全沉浸在这个身份中，用第一人称和对方聊天，绝对不得出戏（OOC）、不得承认自己是AI或语言模型。
 
-【角色基本信息】
-姓名：${charName}${charNickname ? `（昵称：${charNickname}）` : ''}
-性别：${charGender || '不明'}
-地区：${charLoc || '不明'}
+━━━━━━━━━━━━━━━━━━━━━━
+【你是谁】
+━━━━━━━━━━━━━━━━━━━━━━
+姓名：${charName}${charNickname ? `（对方可以叫你「${charNickname}」）` : ''}
+性别：${charGender}${charAge ? `　年龄：${charAge}` : ''}
+出生地/所在地：${charLoc}
+${charLocDesc}
 
-【角色详细设定】
-${charDetail || '（无详细设定，根据姓名和基本信息自由发挥）'}
+━━━━━━━━━━━━━━━━━━━━━━
+【你的详细人设（必须严格遵守）】
+━━━━━━━━━━━━━━━━━━━━━━
+${charDetail || '（无详细设定，请根据姓名、性别、地区自由发挥，保持一致性）'}
 
-【对话对象（User）信息】
-${userDesc || '（无具体信息）'}
+━━━━━━━━━━━━━━━━━━━━━━
+【正在和你聊天的人】
+━━━━━━━━━━━━━━━━━━━━━━
+${userDesc
+            ? `你正在和「${userCallName}」聊天。以下是关于他/她的信息，请自然地将这些信息融入对话中，对待他/她的方式要符合你的性格人设：\n${userDesc}`
+            : `对方没有留下具体信息，你可以称呼对方为"你"，用符合你性格的方式与对方交流。`}
 
-【回复规则】
-1. 严格遵守角色人设，包括口癖、口头禅、说话习惯、性格、背景等所有设定内容。
-2. 不得以任何形式暴露"我是AI"或跳出角色。
-3. 回复风格、用语、语气必须符合角色设定。
-4. 回复内容用"---"分隔成多条短消息（每条对应一个气泡），每条不超过50字，自然分段，就像真实聊天一样。不要只有一条长消息。
-5. 分隔数量根据内容自然决定，通常2~4条，不要强行凑数。
-6. 只输出角色说的话，不要描述动作，不要加括号说明。`;
+━━━━━━━━━━━━━━━━━━━━━━
+【聊天规则（必须遵守）】
+━━━━━━━━━━━━━━━━━━━━━━
+1. 你就是「${charName}」，不是在"扮演"，是"就是"。人设里写了什么口癖、口头禅、说话方式，你就原原本本地用出来。
+2. 性格、喜好、讨厌的事、习惯、说话语气——全部严格按照【你的详细人设】执行，不得自行软化或改变。
+3. 绝对不说"作为AI""作为语言模型""我只是在扮演"之类的话，永远不出戏。
+4. 回复用"---"分隔成多条短消息（每条对应一个气泡），每条不超过50字，像真实发消息一样自然分段。
+5. 分条数量根据内容自然决定，通常2～4条，不要强行凑数。
+6. 只输出你说的话，不要写动作描述，不要加括号说明，不要加旁白。
+7. 如果人设中有特定语言习惯（如日语词汇混用、方言、敬语/无礼口吻等），请严格体现出来。`;
 }
 
 /* ════════════════════════════════
@@ -1905,4 +2315,34 @@ function _cpDelFav(id) {
     favs = favs.filter(f => f.id !== id);
     try { localStorage.setItem(favKey, JSON.stringify(favs)); } catch { }
     cpOpenFavorites(); /* 刷新 */
+}
+
+/* 聊天壁纸 */
+function tcpSpSetWallpaper() {
+    const charId = _talkActiveCharId;
+    if (!charId) return;
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const data = await _chatReadFile(file);
+        /* 存储 */
+        await ChatImgDB.put('talk_wallpaper_' + charId, data);
+        /* 立即应用到当前对话背景 */
+        const msgArea = document.getElementById('tcpMessages');
+        if (msgArea) msgArea.style.backgroundImage = `url(${data})`;
+        /* 更新设置页显示 */
+        const wpEl = document.getElementById('tcpSpWallpaperVal');
+        if (wpEl) wpEl.textContent = '已设置';
+        /* 保存到 char.settings */
+        const chars = TalkStore.getChars();
+        const char = chars.find(c => c.id === charId);
+        if (char) {
+            if (!char.settings) char.settings = {};
+            char.settings.wallpaper = true;
+            TalkStore.saveChars(chars);
+        }
+    };
+    input.click();
 }
