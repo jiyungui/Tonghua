@@ -530,66 +530,96 @@ function _cuEsc(str) {
 /* ═══════════════════════════════════════════════════════
    对话面板 (Talk) — 分组 · 创建角色 · 会话列表
 ═══════════════════════════════════════════════════════ */
+/* ════════════════════════════════
+   TalkStore — 全部走 IndexedDB，彻底告别 localStorage 5MB 限制
+════════════════════════════════ */
+const TalkDB = (() => {
+    const DB_NAME = 'xxj_talk_store';
+    const DB_VER = 1;
+    const STORE = 'kv';
+    let _db = null;
 
-/* ────────────────────────────────
-   数据层：分组 & 角色
-──────────────────────────────── */
+    function open() {
+        if (_db) return Promise.resolve(_db);
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, DB_VER);
+            req.onupgradeneeded = e => {
+                e.target.result.createObjectStore(STORE);
+            };
+            req.onsuccess = e => { _db = e.target.result; resolve(_db); };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    function set(key, value) {
+        return open().then(db => new Promise((resolve, reject) => {
+            const req = db.transaction(STORE, 'readwrite').objectStore(STORE).put(value, key);
+            req.onsuccess = () => resolve(true);
+            req.onerror = e => reject(e.target.error);
+        }));
+    }
+
+    function get(key, fallback) {
+        return open().then(db => new Promise((resolve, reject) => {
+            const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(key);
+            req.onsuccess = e => resolve(e.target.result !== undefined ? e.target.result : fallback);
+            req.onerror = e => reject(e.target.error);
+        })).catch(() => fallback);
+    }
+
+    return { set, get };
+})();
+
 const TalkStore = {
     GROUPS_KEY: 'xxj_talk_groups',
     CHARS_KEY: 'xxj_talk_chars',
     CONVS_KEY: 'xxj_talk_convs',
 
-    /* 分组：[{id, name}]  "default" 为内置全部 */
-    getGroups() {
-        try { return JSON.parse(localStorage.getItem(this.GROUPS_KEY)) || []; }
-        catch { return []; }
+    /* ── 同步读（优先内存缓存，兜底 localStorage 旧数据） ── */
+    _cache: {},
+
+    _getSync(key) {
+        if (this._cache[key] !== undefined) return this._cache[key];
+        /* 兜底：读 localStorage 旧数据（首次迁移时用） */
+        try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
     },
+
+    /* ── 异步预加载（页面初始化时调用一次） ── */
+    async preload() {
+        const [groups, chars, convs] = await Promise.all([
+            TalkDB.get(this.GROUPS_KEY, null),
+            TalkDB.get(this.CHARS_KEY, null),
+            TalkDB.get(this.CONVS_KEY, null),
+        ]);
+        /* IndexedDB 有数据就用，否则迁移 localStorage 旧数据 */
+        this._cache[this.GROUPS_KEY] = groups !== null ? groups
+            : (() => { try { return JSON.parse(localStorage.getItem(this.GROUPS_KEY)) || []; } catch { return []; } })();
+        this._cache[this.CHARS_KEY] = chars !== null ? chars
+            : (() => { try { return JSON.parse(localStorage.getItem(this.CHARS_KEY)) || []; } catch { return []; } })();
+        this._cache[this.CONVS_KEY] = convs !== null ? convs
+            : (() => { try { return JSON.parse(localStorage.getItem(this.CONVS_KEY)) || []; } catch { return []; } })();
+        /* 迁移完成后清掉 localStorage 里的旧数据，释放空间 */
+        localStorage.removeItem(this.GROUPS_KEY);
+        localStorage.removeItem(this.CHARS_KEY);
+        localStorage.removeItem(this.CONVS_KEY);
+    },
+
+    getGroups() { return this._getSync(this.GROUPS_KEY); },
     saveGroups(arr) {
-        try {
-            localStorage.setItem(this.GROUPS_KEY, JSON.stringify(arr));
-        } catch (e) {
-            console.error('[TalkStore] saveGroups 失败:', e);
-        }
+        this._cache[this.GROUPS_KEY] = arr;
+        TalkDB.set(this.GROUPS_KEY, arr).catch(e => console.error('[TalkStore] saveGroups 失败:', e));
     },
 
-    /* 角色：[{id, name, nickname, gender, groupId, country, city, detail, voiceId, voiceEnabled, createdAt}] */
-    getChars() {
-        try { return JSON.parse(localStorage.getItem(this.CHARS_KEY)) || []; }
-        catch { return []; }
-    },
+    getChars() { return this._getSync(this.CHARS_KEY); },
     saveChars(arr) {
-        try {
-            localStorage.setItem(this.CHARS_KEY, JSON.stringify(arr));
-        } catch (e) {
-            console.error('[TalkStore] saveChars 失败，存储可能已满:', e);
-            /* 尝试清理旧的图片残留 key，释放空间后重试 */
-            try {
-                const toDelete = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('_idb_')) toDelete.push(k);
-                }
-                toDelete.forEach(k => localStorage.removeItem(k));
-                localStorage.setItem(this.CHARS_KEY, JSON.stringify(arr));
-                console.log('[TalkStore] 清理旧图片 key 后重试 saveChars 成功');
-            } catch (e2) {
-                console.error('[TalkStore] 清理后仍失败:', e2);
-                alert('存储空间不足，角色保存失败！\n请按 F12 打开控制台查看详情。');
-            }
-        }
+        this._cache[this.CHARS_KEY] = arr;
+        TalkDB.set(this.CHARS_KEY, arr).catch(e => console.error('[TalkStore] saveChars 失败:', e));
     },
 
-    /* 会话：[{id, charId, lastMsg, lastTime, unread}] */
-    getConvs() {
-        try { return JSON.parse(localStorage.getItem(this.CONVS_KEY)) || []; }
-        catch { return []; }
-    },
+    getConvs() { return this._getSync(this.CONVS_KEY); },
     saveConvs(arr) {
-        try {
-            localStorage.setItem(this.CONVS_KEY, JSON.stringify(arr));
-        } catch (e) {
-            console.error('[TalkStore] saveConvs 失败:', e);
-        }
+        this._cache[this.CONVS_KEY] = arr;
+        TalkDB.set(this.CONVS_KEY, arr).catch(e => console.error('[TalkStore] saveConvs 失败:', e));
     }
 };
 
@@ -622,7 +652,8 @@ function chatSwitchTab(tab) {
 /* ────────────────────────────────
    初始化对话面板
 ──────────────────────────────── */
-function talkInit() {
+async function talkInit() {
+    await TalkStore.preload();   /* 先从 IndexedDB 加载数据到内存缓存 */
     talkRenderGroupBar();
     talkRenderConvList();
     talkRenderUserCard();
