@@ -1336,7 +1336,8 @@
 .talk-sheet-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 16px 16px 60px;
+    /* ← 底部加到 60px，给保存按钮留出空间 */
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -2766,26 +2767,16 @@
     white-space: nowrap;
 }
 
-/* ══ 底栏：悬浮独立胶囊卡片 ══ */
+/* 底栏：上下各缩小5px */
 .tcp-bottom {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 28px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13), 0 1.5px 6px rgba(0, 0, 0, 0.07);
-    border: 1px solid rgba(220, 220, 218, 0.7);
-    padding: 7px 10px 7px 14px;
-    gap: 8px;
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 5px 14px calc(7px + env(safe-area-inset-bottom));
+    gap: 10px;
     align-items: flex-end;
-    z-index: 10;
-    /* 继承 display:flex from 第一处 .tcp-bottom */
 }
 
-/* 工具键：纯线条风 */
+/* 工具键：纯线条风，无边框圆圈，同表情/续写键风格 */
 .tcp-tool-btn {
     color: #555;
     border: none;
@@ -2800,13 +2791,13 @@
     height: 22px;
 }
 
-/* 输入框 */
+/* 输入框：上下高度缩小3px */
 .tcp-input-wrap {
     background: #f2f2f2;
     border: none;
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 5px 6px 5px 14px;
-    min-height: 34px;
+    min-height: 36px;
     gap: 6px;
 }
 
@@ -2832,7 +2823,7 @@
     height: 20px;
 }
 
-/* 发送键 */
+/* 发送键：纯线条风，去掉黑色实心圆，与表情/续写同风格 */
 .tcp-send-btn {
     width: 30px;
     height: 30px;
@@ -3047,12 +3038,6 @@
     display: block;
 }
 
-.tcp-messages {
-    /* 原有样式保留，新增以下两行 */
-    padding-bottom: 80px !important;
-    /* 给悬浮底栏留空间 */
-}
-
 .tcp-bubble-wrap.tcp-multisel-on .tcp-multisel-chk {
     background: #1a1a1a;
     border-color: #1a1a1a;
@@ -3233,39 +3218,65 @@
     font-style: italic;
 }
 
-/* ══════════════════════════════════════════════
-   聊天设置页 tcp-settings-page
-══════════════════════════════════════════════ */
-.tcp-settings-page {
+/* ══════════════════════════════════════════
+   悬浮底栏
+══════════════════════════════════════════ */
+.tcp-bottom-float {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #fff;
+    border-radius: 28px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 6px 10px 6px 14px;
+    z-index: 10;
+}
+
+/* 消息区底部留出悬浮底栏的高度，避免被遮挡 */
+.tcp-messages {
+    padding-bottom: 80px !important;
+}
+
+/* ═══════════════════════════════════════════
+   聊天设置面板
+═══════════════════════════════════════════ */
+
+.tcp-settings-panel {
     position: absolute;
     inset: 0;
-    background: #f5f4f2;
-    z-index: 20;
+    z-index: 530;
+    background: #f2f1ef;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    /* ← 新增：给 flex 容器锁死高度 */
+    transform: translateX(100%);
     transition: transform 0.28s cubic-bezier(.4, 0, .2, 1);
+    overflow: hidden;
+    pointer-events: none;
 }
 
-.tcp-settings-page.hidden {
-    display: none;
+.tcp-settings-panel.open {
+    transform: translateX(0);
+    pointer-events: auto;
 }
 
-/* 顶栏 */
-.tcp-sp-topbar {
+/* ── 顶栏 ── */
+.tcsp-topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 50px 14px 12px;
-    background: rgba(245, 244, 242, 0.97);
+    gap: 6px;
+    padding: 52px 16px 14px;
+    background: rgba(242, 241, 239, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid rgba(200, 200, 198, 0.35);
     flex-shrink: 0;
 }
 
-.tcp-sp-back {
+.tcsp-back {
     width: 32px;
     height: 32px;
     display: flex;
@@ -3274,244 +3285,312 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #1a1a1a;
-    border-radius: 8px;
+    color: #444;
+    border-radius: 50%;
+    transition: background 0.15s;
 }
 
-.tcp-sp-back svg {
+.tcsp-back:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.tcsp-back svg {
     width: 20px;
     height: 20px;
 }
 
-.tcp-sp-title {
-    font-size: 16px;
+.tcsp-title {
+    font-size: 17px;
     font-weight: 700;
     color: #1a1a1a;
+    letter-spacing: 0.3px;
 }
 
-/* 滚动区 */
-.tcp-sp-scroll {
+/* ── 滚动区 ── */
+.tcsp-scroll {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
-    padding: 16px 14px 32px;
-    /* 底部多留空间 */
+    padding: 20px 16px 40px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-height: 0;
-    /* ← 关键！让 flex 子项可以缩小+滚动 */
-    -webkit-overflow-scrolling: touch;
+    gap: 0;
 }
 
-/* 分组标题 */
-.tcp-sp-group-title {
-    font-size: 12px;
-    color: #999;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 4px 4px 0;
-    margin-top: 4px;
-}
-
-/* 卡片 */
-.tcp-sp-card {
+/* ════════════════════════════
+   头像区 — 拍立得风格，正方形圆角交叠
+════════════════════════════ */
+.tcsp-section {
     background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    border-radius: 14px;
+    margin-bottom: 8px;
 }
 
-.tcp-sp-card-danger {
-    background: #fff;
+.tcsp-section .tcsp-row:first-child {
+    border-radius: 14px 14px 0 0;
 }
 
-/* 行 */
-.tcp-sp-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 16px;
-    cursor: pointer;
-    min-height: 48px;
+.tcsp-section .tcsp-row:last-child {
+    border-radius: 0 0 14px 14px;
 }
 
-.tcp-sp-row:active {
-    background: #f5f4f2;
-}
-
-.tcp-sp-row-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.tcp-sp-row-label {
-    font-size: 15px;
-    color: #1a1a1a;
-    font-weight: 500;
-    /* flex:1 移走，改由 .tcp-sp-row 本身和 spacer 控制 */
-}
-
-/* 无 .tcp-sp-row-left 包裹时，label 自动撑满剩余空间 */
-.tcp-sp-row>.tcp-sp-row-label {
-    flex: 1;
-}
-
-.tcp-sp-row-sub {
-    font-size: 11px;
-    color: #aaa;
-}
-
-.tcp-sp-row-val {
-    font-size: 13px;
-    color: #999;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: right;
-    flex-shrink: 0;
-    /* ← 新增：禁止被压缩 */
-}
-
-.tcp-sp-row-arrow {
-    width: 16px;
-    height: 16px;
-    color: #ccc;
-    flex-shrink: 0;
-}
-
-.tcp-sp-row-danger .tcp-sp-row-label {
-    color: #e05050;
-}
-
-.tcp-sp-row-delete .tcp-sp-row-label {
-    color: #e05050;
-    font-weight: 600;
-}
-
-.tcp-sp-divider {
-    height: 1px;
-    background: rgba(200, 200, 198, 0.35);
-    margin: 0 16px;
-}
-
-/* 双头像区 */
-.tcp-sp-section.tcp-sp-avatars {
-    background: none;
+.tcsp-avatar-section {
     display: flex;
     justify-content: center;
-    padding: 8px 0 4px;
+    align-items: center;
+    padding: 32px 0 28px;
 }
 
-.tcp-sp-avatar-wrap {
+.tcsp-avatar-overlap {
     position: relative;
-    width: 130px;
-    height: 96px;
-    /* ← 加高，给底部标签留空间 */
+    width: 118px;
+    height: 88px;
 }
 
-.tcp-sp-av {
+/* 拍立得底框 */
+.tcsp-av {
     position: absolute;
-    width: 64px;
-    height: 64px;
-    border-radius: 14px;
-    border: 3px solid #f5f4f2;
+    width: 76px;
+    height: 76px;
+    border-radius: 15px;
+    /* 正方形圆角 */
+    border: 3.5px solid #fff;
     overflow: hidden;
     cursor: pointer;
-    transition: transform 0.15s;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.13);
+    background: #e8e7e5;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16), 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: transform 0.18s, box-shadow 0.18s;
 }
 
-.tcp-sp-av:active {
-    transform: scale(0.93);
+.tcsp-av:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
 }
 
-.tcp-sp-av-back {
+.tcsp-av:hover .tcsp-av-edit {
+    opacity: 1;
+}
+
+/* 角色头像 — 左下，向左倾斜 */
+.tcsp-av-char {
     left: 0;
-    top: 8px;
+    top: 10px;
     z-index: 1;
+    transform: rotate(-5deg);
 }
 
-.tcp-sp-av-front {
-    right: 0;
+.tcsp-av-char:hover {
+    transform: rotate(-7deg) scale(1.05);
+}
+
+/* 用户头像 — 右上，向右倾斜 */
+.tcsp-av-user {
+    left: 40px;
     top: 0;
     z-index: 2;
+    transform: rotate(4deg);
 }
 
-.tcp-sp-av img {
+.tcsp-av-user:hover {
+    transform: rotate(6deg) scale(1.05);
+}
+
+.tcsp-av-ph {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e4e3e1;
+}
+
+.tcsp-av-ph svg {
+    width: 100%;
+    height: 100%;
+}
+
+.tcsp-av-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 11px;
 }
 
-.tcp-sp-av-ph {
-    width: 100%;
-    height: 100%;
+.tcsp-av-edit {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.36);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    border-radius: 11px;
 }
 
-.tcp-sp-av-ph svg {
-    width: 100%;
-    height: 100%;
-}
-
-.tcp-sp-av-label {
-    position: absolute;
-    bottom: -18px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 11px;
+/* ════════════════════════════
+   分组标签
+════════════════════════════ */
+.tcsp-group-label {
+    font-size: 12px;
+    font-weight: 600;
     color: #aaa;
+    letter-spacing: 0.8px;
+    padding: 18px 4px 8px;
+    margin: 0;
 }
 
-/* toggle 开关 */
-.tcp-sp-toggle {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 26px;
+.tcsp-group-danger {
+    color: #e05555;
+}
+
+/* ════════════════════════════
+   行通用 — 在 .tcsp-section 卡片内
+════════════════════════════ */
+.tcsp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+    padding: 10px 16px;
+    background: transparent;
+    border-bottom: 1px solid rgba(200, 200, 198, 0.25);
+    transition: background 0.12s;
+}
+
+.tcsp-row:last-child {
+    border-bottom: none;
+}
+
+.tcsp-row-col {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+.tcsp-row-arrow {
+    cursor: pointer;
+}
+
+.tcsp-row-arrow:hover {
+    background: rgba(0, 0, 0, 0.035);
+}
+
+.tcsp-row-danger {
+    cursor: pointer;
+}
+
+.tcsp-row-danger .tcsp-row-label {
+    color: #e05555;
+    font-weight: 500;
+}
+
+.tcsp-row-danger:hover {
+    background: #fff5f5;
+}
+
+.tcsp-row-label {
+    font-size: 15px;
+    color: #1a1a1a;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.tcsp-arrow {
+    width: 17px;
+    height: 17px;
+    color: #c8c8c6;
     flex-shrink: 0;
 }
 
-.tcp-sp-toggle input {
+/* ── 输入框 ── */
+.tcsp-row-input {
+    background: #f2f1ef;
+    border: 1px solid #e4e3e1;
+    border-radius: 9px;
+    padding: 7px 11px;
+    font-size: 14px;
+    color: #333;
+    width: 52%;
+    text-align: right;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.tcsp-row-input:focus {
+    border-color: #bbb;
+}
+
+/* ── 下拉框 ── */
+.tcsp-row-select {
+    background: #f2f1ef;
+    border: 1px solid #e4e3e1;
+    border-radius: 9px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+    max-width: 52%;
+    transition: border-color 0.15s;
+}
+
+.tcsp-row-select:focus {
+    border-color: #bbb;
+}
+
+.tcsp-loc-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.tcsp-loc-sel {
+    flex: 1;
+    max-width: 50%;
+}
+
+/* ── Toggle 开关 ── */
+.tcsp-toggle {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+}
+
+.tcsp-toggle input {
+    position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.tcp-sp-toggle-track {
-    position: absolute;
-    inset: 0;
-    background: #ddd;
+.tcsp-toggle-track {
+    width: 44px;
+    height: 26px;
+    background: #d8d7d5;
     border-radius: 13px;
+    position: relative;
     transition: background 0.2s;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 3px;
 }
 
-.tcp-sp-toggle-track::after {
-    content: '';
-    position: absolute;
-    left: 3px;
-    top: 3px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s;
-}
-
-.tcp-sp-toggle input:checked+.tcp-sp-toggle-track {
+.tcsp-toggle input:checked+.tcsp-toggle-track {
     background: #1a1a1a;
 }
 
-.tcp-sp-toggle input:checked+.tcp-sp-toggle-track::after {
+.tcsp-toggle-thumb {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s cubic-bezier(.4, 0, .2, 1);
+}
+
+.tcsp-toggle input:checked+.tcsp-toggle-track .tcsp-toggle-thumb {
     transform: translateX(18px);
 }

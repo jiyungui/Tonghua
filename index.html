@@ -2276,8 +2276,8 @@
                                     <div class="tcp-char-loc" id="tcpCharLoc"></div>
                                 </div>
                             </div>
-                            <!-- 右：聊天设置 -->
-                            <button class="tcp-settings" onclick="talkConvOpenSettings()">
+                            <!-- 右：竖三点设置键 -->
+                            <button class="tcp-settings" id="tcpSettingsBtn" onclick="talkOpenSettings()">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                                     stroke-linecap="round">
                                     <circle cx="12" cy="5" r="1.2" fill="currentColor" stroke="none" />
@@ -2292,9 +2292,8 @@
                             <!-- 消息气泡由 JS 渲染 -->
                         </div>
 
-                        <!-- 底栏（ins风，参考p2） -->
-                        <div class="tcp-bottom">
-                            <!-- 左：工具加号（ins风圆圈加号） -->
+                        <!-- 底栏：悬浮独立卡片 -->
+                        <div class="tcp-bottom-float" id="tcpBottomFloat">
                             <button class="tcp-tool-btn" onclick="talkConvTool()">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                     stroke-linecap="round">
@@ -2303,11 +2302,9 @@
                                     <line x1="8" y1="12" x2="16" y2="12" />
                                 </svg>
                             </button>
-                            <!-- 输入框区 -->
                             <div class="tcp-input-wrap">
                                 <textarea class="tcp-input" id="tcpInput" rows="1" placeholder="发消息…"
                                     oninput="tcpAutoResize(this)" onkeydown="tcpKeyDown(event)"></textarea>
-                                <!-- 表情（ins风笑脸） -->
                                 <button class="tcp-input-btn" title="表情" onclick="talkConvEmoji()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round">
@@ -2317,14 +2314,12 @@
                                         <circle cx="15" cy="9.5" r="1" fill="currentColor" stroke="none" />
                                     </svg>
                                 </button>
-                                <!-- 续写（ins风闪电/魔法笔） -->
                                 <button class="tcp-input-btn" title="续写" onclick="talkConvContinue()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                                     </svg>
                                 </button>
-                                <!-- 发送：纯线条纸飞机，与表情/续写同风格 -->
                                 <button class="tcp-send-btn" id="tcpSendBtn" onclick="talkConvSend()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round">
@@ -2335,264 +2330,246 @@
                             </div>
                         </div>
 
-                        <!-- ══ 聊天设置页 ══ -->
-                        <div class="tcp-settings-page hidden" id="tcpSettingsPage">
+                        <!-- ══════════════════════════════════════
+     聊天设置面板（内置页面，从右滑入）
+══════════════════════════════════════ -->
+                        <div class="tcp-settings-panel" id="tcpSettingsPanel">
+
                             <!-- 顶栏 -->
-                            <div class="tcp-sp-topbar">
-                                <button class="tcp-sp-back" onclick="talkConvCloseSettings()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            <div class="tcsp-topbar">
+                                <button class="tcsp-back" onclick="talkCloseSettings()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round">
-                                        <path d="M15 18l-6-6 6-6" />
+                                        <polyline points="15 18 9 12 15 6" />
                                     </svg>
                                 </button>
-                                <span class="tcp-sp-title">聊天设置</span>
-                                <div style="width:32px"></div>
+                                <span class="tcsp-title">聊天设置</span>
                             </div>
-                            <div class="tcp-sp-scroll">
 
-                                <!-- ① 双头像区 -->
-                                <div class="tcp-sp-section tcp-sp-avatars">
-                                    <div class="tcp-sp-avatar-wrap">
+                            <div class="tcsp-scroll">
+
+                                <!-- ── 头像区 ── -->
+                                <div class="tcsp-section tcsp-avatar-section">
+                                    <div class="tcsp-avatar-overlap">
                                         <!-- char 头像（左后） -->
-                                        <div class="tcp-sp-av tcp-sp-av-back" onclick="tcpSpChangeCharAvatar()"
+                                        <div class="tcsp-av tcsp-av-char" id="tcsAvChar" onclick="tcsChangeCharAvatar()"
                                             title="更换角色头像">
-                                            <div class="tcp-sp-av-ph" id="tcpSpCharAvPH">
-                                                <svg viewBox="0 0 40 40" fill="none">
-                                                    <rect width="40" height="40" rx="10" fill="#d0d0ce" />
-                                                    <circle cx="20" cy="15" r="7" fill="#b8b8b5" />
-                                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#b8b8b5" />
+                                            <div class="tcsp-av-ph" id="tcsAvCharPH">
+                                                <svg viewBox="0 0 40 40">
+                                                    <circle cx="20" cy="20" r="20" fill="#ddd" />
+                                                    <circle cx="20" cy="15" r="7" fill="#bbb" />
+                                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#bbb" />
                                                 </svg>
                                             </div>
-                                            <img id="tcpSpCharAvImg" class="hidden" alt="char-av" />
-                                            <div class="tcp-sp-av-label">角色</div>
+                                            <img class="tcsp-av-img hidden" id="tcsAvCharImg" alt="char" />
+                                            <div class="tcsp-av-edit">换图</div>
                                         </div>
                                         <!-- user 头像（右前） -->
-                                        <div class="tcp-sp-av tcp-sp-av-front" onclick="tcpSpChangeUserAvatar()"
+                                        <div class="tcsp-av tcsp-av-user" id="tcsAvUser" onclick="tcsChangeUserAvatar()"
                                             title="更换用户头像">
-                                            <div class="tcp-sp-av-ph" id="tcpSpUserAvPH">
-                                                <svg viewBox="0 0 40 40" fill="none">
-                                                    <rect width="40" height="40" rx="10" fill="#e4e4e2" />
-                                                    <circle cx="20" cy="15" r="7" fill="#c8c8c5" />
-                                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#c8c8c5" />
+                                            <div class="tcsp-av-ph" id="tcsAvUserPH">
+                                                <svg viewBox="0 0 40 40">
+                                                    <circle cx="20" cy="20" r="20" fill="#ddd" />
+                                                    <circle cx="20" cy="15" r="7" fill="#bbb" />
+                                                    <ellipse cx="20" cy="33" rx="12" ry="8" fill="#bbb" />
                                                 </svg>
                                             </div>
-                                            <img id="tcpSpUserAvImg" class="hidden" alt="user-av" />
-                                            <div class="tcp-sp-av-label">我</div>
+                                            <img class="tcsp-av-img hidden" id="tcsAvUserImg" alt="user" />
+                                            <div class="tcsp-av-edit">换图</div>
                                         </div>
                                     </div>
+                                    <input type="file" accept="image/*" class="hidden" id="tcsCharAvatarInput"
+                                        onchange="tcsOnCharAvatarChange(event)">
+                                    <input type="file" accept="image/*" class="hidden" id="tcsUserAvatarInput"
+                                        onchange="tcsOnUserAvatarChange(event)">
                                 </div>
 
-                                <!-- ② 基础设置卡片 -->
-                                <div class="tcp-sp-card">
+                                <!-- ── 基础 ── -->
+                                <div class="tcsp-group-label">基础</div>
+                                <div class="tcsp-section">
                                     <!-- 备注 -->
-                                    <div class="tcp-sp-row" onclick="tcpSpEditRemark()">
-                                        <span class="tcp-sp-row-label">备注</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpRemark">未设置</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">备注</span>
+                                        <input class="tcsp-row-input" id="tcsRemark" type="text" placeholder="设置备注名…"
+                                            oninput="tcsOnRemarkInput()">
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
                                     <!-- 分组 -->
-                                    <div class="tcp-sp-row" onclick="tcpSpEditGroup()">
-                                        <span class="tcp-sp-row-label">分组</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpGroup">默认</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">分组</span>
+                                        <select class="tcsp-row-select" id="tcsGroupSelect"
+                                            onchange="tcsOnGroupChange()"></select>
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
                                     <!-- 修改角色信息 -->
-                                    <div class="tcp-sp-row" onclick="tcpSpEditChar()">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">修改角色信息</span>
-                                            <span class="tcp-sp-row-sub">姓名·昵称·详情·地区·性别</span>
-                                        </div>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsOpenEditChar()">
+                                        <span class="tcsp-row-label">修改角色信息</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
                                     <!-- User 身份 -->
-                                    <div class="tcp-sp-row" onclick="tcpSpEditUser()">
-                                        <span class="tcp-sp-row-label">User 身份</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpUserName">未设置</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsOpenEditUser()">
+                                        <span class="tcsp-row-label">User 身份</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                     </div>
                                 </div>
 
-                                <!-- ③ 扩展功能 标题 -->
-                                <div class="tcp-sp-group-title">扩展功能</div>
-
-                                <!-- 相关世界书 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpWorldbook()">
-                                        <span class="tcp-sp-row-label">相关世界书</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpWBCount">未关联</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
+                                <!-- ── 扩展 ── -->
+                                <div class="tcsp-group-label">扩展</div>
+                                <div class="tcsp-section">
+                                    <!-- 世界书 -->
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsOpenWorldbook()">
+                                        <span class="tcsp-row-label">相关世界书</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                     </div>
-                                </div>
-
-                                <!-- 表情包 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpEmoji()">
-                                        <span class="tcp-sp-row-label">表情包</span>
-                                        <span class="tcp-sp-row-val">管理表情包</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
+                                    <!-- 表情包 -->
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsOpenEmoji()">
+                                        <span class="tcsp-row-label">表情包</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                     </div>
-                                </div>
-
-                                <!-- 开关类设置卡片 -->
-                                <div class="tcp-sp-card">
-                                    <!-- 翻译 -->
-                                    <div class="tcp-sp-row">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">自动翻译</span>
-                                            <span class="tcp-sp-row-sub">外语/繁体自动翻译为中文</span>
-                                        </div>
-                                        <label class="tcp-sp-toggle">
-                                            <input type="checkbox" id="tcpSpTranslate"
-                                                onchange="tcpSpSaveToggle('translate',this.checked)" />
-                                            <span class="tcp-sp-toggle-track"></span>
+                                    <!-- 自动翻译 -->
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">自动翻译</span>
+                                        <label class="tcsp-toggle">
+                                            <input type="checkbox" id="tcsAutoTranslate"
+                                                onchange="tcsOnToggle('autoTranslate', this.checked)">
+                                            <span class="tcsp-toggle-track"><span
+                                                    class="tcsp-toggle-thumb"></span></span>
                                         </label>
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
                                     <!-- 推送模式 -->
-                                    <div class="tcp-sp-row">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">推送模式</span>
-                                            <span class="tcp-sp-row-sub">离开应用时角色仍可回复并推送提醒</span>
-                                        </div>
-                                        <label class="tcp-sp-toggle">
-                                            <input type="checkbox" id="tcpSpPush"
-                                                onchange="tcpSpSaveToggle('push',this.checked)" />
-                                            <span class="tcp-sp-toggle-track"></span>
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">推送模式</span>
+                                        <label class="tcsp-toggle">
+                                            <input type="checkbox" id="tcsPushMode"
+                                                onchange="tcsOnToggle('pushMode', this.checked)">
+                                            <span class="tcsp-toggle-track"><span
+                                                    class="tcsp-toggle-thumb"></span></span>
                                         </label>
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
-                                    <!-- 主动发信息 -->
-                                    <div class="tcp-sp-row">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">主动发消息</span>
-                                            <span class="tcp-sp-row-sub">角色在1.5小时内概率主动发消息</span>
-                                        </div>
-                                        <label class="tcp-sp-toggle">
-                                            <input type="checkbox" id="tcpSpProactive"
-                                                onchange="tcpSpSaveToggle('proactive',this.checked)" />
-                                            <span class="tcp-sp-toggle-track"></span>
+                                    <!-- 主动发消息 -->
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">主动发消息</span>
+                                        <label class="tcsp-toggle">
+                                            <input type="checkbox" id="tcsProactive"
+                                                onchange="tcsOnToggle('proactive', this.checked)">
+                                            <span class="tcsp-toggle-track"><span
+                                                    class="tcsp-toggle-thumb"></span></span>
                                         </label>
                                     </div>
                                 </div>
 
-                                <!-- 地点感知 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpEditLocation('user')">
-                                        <span class="tcp-sp-row-label">我的地点</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpUserLoc">未设置</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                <!-- ── 感知 ── -->
+                                <div class="tcsp-group-label">感知</div>
+                                <div class="tcsp-section">
+                                    <!-- 地点感知 -->
+                                    <div class="tcsp-row tcsp-row-col">
+                                        <span class="tcsp-row-label">地点感知</span>
+                                        <div class="tcsp-loc-row">
+                                            <select class="tcsp-row-select tcsp-loc-sel" id="tcsLocCountry"
+                                                onchange="tcsOnLocChange()">
+                                                <option value="">选择国家</option>
+                                            </select>
+                                            <select class="tcsp-row-select tcsp-loc-sel" id="tcsLocCity"
+                                                onchange="tcsOnLocChange()">
+                                                <option value="">选择城市</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="tcp-sp-divider"></div>
-                                    <div class="tcp-sp-row" onclick="tcpSpEditLocation('char')">
-                                        <span class="tcp-sp-row-label">角色当前地点</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpCharLoc2">未设置</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                    <!-- 时间感知 -->
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">时间感知地区</span>
+                                        <select class="tcsp-row-select" id="tcsTimezone"
+                                            onchange="tcsOnTimezoneChange()">
+                                            <option value="">跟随本地</option>
+                                            <option value="Asia/Tokyo">日本</option>
+                                            <option value="Asia/Shanghai">中国</option>
+                                            <option value="Asia/Seoul">韩国</option>
+                                            <option value="America/New_York">美国东部</option>
+                                            <option value="America/Los_Angeles">美国西部</option>
+                                            <option value="Europe/London">英国</option>
+                                            <option value="Europe/Paris">法国/德国</option>
+                                            <option value="Europe/Moscow">俄罗斯</option>
+                                            <option value="Asia/Bangkok">泰国</option>
+                                            <option value="Asia/Singapore">新加坡</option>
+                                            <option value="Asia/Dubai">阿联酋</option>
+                                            <option value="Australia/Sydney">澳大利亚</option>
+                                        </select>
                                     </div>
                                 </div>
 
-                                <!-- 时间感知 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpEditTimezone()">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">时间感知</span>
-                                            <span class="tcp-sp-row-sub">选择角色所在时区，影响角色对时间的认知</span>
-                                        </div>
-                                        <span class="tcp-sp-row-val" id="tcpSpTimezone">跟随系统</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                <!-- ── 记忆 ── -->
+                                <div class="tcsp-group-label">记忆</div>
+                                <div class="tcsp-section">
+                                    <!-- 记忆轮数 -->
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">记忆轮数</span>
+                                        <select class="tcsp-row-select" id="tcsMemoryRounds"
+                                            onchange="tcsOnMemoryChange()">
+                                            <option value="10">10 轮</option>
+                                            <option value="20" selected>20 轮</option>
+                                            <option value="30">30 轮</option>
+                                            <option value="50">50 轮</option>
+                                            <option value="100">100 轮</option>
+                                            <option value="0">全部</option>
+                                        </select>
                                     </div>
-                                </div>
-
-                                <!-- 记忆设置 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpEditMemoryRounds()">
-                                        <span class="tcp-sp-row-label">记忆轮数</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpMemRounds">20轮</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
-                                    </div>
-                                    <div class="tcp-sp-divider"></div>
-                                    <div class="tcp-sp-row">
-                                        <div class="tcp-sp-row-left">
-                                            <span class="tcp-sp-row-label">记忆总结</span>
-                                            <span class="tcp-sp-row-sub">自动总结10条内容强化记忆</span>
-                                        </div>
-                                        <label class="tcp-sp-toggle">
-                                            <input type="checkbox" id="tcpSpMemSummary"
-                                                onchange="tcpSpSaveToggle('memSummary',this.checked)" />
-                                            <span class="tcp-sp-toggle-track"></span>
+                                    <!-- 自动记忆总结 -->
+                                    <div class="tcsp-row">
+                                        <span class="tcsp-row-label">自动记忆总结</span>
+                                        <label class="tcsp-toggle">
+                                            <input type="checkbox" id="tcsMemorySummary"
+                                                onchange="tcsOnToggle('memorySummary', this.checked)">
+                                            <span class="tcsp-toggle-track"><span
+                                                    class="tcsp-toggle-thumb"></span></span>
                                         </label>
                                     </div>
                                 </div>
 
-                                <!-- 聊天壁纸 -->
-                                <div class="tcp-sp-card">
-                                    <div class="tcp-sp-row" onclick="tcpSpSetWallpaper()">
-                                        <span class="tcp-sp-row-label">聊天壁纸</span>
-                                        <span class="tcp-sp-row-val" id="tcpSpWallpaperVal">默认</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
+                                <!-- ── 外观 ── -->
+                                <div class="tcsp-group-label">外观</div>
+                                <div class="tcsp-section">
+                                    <!-- 聊天壁纸 -->
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsChangeBg()">
+                                        <span class="tcsp-row-label">聊天壁纸</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
+                                        </svg>
+                                    </div>
+                                    <!-- 壁纸库 -->
+                                    <div class="tcsp-row tcsp-row-arrow" onclick="tcsOpenBgLibrary()">
+                                        <span class="tcsp-row-label">壁纸库</span>
+                                        <svg class="tcsp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.8">
+                                            <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                     </div>
                                 </div>
 
-                                <!-- 危险操作 -->
-                                <div class="tcp-sp-card tcp-sp-card-danger">
-                                    <div class="tcp-sp-row tcp-sp-row-danger" onclick="tcpSpClearChat()">
-                                        <span class="tcp-sp-row-label">清除聊天记录</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                <!-- ── 危险操作 ── -->
+                                <div class="tcsp-group-label tcsp-group-danger">危险操作</div>
+                                <div class="tcsp-section">
+                                    <div class="tcsp-row tcsp-row-danger" onclick="tcsClearHistory()">
+                                        <span class="tcsp-row-label">清除聊天记录</span>
                                     </div>
-                                </div>
-                                <div class="tcp-sp-card tcp-sp-card-danger">
-                                    <div class="tcp-sp-row tcp-sp-row-danger tcp-sp-row-delete"
-                                        onclick="tcpSpDeleteFriend()">
-                                        <span class="tcp-sp-row-label">删除好友</span>
-                                        <svg class="tcp-sp-row-arrow" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M9 18l6-6-6-6" />
-                                        </svg>
+                                    <div class="tcsp-row tcsp-row-danger" onclick="tcsDeleteFriend()">
+                                        <span class="tcsp-row-label">删除好友</span>
                                     </div>
                                 </div>
 
-                                <div style="height:32px"></div>
-                            </div><!-- /tcp-sp-scroll -->
-                        </div><!-- /tcpSettingsPage -->
-
+                                <div style="height:40px"></div>
+                            </div><!-- /tcsp-scroll -->
+                        </div><!-- /tcp-settings-panel -->
                     </div>
 
                 </div>
