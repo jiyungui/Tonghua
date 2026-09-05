@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <!-- 严禁缩放、支持 iOS 视口贴边与全面屏沉浸式适配 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>祁祁phone</title>
 
@@ -27,7 +26,7 @@
     <!-- 顶部状态栏 -->
     <header class="status-bar">
       <div class="status-left">
-        <span class="status-time" id="status-time-display">20:28</span>
+        <span class="status-time" id="status-time-display">22:39</span>
       </div>
       <div class="status-right">
         <!-- 信号图标 -->
@@ -74,8 +73,8 @@
             <div id="slot-widget-p3"></div>
           </div>
 
-          <!-- 8个常用应用 (chat-记忆世界-相册-日记-世界书-老福特-闲鱼-美团) -->
-          <div class="apps-grid" id="slot-apps-page1"></div>
+          <!-- 8个常用应用: chat-记忆世界-相册-日记-世界书-老福特-闲鱼-美团 -->
+          <div class="apps-grid-4col" id="slot-apps-page1"></div>
         </section>
 
         <!-- ==================== 第二页 ==================== -->
@@ -83,8 +82,11 @@
           <!-- 第二页顶部小组件 (Story Mode 卡片 + 语录胶囊) -->
           <div id="slot-widget-p4"></div>
 
-          <!-- 第二页 4 个应用 (视频-恋人之家-你懂得-查手机) -->
-          <div class="apps-grid" id="slot-apps-page2"></div>
+          <!-- 第二页左右分栏: 左侧放置 P2 小组件，右侧 2 列纵向放置 4 个应用 (视频, 恋人之家, 你懂得, 查手机) -->
+          <div class="page2-split-grid">
+            <div id="slot-widget-p2-page2"></div>
+            <div class="page2-apps-2col" id="slot-apps-page2"></div>
+          </div>
         </section>
 
       </div>

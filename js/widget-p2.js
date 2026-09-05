@@ -1,4 +1,4 @@
-// P2 小组件逻辑控制器
+// P2 小组件逻辑控制器（支持指定容器渲染，使第一页与第二页可同时复用）
 import { storage } from './storage.js';
 import { DEFAULT_GRAY_IMAGES } from './quotes.js';
 
@@ -10,26 +10,26 @@ export const P2Widget = {
     line3Text: 'plog .!′ ૮₍ ≧ . ≦ ₎ა'
   },
 
-  async render(container, onEditClick) {
-    const data = await this.getData();
-    const imgUrl = await storage.getImageURL('p2_image') || DEFAULT_GRAY_IMAGES.square;
+  async render(container, onEditClick, storagePrefix = 'p2') {
+    const data = await this.getData(storagePrefix);
+    const imgUrl = await storage.getImageURL(`${storagePrefix}_image`) || DEFAULT_GRAY_IMAGES.square;
 
     container.innerHTML = `
-      <div class="widget-p2-card" id="widget-p2-inner">
-        <button class="widget-edit-btn" title="编辑P2小组件" id="p2-edit-trigger">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <div class="widget-p2-card" id="widget-${storagePrefix}-inner">
+        <button class="widget-edit-btn" title="编辑P2小组件" id="${storagePrefix}-edit-trigger">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
 
         <div class="p2-search-bar">
           <div class="p2-search-icon">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7A7C80" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7A7C80" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <span class="p2-search-text">${data.searchPlaceholder}</span>
         </div>
 
         <div class="p2-content-row">
           <div class="p2-image-box">
-            <img src="${imgUrl}" alt="Coffee" class="p2-img" id="p2-display-img">
+            <img src="${imgUrl}" alt="Card Image" class="p2-img" id="${storagePrefix}-display-img">
           </div>
           <div class="p2-text-col">
             <div class="p2-symbols-row">
@@ -44,21 +44,21 @@ export const P2Widget = {
       </div>
     `;
 
-    container.querySelector('#p2-edit-trigger').addEventListener('click', (e) => {
+    container.querySelector(`#${storagePrefix}-edit-trigger`).addEventListener('click', (e) => {
       e.stopPropagation();
-      onEditClick('p2');
+      onEditClick(storagePrefix);
     });
   },
 
-  async getData() {
-    const saved = await storage.get('p2_data');
+  async getData(storagePrefix = 'p2') {
+    const saved = await storage.get(`${storagePrefix}_data`);
     return saved ? { ...this.defaultData, ...saved } : this.defaultData;
   },
 
-  async saveData(newData, imageFile) {
-    await storage.set('p2_data', newData);
+  async saveData(newData, imageFile, storagePrefix = 'p2') {
+    await storage.set(`${storagePrefix}_data`, newData);
     if (imageFile) {
-      await storage.saveImageBlob('p2_image', imageFile);
+      await storage.saveImageBlob(`${storagePrefix}_image`, imageFile);
     }
   }
 };

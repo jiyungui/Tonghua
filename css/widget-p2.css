@@ -1,59 +1,67 @@
-/* P2 极简搜索与咖啡图文小组件 */
+/* P2 极简搜索与咖啡图文小组件 (100% 宽度自适应，杜绝溢出) */
 
 .widget-p2-card {
   width: 100%;
   height: 100%;
+  min-width: 0;
   background: #FFFFFF;
   border-radius: var(--radius-widget);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--glass-shadow);
-  padding: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* 顶部搜索栏 */
 .p2-search-bar {
   width: 100%;
-  height: 28px;
+  height: 26px;
   background: #F1F2F1;
-  border-radius: 14px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
-  padding: 0 8px;
-  gap: 5px;
+  padding: 0 7px;
+  gap: 4px;
+  box-sizing: border-box;
 }
 
 .p2-search-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .p2-search-text {
-  font-size: 11px;
+  font-size: 10px;
   color: #8E8E93;
   font-weight: 500;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 下方图文并排展示 */
 .p2-content-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 .p2-image-box {
-  width: 52px;
-  height: 66px;
-  border-radius: 12px;
+  width: 44px;
+  height: 56px;
+  border-radius: 10px;
   overflow: hidden;
-  background: #E2E3E2;
+  background: #E3E4E3;
   flex-shrink: 0;
 }
 
@@ -66,32 +74,34 @@
 
 .p2-text-col {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   overflow: hidden;
 }
 
 .p2-symbols-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
+  gap: 3px;
+  font-size: 9px;
   color: #2C2C2E;
   font-weight: 600;
 }
 
 .p2-symbol-svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   fill: #1D1D1F;
+  flex-shrink: 0;
 }
 
 .p2-serif-text {
   font-family: Georgia, "DiaryFont", serif;
   font-style: italic;
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 600;
   color: #2C2C2E;
   white-space: nowrap;
@@ -100,20 +110,23 @@
 }
 
 .p2-sub-korean {
-  font-size: 9px;
+  font-size: 8.5px;
   color: #636366;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .p2-plog-tag {
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 600;
   color: #8E8E93;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

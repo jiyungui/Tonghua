@@ -31,8 +31,11 @@ class App {
           await P1Widget.saveData(data, files.p1_bg, files.p1_avatar);
           await this.renderP1();
         } else if (type === 'p2') {
-          await P2Widget.saveData(data, files.p2_img);
+          await P2Widget.saveData(data, files.p2_img, 'p2');
           await this.renderP2();
+        } else if (type === 'p2_page2') {
+          await P2Widget.saveData(data, files.p2_img, 'p2_page2');
+          await this.renderP2Page2();
         } else if (type === 'p3') {
           await P3Widget.saveData(data, files.p3_top, files.p3_avatar);
           await this.renderP3();
@@ -48,6 +51,7 @@ class App {
     await this.renderP2();
     await this.renderP3();
     await this.renderP4();
+    await this.renderP2Page2();
     this.renderApps();
 
     // 4. 注册 Service Worker
@@ -73,9 +77,9 @@ class App {
     const container = document.getElementById('slot-widget-p2');
     if (!container) return;
     await P2Widget.render(container, async (type) => {
-      const data = await P2Widget.getData();
+      const data = await P2Widget.getData('p2');
       this.modal.open(type, data);
-    });
+    }, 'p2');
   }
 
   async renderP3() {
@@ -101,6 +105,15 @@ class App {
         await this.renderP4();
       }
     );
+  }
+
+  async renderP2Page2() {
+    const container = document.getElementById('slot-widget-p2-page2');
+    if (!container) return;
+    await P2Widget.render(container, async (type) => {
+      const data = await P2Widget.getData('p2_page2');
+      this.modal.open('p2_page2', data);
+    }, 'p2_page2');
   }
 
   renderApps() {

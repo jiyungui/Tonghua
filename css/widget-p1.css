@@ -6,7 +6,7 @@
   background: #FFFFFF;
   border: 1px solid var(--border-subtle);
   box-shadow: var(--glass-shadow);
-  padding: 12px 12px 14px 12px;
+  padding: 10px 10px 12px 10px;
   position: relative;
   overflow: hidden;
 }
@@ -15,9 +15,9 @@
 .p1-paperclip {
   position: absolute;
   top: 4px;
-  left: 18px;
-  width: 24px;
-  height: 44px;
+  left: 16px;
+  width: 22px;
+  height: 40px;
   z-index: 10;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
@@ -27,10 +27,10 @@
 .p1-image-container {
   position: relative;
   width: 100%;
-  height: 168px;
-  border-radius: 18px;
+  height: 156px;
+  border-radius: 16px;
   overflow: hidden;
-  background-color: #E2E3E2;
+  background-color: #E3E4E3;
 }
 
 .p1-bg-image {
@@ -43,31 +43,31 @@
 /* 底部左侧半透明毛玻璃气泡 */
 .p1-bubble-tag {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  bottom: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  padding: 3px 10px 3px 5px;
-  border-radius: 20px;
+  padding: 3px 8px 3px 4px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
-  gap: 7px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
 
 .p1-bubble-avatar {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid rgba(255,255,255,0.8);
-  background-color: #DCDDDC;
+  background-color: #DBDEDB;
 }
 
 .p1-bubble-text {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
   color: #1A1A1A;
   letter-spacing: -0.1px;
@@ -76,25 +76,25 @@
 /* 右侧浮动功能按钮组 */
 .p1-action-buttons {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: 8px;
+  bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 
 .p1-action-btn {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.88);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -105,37 +105,37 @@
 
 /* 底部详情信息 */
 .p1-details-section {
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 .p1-name-title {
   font-family: Georgia, "Times New Roman", "CatFont", serif;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   color: #121212;
   letter-spacing: -0.4px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .p1-tags-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 10px;
-  margin-bottom: 8px;
+  gap: 5px 8px;
+  margin-bottom: 6px;
 }
 
 .p1-tag-item {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
   color: #4A4A4C;
   background: #F4F4F5;
-  padding: 2.5px 8px;
-  border-radius: 7px;
+  padding: 2px 7px;
+  border-radius: 6px;
 }
 
 .p1-bio-text {
-  font-size: 11.5px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.45;
   color: #6E6E73;
   font-weight: 400;
 }

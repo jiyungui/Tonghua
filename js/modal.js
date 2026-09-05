@@ -70,8 +70,8 @@ export class EditModal {
           </div>
         </div>
       `;
-    } else if (type === 'p2') {
-      title = '编辑 P2 搜索与图文组件';
+    } else if (type === 'p2' || type === 'p2_page2') {
+      title = type === 'p2_page2' ? '编辑第二页 P2 组件' : '编辑 P2 搜索与图文组件';
       formHtml = `
         <div class="form-group">
           <label class="form-label">搜索框提示文字</label>
@@ -182,7 +182,7 @@ export class EditModal {
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">更换相册照片 4 (或添加格)</label>
+          <label class="form-label">更换相册照片 4</label>
           <div class="upload-box" id="p4-photo4-upload-btn">
             <span>点击上传照片 4</span>
             <input type="file" id="edit-p4-photo4-file" accept="image/*">
@@ -236,7 +236,7 @@ export class EditModal {
     if (this.currentWidget === 'p1') {
       bindUploader('p1-bg-upload-btn', 'edit-p1-bg-file', 'p1-bg-preview', 'p1_bg');
       bindUploader('p1-avatar-upload-btn', 'edit-p1-avatar-file', 'p1-avatar-preview', 'p1_avatar');
-    } else if (this.currentWidget === 'p2') {
+    } else if (this.currentWidget === 'p2' || this.currentWidget === 'p2_page2') {
       bindUploader('p2-img-upload-btn', 'edit-p2-file', 'p2-preview', 'p2_img');
     } else if (this.currentWidget === 'p3') {
       bindUploader('p3-top-upload-btn', 'edit-p3-top-file', 'p3-top-preview', 'p3_top');
@@ -262,7 +262,7 @@ export class EditModal {
           bubbleText: this.overlay.querySelector('#edit-p1-bubble').value,
           bio: this.overlay.querySelector('#edit-p1-bio').value
         };
-      } else if (this.currentWidget === 'p2') {
+      } else if (this.currentWidget === 'p2' || this.currentWidget === 'p2_page2') {
         resultData = {
           searchPlaceholder: this.overlay.querySelector('#edit-p2-search').value,
           line1Text: this.overlay.querySelector('#edit-p2-line1').value,
