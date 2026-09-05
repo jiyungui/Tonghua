@@ -1,0 +1,12 @@
+{
+  "name": "qiqi-phone",
+  "version": "1.0.0",
+  "description": "祁祁phone - INS白灰极简拟态手机",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["phone", "ins-style", "pwa"],
+  "author": "Chatbox",
+  "license": "MIT"
+}
