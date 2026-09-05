@@ -46,7 +46,7 @@ html, body {
   color: var(--text-main);
 }
 
-/* 主屏幕全屏容器 */
+/* 主屏幕全屏容器 (直通手机硬件顶部与底部刘海安全区) */
 #phone-screen {
   position: relative;
   width: 100%;
@@ -54,15 +54,30 @@ html, body {
   height: 100%;
   height: 100dvh;
   margin: 0 auto;
-  background-color: transparent; /* 允许壁纸底图透出 */
+  background-color: transparent; /* 允许壁纸底图透出并铺满整屏 */
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top, 0px);\n  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
 }
 
-/* 顶部状态栏 */
+/* 顶部状态栏 (自适应刘海/灵动岛高度，壁纸直接铺至最顶端) */
 .status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 20px 2px 20px;
+  padding-top: max(6px, env(safe-area-inset-top, 6px));
+  font-size: 13px;
+  font-weight: 600;
+  color: #1C1C1E;
+  user-select: none;
+  z-index: 10;
+  background: transparent;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
   height: 36px;
   padding: 0 20px;
   display: flex;
@@ -223,7 +238,10 @@ html, body {
 /* 底部 Dock 栏 */
 .dock-container {
   padding: 4px 14px 8px 14px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
   flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .dock-blur-box {

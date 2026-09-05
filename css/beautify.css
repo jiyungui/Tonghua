@@ -743,49 +743,59 @@
   transition: all 0.2s ease;
 }
 
-.action-capsule-btn {
-  width: 100%;
-  padding: 13px 20px;
-  border-radius: 28px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+/* 底部操作区域与悬浮胶囊按键 */
+.action-capsule-bar {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  padding: 6px 4px 10px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.action-capsule-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 9999px; /* 极致圆润超大悬浮胶囊 */
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   cursor: pointer;
-  border: 1px solid rgba(215, 215, 215, 0.8);
-  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   text-transform: uppercase;
 }
 
 .action-capsule-btn.primary {
-  background: #2C2C2E;
+  background: linear-gradient(180deg, #323235 0%, #1C1C1E 100%);
   color: #FFFFFF;
-  border-color: #2C2C2E;
-  box-shadow: 0 4px 14px rgba(44, 44, 46, 0.18);
+  box-shadow: 0 10px 24px -4px rgba(28, 28, 30, 0.38), 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .action-capsule-btn.primary:hover {
-  background: #1C1C1E;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(44, 44, 46, 0.25);
+  background: linear-gradient(180deg, #3A3A3D 0%, #242426 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -4px rgba(28, 28, 30, 0.45);
 }
 
 .action-capsule-btn.primary:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(44, 44, 46, 0.15);
+  transform: scale(0.96) translateY(0);
+  box-shadow: 0 4px 12px rgba(28, 28, 30, 0.25);
 }
 
 .action-capsule-btn.secondary {
   background: #F1F2F1;
   color: #2C2C2E;
-  border-color: rgba(215, 215, 215, 0.7);
+  border: 1px solid rgba(215, 215, 215, 0.9);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .action-capsule-btn.secondary:active {
   background: #E5E6E5;
-  transform: scale(0.97);
+  transform: scale(0.96);
 }

@@ -518,10 +518,12 @@ export class BeautifyApp {
             </div>
 
             <!-- 保存壁纸及所有参数至壁纸库 -->
-            <button class="action-capsule-btn primary" id="btn-save-to-gallery" style="margin-top: 8px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              <span>保存参数并收录至壁纸库</span>
-            </button>
+            <div class="action-capsule-bar">
+              <button class="action-capsule-btn primary" id="btn-save-to-gallery">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>保存参数并收录至壁纸库</span>
+              </button>
+            </div>
           </div>
 
           <!-- 4. 壁纸库板块 (保存/历史记录) -->
