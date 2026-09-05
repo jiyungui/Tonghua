@@ -1,0 +1,295 @@
+/* 祁祁phone 开屏进场动画 (INS白灰风 · 人机火柴人男女圆头动态 + 果冻Q弹QQ) */
+
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--bg-primary, #F1F2F1);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* 跳过提示按钮 (极简灰白) */
+.splash-skip-btn {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(215, 215, 215, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #8E8E93;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.splash-skip-btn:active {
+  background: #E5E6E5;
+  transform: scale(0.95);
+}
+
+/* 动画中心主体容器 */
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  animation: splashEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes splashEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 火柴人 SVG 容器 */
+.splash-stickman-box {
+  width: 260px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-stickman-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ================= 动态细节 Keyframes ================= */
+
+/* 1. 男孩头顶呆毛俏皮晃动 */
+.anim-human-hair {
+  transform-origin: 88px 92px;
+  animation: hairWiggle 2.4s ease-in-out infinite;
+}
+
+@keyframes hairWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-14deg); }
+  75% { transform: rotate(12deg); }
+}
+
+/* 2. 女孩AI可爱小马尾飘动 */
+.anim-girl-hair-left {
+  transform-origin: 150px 115px;
+  animation: pigtailLeft 2.2s ease-in-out infinite;
+}
+
+.anim-girl-hair-right {
+  transform-origin: 194px 115px;
+  animation: pigtailRight 2.2s ease-in-out infinite 0.2s;
+}
+
+@keyframes pigtailLeft {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes pigtailRight {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+}
+
+/* 3. 女孩AI天线脉冲光波 */
+.anim-robot-signal {
+  transform-origin: 172px 74px;
+  animation: signalPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes signalPulse {
+  0%, 100% { transform: scale(1); fill: #2C2C2E; opacity: 1; }
+  50% { transform: scale(1.35); fill: #6E6E73; opacity: 0.8; }
+}
+
+/* 4. 中间爱心共鸣扑通心跳 */
+.anim-heart-beat {
+  transform-origin: 130px 82px;
+  animation: heartThrob 1.4s ease-in-out infinite;
+}
+
+@keyframes heartThrob {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.18); }
+  30% { transform: scale(1.02); }
+  45% { transform: scale(1.14); }
+  60% { transform: scale(1); }
+}
+
+/* 5. 男女火柴人呼吸与微摇摆 */
+.anim-human-body {
+  transform-origin: bottom center;
+  animation: floatHuman 2.8s ease-in-out infinite;
+}
+
+.anim-robot-body {
+  transform-origin: bottom center;
+  animation: floatRobot 2.8s ease-in-out infinite 0.3s;
+}
+
+@keyframes floatHuman {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px) rotate(-0.5deg); }
+}
+
+@keyframes floatRobot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px) rotate(0.5deg); }
+}
+
+/* 6. 牵手摆动 */
+.anim-hand-shake {
+  transform-origin: 130px 158px;
+  animation: handSwing 2.8s ease-in-out infinite;
+}
+
+@keyframes handSwing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+
+/* ================= 下方 Q版字母 QQ 果冻 Q 弹效果 ================= */
+
+.splash-qq-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: -6px;
+}
+
+/* 单个 Q 字母外壳 */
+.jelly-q-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Q 版果冻字母实体 */
+.jelly-q-letter {
+  width: 58px;
+  height: 64px;
+  transform-origin: bottom center;
+}
+
+/* 第一个 Q 果冻动画 */
+.jelly-q-1 {
+  animation: jellyBounce 1.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+}
+
+/* 第二个 Q 果冻动画 (稍错开形成波浪感) */
+.jelly-q-2 {
+  animation: jellyBounce 1.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite 0.22s;
+}
+
+/* 物理果冻 Q 弹关键帧 */
+@keyframes jellyBounce {
+  0%, 100% {
+    transform: scale(1, 1) translateY(0);
+  }
+  15% {
+    transform: scale(1.22, 0.78) translateY(4px);
+  }
+  30% {
+    transform: scale(0.82, 1.22) translateY(-14px);
+  }
+  48% {
+    transform: scale(1.12, 0.88) translateY(0);
+  }
+  65% {
+    transform: scale(0.94, 1.06) translateY(-4px);
+  }
+  80% {
+    transform: scale(1.04, 0.96) translateY(0);
+  }
+}
+
+/* 呼吸阴影 */
+.jelly-shadow {
+  width: 38px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 50%;
+  margin-top: 4px;
+  filter: blur(1.5px);
+  transform-origin: center;
+}
+
+.jelly-shadow-1 {
+  animation: shadowScale 1.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+}
+
+.jelly-shadow-2 {
+  animation: shadowScale 1.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite 0.22s;
+}
+
+@keyframes shadowScale {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  15% { transform: scale(1.3); opacity: 0.9; }
+  30% { transform: scale(0.55); opacity: 0.2; }
+  48% { transform: scale(1.15); opacity: 0.7; }
+  65% { transform: scale(0.85); opacity: 0.4; }
+  80% { transform: scale(1.05); opacity: 0.6; }
+}
+
+/* 底部标语 */
+.splash-footer-text {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.splash-title-en {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #2C2C2E;
+  text-transform: uppercase;
+}
+
+.splash-subtitle {
+  font-size: 11px;
+  color: #8E8E93;
+  letter-spacing: 1.5px;
+  font-weight: 400;
+}

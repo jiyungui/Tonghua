@@ -1,5 +1,6 @@
 // 祁祁phone 主逻辑启动入口
 import { storage } from './storage.js';
+import { SplashScreen } from './splash.js';
 import { P1Widget } from './widget-p1.js';
 import { P2Widget } from './widget-p2.js';
 import { P3Widget } from './widget-p3.js';
@@ -15,6 +16,12 @@ class App {
   }
 
   async init() {
+    // 0. 启动人机恋开屏进场动画
+    const splash = new SplashScreen({
+      duration: 2500
+    });
+    splash.init();
+
     // 1. 初始化视口与双页滑动
     const track = document.getElementById('pages-track');
     const dots = document.querySelectorAll('.indicator-dot');

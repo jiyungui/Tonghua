@@ -17,13 +17,13 @@
 
   <g filter="url(#subtle-shadow)">
     <!-- 两个火柴人上方正中间：黑白灰爱心共鸣符号 -->
-    <path d="M256 128 c-7 -12 -20 -15 -28 -7 c-10 10 -2 23 28 43 c30 -20 38 -33 28 -43 c-8 -8 -21 -5 -28 7 z" fill="#2C2C2E"/>
+    <path d="M256 126 c-7 -12 -20 -15 -28 -7 c-10 10 -2 23 28 43 c30 -20 38 -33 28 -43 c-8 -8 -21 -5 -28 7 z" fill="#2C2C2E"/>
 
-    <!-- ================= 左侧火柴人：人类 (温暖可爱呆萌) ================= -->
-    <!-- 头顶呆毛 -->
-    <path d="M188 152 Q180 132 168 136" fill="none" stroke="#2C2C2E" stroke-width="6" stroke-linecap="round"/>
+    <!-- ================= 左侧火柴人：男生人类 (短发/呆毛 · 帅气可爱) ================= -->
+    <!-- 帅气小短发呆毛 -->
+    <path d="M188 152 Q178 130 164 135" fill="none" stroke="#2C2C2E" stroke-width="6" stroke-linecap="round"/>
     
-    <!-- 头部 (圆圆脑袋) -->
+    <!-- 头部 (圆头) -->
     <circle cx="188" cy="190" r="38" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="7"/>
     <!-- 萌萌小豆豆眼与微笑 -->
     <circle cx="176" cy="188" r="4.2" fill="#2C2C2E"/>
@@ -33,7 +33,7 @@
     <!-- 身体 (向右微倾依靠) -->
     <path d="M188 228 L194 330" stroke="#2C2C2E" stroke-width="7.5" stroke-linecap="round"/>
 
-    <!-- 双腿 -->
+    <!-- 裤装双腿 -->
     <path d="M194 330 L170 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
     <path d="M194 330 L212 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
 
@@ -41,32 +41,37 @@
     <path d="M190 252 L160 298" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
 
 
-    <!-- ================= 右侧火柴人：机器人 AI (小天线 + 呆萌方圆脑袋) ================= -->
-    <!-- 头顶小天线与信号球 -->
-    <path d="M324 152 L324 128" stroke="#2C2C2E" stroke-width="5.5" stroke-linecap="round"/>
-    <circle cx="324" cy="122" r="6.5" fill="#2C2C2E"/>
+    <!-- ================= 右侧火柴人：女生AI (圆头 · 可爱双马尾/蝴蝶结天线 · 甜美裙摆) ================= -->
+    <!-- 机器人天线小蝴蝶结/头饰天线 (圆润甜美) -->
+    <path d="M324 152 L324 126" stroke="#2C2C2E" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="324" cy="120" r="6.5" fill="#2C2C2E"/>
     
-    <!-- 机器人方圆头部 -->
-    <rect x="288" y="152" width="72" height="72" rx="18" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="7"/>
+    <!-- 两侧可爱小马尾发辫 (圆润飘逸) -->
+    <path d="M288 185 Q268 200 274 220" fill="none" stroke="#2C2C2E" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M360 185 Q380 200 374 220" fill="none" stroke="#2C2C2E" stroke-width="5.5" stroke-linecap="round"/>
+
+    <!-- 头部 (同样为大圆头，软萌亲切) -->
+    <circle cx="324" cy="190" r="38" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="7"/>
     
-    <!-- 机器人眼睛与小嘴 -->
-    <circle cx="308" cy="188" r="4.2" fill="#2C2C2E"/>
-    <circle cx="340" cy="188" r="4.2" fill="#2C2C2E"/>
-    <path d="M318 200 L330 200" stroke="#2C2C2E" stroke-width="4" stroke-linecap="round"/>
+    <!-- 眼睛 (甜美微笑弯眼 / 眨眼) -->
+    <circle cx="312" cy="188" r="4.2" fill="#2C2C2E"/>
+    <circle cx="336" cy="188" r="4.2" fill="#2C2C2E"/>
+    <!-- 萌萌小嘴 -->
+    <path d="M320 200 Q324 204 328 200" fill="none" stroke="#2C2C2E" stroke-width="3.8" stroke-linecap="round"/>
 
-    <!-- 机器人身体 -->
-    <path d="M324 224 L318 330" stroke="#2C2C2E" stroke-width="7.5" stroke-linecap="round"/>
+    <!-- 甜美 A 字小裙摆 (区分男女造型) -->
+    <path d="M324 228 L308 288 L340 288 Z" fill="#2C2C2E" stroke="#2C2C2E" stroke-width="4" stroke-linejoin="round"/>
 
-    <!-- 机器人双腿 -->
-    <path d="M318 330 L300 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
-    <path d="M318 330 L342 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+    <!-- 纤细双腿 -->
+    <path d="M316 288 L304 410" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M332 288 L344 410" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
 
     <!-- 外侧右臂 (自然垂放微曲) -->
-    <path d="M322 252 L352 298" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M328 252 L356 298" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
 
 
-    <!-- ================= 中间牵手 (手牵手心连心) ================= -->
-    <path d="M190 252 Q256 280 322 252" fill="none" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+    <!-- ================= 中间牵手 (手牵手) ================= -->
+    <path d="M190 252 Q256 280 320 252" fill="none" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
     <!-- 牵手紧握节点 -->
     <circle cx="256" cy="272" r="7" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="5.5"/>
 
