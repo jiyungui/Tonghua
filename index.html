@@ -21,13 +21,19 @@
   <link rel="stylesheet" href="./css/core.css">
   <link rel="stylesheet" href="./css/splash.css">
   <link rel="stylesheet" href="./css/modal.css">
+  <link rel="stylesheet" href="./css/beautify.css">
   <link rel="stylesheet" href="./css/widget-p1.css">
   <link rel="stylesheet" href="./css/widget-p2.css">
   <link rel="stylesheet" href="./css/widget-p3.css">
   <link rel="stylesheet" href="./css/widget-p4.css">
 </head>
-<body>
+<body style="background-color: transparent;">
   <div id="phone-screen">
+    <!-- 动态壁纸渲染底图层 (移入 phone-screen 内部确保完美置底与铺满) -->
+    <div class="wallpaper-layer" id="wallpaper-layer">
+      <div class="wallpaper-bg-img" id="wallpaper-bg-img"></div>
+      <div class="wallpaper-glass-overlay" id="wallpaper-glass-overlay"></div>
+    </div>
     <!-- 顶部状态栏 -->
     <header class="status-bar">
       <div class="status-left">

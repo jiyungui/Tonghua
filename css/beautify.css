@@ -1,0 +1,791 @@
+/* 祁祁phone「美化 APP」专属样式库 (INS 高级白灰极简风 · 悬浮胶囊项目 · 二级板块联动) */
+
+/* 壁纸容器与动态壁纸图层 */
+.wallpaper-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wallpaper-bg-img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  will-change: transform, filter, opacity;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.wallpaper-glass-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.beautify-app-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--bg-primary, #F1F2F1);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.beautify-app-view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* 顶部导航栏 (毛玻璃拟态) */
+.beautify-header {
+  height: 52px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(215, 215, 215, 0.5);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10;
+}
+
+.beautify-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 18px;
+  background: #F1F2F1;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #2C2C2E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beautify-nav-btn:active {
+  background: #E5E6E5;
+  transform: scale(0.96);
+}
+
+.beautify-nav-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #2C2C2E;
+  text-transform: uppercase;
+}
+
+.beautify-header-right {
+  width: 58px; /* 占位平衡居中 */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.beautify-reset-btn {
+  font-size: 11px;
+  color: #8E8E93;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* 主内容多级视图滑轨容器 */
+.beautify-view-stack {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ================= 1. 一级项目主菜单 (六大悬浮胶囊) ================= */
+.beautify-menu-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.beautify-menu-pane.slide-left {
+  transform: translateX(-30%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 顶部 INS 风格引言与状态 */
+.beautify-hero-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  margin-bottom: 4px;
+}
+
+.beautify-hero-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #2C2C2E;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.beautify-hero-desc {
+  font-size: 11px;
+  color: #8E8E93;
+  line-height: 1.4;
+}
+
+/* 悬浮胶囊项目按钮 */
+.beautify-capsule-item {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 26px; /* 饱满大圆角胶囊 */
+  border: 1px solid rgba(215, 215, 215, 0.7);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.beautify-capsule-item:active {
+  transform: scale(0.975);
+  background: #FAFAFA;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.capsule-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.capsule-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #F4F5F4;
+  border: 1px solid rgba(215, 215, 215, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2C2C2E;
+}
+
+.capsule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.capsule-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #2C2C2E;
+}
+
+.capsule-subtitle {
+  font-size: 10px;
+  color: #8E8E93;
+  letter-spacing: 0.3px;
+}
+
+.capsule-arrow {
+  color: #AEAEB2;
+  display: flex;
+  align-items: center;
+}
+
+/* ================= 2. 二级子页面板块通用样式 ================= */
+.beautify-sub-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  box-sizing: border-box;
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.beautify-sub-pane.active {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 二级卡片容器 */
+.sub-panel-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  border: 1px solid rgba(215, 215, 215, 0.7);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sub-panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #8E8E93;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+/* 选项行 */
+.sub-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #F1F2F1;
+}
+
+.sub-setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2C2C2E;
+}
+
+.setting-desc {
+  font-size: 10px;
+  color: #8E8E93;
+}
+
+/* 高级白灰拟态滑块 Range */
+.beautify-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 140px;
+  height: 6px;
+  background: #E5E6E5;
+  border-radius: 4px;
+  outline: none;
+}
+
+.beautify-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #2C2C2E;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.beautify-range::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+
+/* 高级白灰拟态胶囊分段选择器 (Segmented Control) */
+.beautify-segment {
+  display: flex;
+  background: #F1F2F1;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.beautify-segment-btn {
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8E8E93;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beautify-segment-btn.active {
+  background: #FFFFFF;
+  color: #2C2C2E;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* 颜色选择球组 */
+.color-picker-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.color-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.color-dot.active {
+  transform: scale(1.25);
+  border-color: #2C2C2E;
+}
+
+/* 上传大胶囊按钮 */
+.upload-capsule-btn {
+  width: 100%;
+  background: #F8F9F8;
+  border: 1px dashed rgba(180, 180, 180, 0.7);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-capsule-btn:active {
+  background: #EFEFEF;
+  border-color: #2C2C2E;
+}
+
+.upload-capsule-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2C2C2E;
+  letter-spacing: 0.5px;
+}
+
+.upload-capsule-sub {
+  font-size: 10px;
+  color: #8E8E93;
+}
+
+/* ================= 壁纸二级板块专属样式 ================= */
+
+/* 1. 屏幕实时小预览框 */
+.wallpaper-preview-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.wallpaper-mini-phone {
+  width: 156px;
+  height: 310px;
+  border-radius: 28px;
+  background: #E5E6E5;
+  border: 4px solid #2C2C2E;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 预览框内屏幕壁纸显示层 */
+.mini-phone-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #F1F2F1;
+}
+
+.mini-phone-wallpaper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.mini-phone-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 拟态听筒条 */
+.mini-phone-notch {
+  width: 44px;
+  height: 5px;
+  background: #2C2C2E;
+  border-radius: 3px;
+  margin-top: 6px;
+  z-index: 5;
+  position: relative;
+}
+
+/* 预览中伪小组件与图标 (极简白灰拟态) */
+.mini-phone-content {
+  width: 100%;
+  height: 100%;
+  padding: 24px 10px 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 4;
+  position: relative;
+}
+
+.mini-dummy-widget {
+  width: 100%;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+}
+
+.mini-dummy-widget.small {
+  height: 56px;
+}
+
+.mini-dummy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.mini-dummy-icon {
+  width: 100%;
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+}
+
+.mini-dummy-dock {
+  margin-top: auto;
+  width: 100%;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  padding: 0 4px;
+  gap: 4px;
+}
+
+.mini-dummy-dock-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  background: rgba(44, 44, 46, 0.15);
+  border-radius: 6px;
+}
+
+/* 2. 双通道上传选择 (相册 / URL) */
+.wallpaper-input-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.wallpaper-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: #F1F2F1;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+  color: #8E8E93;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wallpaper-tab-btn.active {
+  background: #FFFFFF;
+  color: #2C2C2E;
+  border-color: #2C2C2E;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wallpaper-tab-content {
+  display: none;
+}
+
+.wallpaper-tab-content.active {
+  display: block;
+}
+
+.wallpaper-url-box {
+  display: flex;
+  gap: 8px;
+}
+
+.wallpaper-url-input {
+  flex: 1;
+  height: 38px;
+  background: #F8F9F8;
+  border: 1px solid rgba(215, 215, 215, 0.8);
+  border-radius: 18px;
+  padding: 0 14px;
+  font-size: 11px;
+  color: #2C2C2E;
+  outline: none;
+}
+
+.wallpaper-url-input:focus {
+  border-color: #2C2C2E;
+  background: #FFFFFF;
+}
+
+.wallpaper-url-btn {
+  padding: 0 16px;
+  height: 38px;
+  background: #2C2C2E;
+  color: #FFFFFF;
+  border-radius: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+/* 3. 模式切换胶囊 (居中 / 铺满全屏 / 自定义) */
+.mode-segmented {
+  display: flex;
+  background: #F1F2F1;
+  border: 1px solid rgba(215, 215, 215, 0.6);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 4px;
+  width: 100%;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 6px 0;
+  text-align: center;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8E8E93;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+  background: #FFFFFF;
+  color: #2C2C2E;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* 4. 壁纸库网格 */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  background: #E5E6E5;
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.gallery-item.active {
+  border-color: #2C2C2E;
+  transform: scale(1.03);
+}
+
+.gallery-thumb {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.gallery-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gallery-item:hover .gallery-delete-btn {
+  opacity: 1;
+}
+
+.gallery-empty {
+  grid-column: span 3;
+  text-align: center;
+  padding: 24px 0;
+  font-size: 11px;
+  color: #8E8E93;
+  letter-spacing: 0.5px;
+}
+
+  width: 100%;
+  padding: 12px;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.action-capsule-btn {
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 28px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(215, 215, 215, 0.8);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  text-transform: uppercase;
+}
+
+.action-capsule-btn.primary {
+  background: #2C2C2E;
+  color: #FFFFFF;
+  border-color: #2C2C2E;
+  box-shadow: 0 4px 14px rgba(44, 44, 46, 0.18);
+}
+
+.action-capsule-btn.primary:hover {
+  background: #1C1C1E;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(44, 44, 46, 0.25);
+}
+
+.action-capsule-btn.primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(44, 44, 46, 0.15);
+}
+
+.action-capsule-btn.secondary {
+  background: #F1F2F1;
+  color: #2C2C2E;
+  border-color: rgba(215, 215, 215, 0.7);
+}
+
+.action-capsule-btn.secondary:active {
+  background: #E5E6E5;
+  transform: scale(0.97);
+}

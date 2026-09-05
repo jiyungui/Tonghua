@@ -83,6 +83,11 @@ class StorageDB {
     }
   }
 
+  // 别名兼容
+  async saveImageBlob(key, fileOrBlob) {
+    return this.saveImageResource(key, fileOrBlob);
+  }
+
   // 读取图片并生成即时展示的 URL
   async getImageURL(key) {
     const type = await this.get(`img_type_${key}`);

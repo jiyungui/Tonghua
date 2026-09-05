@@ -1,6 +1,7 @@
 // 祁祁phone 主逻辑启动入口
 import { storage } from './storage.js';
 import { SplashScreen } from './splash.js';
+import { BeautifyApp } from './beautify.js';
 import { P1Widget } from './widget-p1.js';
 import { P2Widget } from './widget-p2.js';
 import { P3Widget } from './widget-p3.js';
@@ -13,6 +14,7 @@ class App {
   constructor() {
     this.modal = null;
     this.viewport = null;
+    this.beautify = null;
   }
 
   async init() {
@@ -22,7 +24,10 @@ class App {
     });
     splash.init();
 
-    // 1. 初始化视口与双页滑动
+    // 1. 初始化美化 APP 引擎
+    this.beautify = new BeautifyApp();
+
+    // 2. 初始化视口与双页滑动
     const track = document.getElementById('pages-track');
     const dots = document.querySelectorAll('.indicator-dot');
     this.viewport = new ViewportController({ track, dots });
@@ -132,6 +137,24 @@ class App {
 
     const dock = document.getElementById('slot-dock-apps');
     if (dock) AppsModule.renderDock(dock);
+
+    this.bindAppEvents();
+  }
+
+  bindAppEvents() {
+    // 点击 Dock 栏或桌面的「美化」打开美化 APP 视图
+    document.addEventListener('click', (e) => {
+      const item = e.target.closest('.app-item, .dock-item');
+      if (item) {
+        const appId = item.dataset.id;
+        const label = item.querySelector('.app-name, .dock-name, .app-label, .dock-label')?.innerText?.trim();
+        if (appId === 'theme' || label === '美化') {
+          if (this.beautify) {
+            this.beautify.open();
+          }
+        }
+      }
+    });
   }
 }
 
