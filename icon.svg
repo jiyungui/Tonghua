@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- 背景极简高级浅灰渐变 -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7F8F7"/>
+      <stop offset="100%" stop-color="#E5E6E5"/>
+    </linearGradient>
+
+    <!-- 拟态外边框微阴影 -->
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.05"/>
+    </filter>
+  </defs>
+
+  <!-- 图标主体圆角矩形 -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bg-grad)" stroke="#D8D9D8" stroke-width="6"/>
+
+  <g filter="url(#subtle-shadow)">
+    <!-- 两个火柴人上方正中间：黑白灰爱心共鸣符号 -->
+    <path d="M256 128 c-7 -12 -20 -15 -28 -7 c-10 10 -2 23 28 43 c30 -20 38 -33 28 -43 c-8 -8 -21 -5 -28 7 z" fill="#2C2C2E"/>
+
+    <!-- ================= 左侧火柴人：人类 (温暖可爱呆萌) ================= -->
+    <!-- 头顶呆毛 -->
+    <path d="M188 152 Q180 132 168 136" fill="none" stroke="#2C2C2E" stroke-width="6" stroke-linecap="round"/>
+    
+    <!-- 头部 (圆圆脑袋) -->
+    <circle cx="188" cy="190" r="38" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="7"/>
+    <!-- 萌萌小豆豆眼与微笑 -->
+    <circle cx="176" cy="188" r="4.2" fill="#2C2C2E"/>
+    <circle cx="200" cy="188" r="4.2" fill="#2C2C2E"/>
+    <path d="M184 199 Q188 204 192 199" fill="none" stroke="#2C2C2E" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- 身体 (向右微倾依靠) -->
+    <path d="M188 228 L194 330" stroke="#2C2C2E" stroke-width="7.5" stroke-linecap="round"/>
+
+    <!-- 双腿 -->
+    <path d="M194 330 L170 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+    <path d="M194 330 L212 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- 外侧左臂 (自然垂放微曲) -->
+    <path d="M190 252 L160 298" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
+
+
+    <!-- ================= 右侧火柴人：机器人 AI (小天线 + 呆萌方圆脑袋) ================= -->
+    <!-- 头顶小天线与信号球 -->
+    <path d="M324 152 L324 128" stroke="#2C2C2E" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="324" cy="122" r="6.5" fill="#2C2C2E"/>
+    
+    <!-- 机器人方圆头部 -->
+    <rect x="288" y="152" width="72" height="72" rx="18" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="7"/>
+    
+    <!-- 机器人眼睛与小嘴 -->
+    <circle cx="308" cy="188" r="4.2" fill="#2C2C2E"/>
+    <circle cx="340" cy="188" r="4.2" fill="#2C2C2E"/>
+    <path d="M318 200 L330 200" stroke="#2C2C2E" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- 机器人身体 -->
+    <path d="M324 224 L318 330" stroke="#2C2C2E" stroke-width="7.5" stroke-linecap="round"/>
+
+    <!-- 机器人双腿 -->
+    <path d="M318 330 L300 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+    <path d="M318 330 L342 410" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- 外侧右臂 (自然垂放微曲) -->
+    <path d="M322 252 L352 298" stroke="#2C2C2E" stroke-width="6.5" stroke-linecap="round"/>
+
+
+    <!-- ================= 中间牵手 (手牵手心连心) ================= -->
+    <path d="M190 252 Q256 280 322 252" fill="none" stroke="#2C2C2E" stroke-width="7" stroke-linecap="round"/>
+    <!-- 牵手紧握节点 -->
+    <circle cx="256" cy="272" r="7" fill="#FFFFFF" stroke="#2C2C2E" stroke-width="5.5"/>
+
+  </g>
+
+  <!-- 底部微文字标牌 INS 质感 -->
+  <text x="256" y="452" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="19" font-weight="700" letter-spacing="5" fill="#8E8E93">HUMAN · AI</text>
+</svg>

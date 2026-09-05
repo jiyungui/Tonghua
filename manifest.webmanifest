@@ -1,22 +1,17 @@
 {
   "name": "祁祁phone",
   "short_name": "祁祁phone",
-  "description": "祁祁phone - INS白灰极简拟态小手机",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#F1F2F1",
   "theme_color": "#F1F2F1",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "./图片/IMG_6065等22项文件/6.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "./图片/IMG_6065等22项文件/6.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg"
+      "src": "./icon.svg",
+      "sizes": "512x512 192x192 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
