@@ -1,24 +1,27 @@
 // P3 小组件逻辑控制器
 import { storage } from './storage.js';
-import { DEFAULT_GRAY_IMAGES } from './quotes.js';
+import { DEFAULT_GRAY_IMAGES, POETIC_QUOTES, getRandomItem } from './quotes.js';
 
 export const P3Widget = {
-  defaultData: {
-    monthText: 'October',
-    titleText: 'My little life.',
-    dateText: '27/10/2025',
-    kaomojiText: '( ੭;ω;)੭ ✦ .o ✧°'
+  getDefaultData() {
+    const months = ['October', 'November', 'December', 'January', 'February', 'March', 'April', 'May'];
+    return {
+      monthText: getRandomItem(months),
+      titleText: getRandomItem(POETIC_QUOTES.p3LifeTitles),
+      dateText: '27/10/2025',
+      kaomojiText: getRandomItem(POETIC_QUOTES.p3Kaomojis)
+    };
   },
 
   async render(container, onEditClick) {
     const data = await this.getData();
-    const topImgUrl = await storage.getImageURL('p3_top_image') || DEFAULT_GRAY_IMAGES.banner;
-    const avatarUrl = await storage.getImageURL('p3_avatar_image') || DEFAULT_GRAY_IMAGES.avatar;
+    const topImgUrl = await storage.getImageURL('p3_top') || DEFAULT_GRAY_IMAGES.banner;
+    const avatarUrl = await storage.getImageURL('p3_avatar') || DEFAULT_GRAY_IMAGES.avatar;
 
     container.innerHTML = `
       <div class="widget-p3-card" id="widget-p3-inner">
         <button class="widget-edit-btn" title="编辑P3小组件" id="p3-edit-trigger">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
 
         <div class="p3-top-photo-wrapper">
@@ -58,24 +61,29 @@ export const P3Widget = {
       </div>
     `;
 
-    container.querySelector('#p3-edit-trigger').addEventListener('click', (e) => {
-      e.stopPropagation();
+    const cardEl = container.querySelector('#widget-p3-inner');
+    cardEl.addEventListener('click', () => {
       onEditClick('p3');
     });
   },
 
   async getData() {
-    const saved = await storage.get('p3_data');
-    return saved ? { ...this.defaultData, ...saved } : this.defaultData;
+    try {
+      const saved = await storage.get('p3_data');
+      if (saved && typeof saved === 'object') return saved;
+      const defaults = this.getDefaultData();
+      await storage.set('p3_data', defaults);
+      return defaults;
+    } catch (e) {
+      return this.getDefaultData();
+    }
   },
 
-  async saveData(newData, topImgFile, avatarFile) {
+  async saveData(newData, imageResources) {
     await storage.set('p3_data', newData);
-    if (topImgFile) {
-      await storage.saveImageBlob('p3_top_image', topImgFile);
-    }
-    if (avatarFile) {
-      await storage.saveImageBlob('p3_avatar_image', avatarFile);
+    if (imageResources) {
+      if (imageResources.p3_top) await storage.saveImageResource('p3_top', imageResources.p3_top);
+      if (imageResources.p3_avatar) await storage.saveImageResource('p3_avatar', imageResources.p3_avatar);
     }
   }
 };

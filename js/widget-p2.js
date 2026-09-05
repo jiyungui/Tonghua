@@ -1,18 +1,22 @@
-// P2 小组件逻辑控制器（支持指定容器渲染，使第一页与第二页可同时复用）
+// P2 小组件逻辑控制器
 import { storage } from './storage.js';
-import { DEFAULT_GRAY_IMAGES } from './quotes.js';
+import { DEFAULT_GRAY_IMAGES, POETIC_QUOTES, getRandomItem } from './quotes.js';
 
 export const P2Widget = {
-  defaultData: {
-    searchPlaceholder: '검색',
-    line1Text: 'yummy',
-    line2Text: '재생 키를 누르다 ♡',
-    line3Text: 'plog .!′ ૮₍ ≧ . ≦ ₎ა'
+  getDefaultData() {
+    const textGroup = getRandomItem(POETIC_QUOTES.p2Texts) || POETIC_QUOTES.p2Texts[0];
+    return {
+      searchPlaceholder: getRandomItem(POETIC_QUOTES.searchPlaceholders),
+      line1Text: textGroup.line1,
+      line2Text: textGroup.line2,
+      line3Text: textGroup.line3
+    };
   },
 
   async render(container, onEditClick, storagePrefix = 'p2') {
     const data = await this.getData(storagePrefix);
-    const imgUrl = await storage.getImageURL(`${storagePrefix}_image`) || DEFAULT_GRAY_IMAGES.square;
+    const imgKey = storagePrefix === 'p2_page2' ? 'p2_page2_img' : 'p2_img';
+    const imgUrl = await storage.getImageURL(imgKey) || DEFAULT_GRAY_IMAGES.square;
 
     container.innerHTML = `
       <div class="widget-p2-card" id="widget-${storagePrefix}-inner">
@@ -44,21 +48,29 @@ export const P2Widget = {
       </div>
     `;
 
-    container.querySelector(`#${storagePrefix}-edit-trigger`).addEventListener('click', (e) => {
-      e.stopPropagation();
+    const cardEl = container.querySelector(`#widget-${storagePrefix}-inner`);
+    cardEl.addEventListener('click', () => {
       onEditClick(storagePrefix);
     });
   },
 
   async getData(storagePrefix = 'p2') {
-    const saved = await storage.get(`${storagePrefix}_data`);
-    return saved ? { ...this.defaultData, ...saved } : this.defaultData;
+    try {
+      const saved = await storage.get(`${storagePrefix}_data`);
+      if (saved && typeof saved === 'object') return saved;
+      const defaults = this.getDefaultData();
+      await storage.set(`${storagePrefix}_data`, defaults);
+      return defaults;
+    } catch (e) {
+      return this.getDefaultData();
+    }
   },
 
-  async saveData(newData, imageFile, storagePrefix = 'p2') {
+  async saveData(newData, imageResources, storagePrefix = 'p2') {
     await storage.set(`${storagePrefix}_data`, newData);
-    if (imageFile) {
-      await storage.saveImageBlob(`${storagePrefix}_image`, imageFile);
+    const imgKey = storagePrefix === 'p2_page2' ? 'p2_page2_img' : 'p2_img';
+    if (imageResources && imageResources[imgKey]) {
+      await storage.saveImageResource(imgKey, imageResources[imgKey]);
     }
   }
 };

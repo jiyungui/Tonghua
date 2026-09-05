@@ -1,14 +1,19 @@
 // P4 第二页顶部小组件控制器 (Story Mode 卡片 + 4相框 + 语录胶囊)
 import { storage } from './storage.js';
-import { DEFAULT_GRAY_IMAGES, RANDOM_QUOTES } from './quotes.js';
+import { DEFAULT_GRAY_IMAGES, POETIC_QUOTES, getRandomItem } from './quotes.js';
 
 export const P4Widget = {
-  defaultData: {
-    userName: '测试员',
-    userMotto: 'If onli I were in your eye...',
-    quoteText: RANDOM_QUOTES[0],
-    dateStr: '2026年06月13日',
-    timeStr: '08:58'
+  getDefaultData() {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日`;
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return {
+      userName: '测试员',
+      userMotto: getRandomItem(POETIC_QUOTES.mottos),
+      quoteText: getRandomItem(POETIC_QUOTES.storyQuotes),
+      dateStr,
+      timeStr
+    };
   },
 
   async render(container, onEditClick, onRerollQuote) {
@@ -26,7 +31,7 @@ export const P4Widget = {
     container.innerHTML = `
       <div class="widget-p4-card" id="widget-p4-inner">
         <button class="widget-edit-btn" title="编辑Story小组件" id="p4-edit-trigger">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
 
         <!-- 顶部 Story Mode 标题 -->
@@ -112,8 +117,9 @@ export const P4Widget = {
       </div>
     `;
 
-    container.querySelector('#p4-edit-trigger').addEventListener('click', (e) => {
-      e.stopPropagation();
+    const cardEl = container.querySelector('#widget-p4-inner');
+    cardEl.addEventListener('click', (e) => {
+      if (e.target.closest('#p4-reroll-btn')) return;
       onEditClick('p4');
     });
 
@@ -124,25 +130,32 @@ export const P4Widget = {
   },
 
   async getData() {
-    const saved = await storage.get('p4_data');
-    return saved ? { ...this.defaultData, ...saved } : this.defaultData;
+    try {
+      const saved = await storage.get('p4_data');
+      if (saved && typeof saved === 'object') return saved;
+      const defaults = this.getDefaultData();
+      await storage.set('p4_data', defaults);
+      return defaults;
+    } catch (e) {
+      return this.getDefaultData();
+    }
   },
 
-  async saveData(newData, files) {
+  async saveData(newData, imageResources) {
     await storage.set('p4_data', newData);
-    if (files) {
-      if (files.p4_avatar) await storage.saveImageBlob('p4_avatar', files.p4_avatar);
-      if (files.p4_photo_1) await storage.saveImageBlob('p4_photo_1', files.p4_photo_1);
-      if (files.p4_photo_2) await storage.saveImageBlob('p4_photo_2', files.p4_photo_2);
-      if (files.p4_photo_3) await storage.saveImageBlob('p4_photo_3', files.p4_photo_3);
-      if (files.p4_photo_4) await storage.saveImageBlob('p4_photo_4', files.p4_photo_4);
+    if (imageResources) {
+      if (imageResources.p4_avatar) await storage.saveImageResource('p4_avatar', imageResources.p4_avatar);
+      if (imageResources.p4_photo_1) await storage.saveImageResource('p4_photo_1', imageResources.p4_photo_1);
+      if (imageResources.p4_photo_2) await storage.saveImageResource('p4_photo_2', imageResources.p4_photo_2);
+      if (imageResources.p4_photo_3) await storage.saveImageResource('p4_photo_3', imageResources.p4_photo_3);
+      if (imageResources.p4_photo_4) await storage.saveImageResource('p4_photo_4', imageResources.p4_photo_4);
     }
   },
 
   async rerollQuote() {
     const data = await this.getData();
-    const otherQuotes = RANDOM_QUOTES.filter(q => q !== data.quoteText);
-    const randomQuote = otherQuotes[Math.floor(Math.random() * otherQuotes.length)] || RANDOM_QUOTES[0];
+    const otherQuotes = POETIC_QUOTES.storyQuotes.filter(q => q !== data.quoteText);
+    const randomQuote = otherQuotes[Math.floor(Math.random() * otherQuotes.length)] || POETIC_QUOTES.storyQuotes[0];
     
     const now = new Date();
     const dateStr = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日`;

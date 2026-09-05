@@ -26,21 +26,21 @@ class App {
 
     // 2. 初始化编辑弹窗
     this.modal = new EditModal({
-      onSave: async (type, data, files) => {
+      onSave: async (type, data, imageResources) => {
         if (type === 'p1') {
-          await P1Widget.saveData(data, files.p1_bg, files.p1_avatar);
+          await P1Widget.saveData(data, imageResources);
           await this.renderP1();
         } else if (type === 'p2') {
-          await P2Widget.saveData(data, files.p2_img, 'p2');
+          await P2Widget.saveData(data, imageResources, 'p2');
           await this.renderP2();
         } else if (type === 'p2_page2') {
-          await P2Widget.saveData(data, files.p2_img, 'p2_page2');
+          await P2Widget.saveData(data, imageResources, 'p2_page2');
           await this.renderP2Page2();
         } else if (type === 'p3') {
-          await P3Widget.saveData(data, files.p3_top, files.p3_avatar);
+          await P3Widget.saveData(data, imageResources);
           await this.renderP3();
         } else if (type === 'p4') {
-          await P4Widget.saveData(data, files);
+          await P4Widget.saveData(data, imageResources);
           await this.renderP4();
         }
       }
