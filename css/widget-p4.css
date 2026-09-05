@@ -1,0 +1,246 @@
+/* P4 第二页顶部小组件 (看P1样式：Story Mode + 故事卡片 + 4个相框/添加格 + 语录胶囊 + 底部按键条) */
+
+.widget-p4-card {
+  width: 100%;
+  border-radius: var(--radius-widget);
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--glass-shadow);
+  padding: 12px 14px 14px 14px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 顶部标题区: Story Mode */
+.p4-top-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.p4-top-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #121212;
+  letter-spacing: -0.2px;
+}
+
+.p4-heart-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #F0F1F0;
+  border: 1px solid #E0E1E0;
+}
+
+/* 二级导航胶囊: < STORY */
+.p4-sub-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.p4-story-pill {
+  background: #EBECEB;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6E6E73;
+  letter-spacing: 0.5px;
+}
+
+/* 角色信息条: 头像 + 测试员 + 签名 + 右侧爱心与序号 */
+.p4-profile-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #F0F0F0;
+  padding-bottom: 8px;
+}
+
+.p4-profile-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.p4-avatar-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #E2E3E2;
+  border: 1px solid #DDD;
+  flex-shrink: 0;
+}
+
+.p4-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.p4-profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.p4-profile-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1D1D1F;
+}
+
+.p4-profile-motto {
+  font-size: 9.5px;
+  color: #8E8E93;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.p4-profile-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1D1D1F;
+}
+
+.p4-heart-icon {
+  width: 11px;
+  height: 11px;
+  fill: #8E8E93;
+}
+
+/* 4格照片栏 */
+.p4-photos-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.p4-photo-slot {
+  position: relative;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #E2E3E2;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p4-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.p4-slot-add {
+  background: #FFFFFF;
+  border: 1.5px dashed #D0D1D0;
+  cursor: pointer;
+}
+
+.p4-plus-icon {
+  color: #A0A1A0;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+/* 诗意语录胶囊框与黑白日期条 */
+.p4-quote-container {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #E0E1E0;
+}
+
+.p4-quote-body {
+  background: #F8F9F8;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #3A3A3C;
+  font-family: "PingFang SC", "SF Pro Text", sans-serif;
+}
+
+.p4-quote-footer {
+  background: #1D1D1F;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+}
+
+.p4-footer-left {
+  display: flex;
+  gap: 8px;
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+}
+
+.p4-footer-stars {
+  display: flex;
+  gap: 3px;
+  opacity: 0.7;
+}
+
+.p4-footer-trash {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* 底部功能条: 手机小标 + 黑胶囊按键 Latest Re-roll */
+.p4-bottom-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.p4-phone-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #EBECEB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.p4-reroll-pill {
+  flex: 1;
+  height: 36px;
+  border-radius: 18px;
+  background: #1D1D1F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease;
+}
+
+.p4-reroll-pill:active {
+  transform: scale(0.98);
+}

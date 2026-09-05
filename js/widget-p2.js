@@ -1,18 +1,18 @@
-// P2 小组件逻辑控制器（搜索框 + 饮品图文卡片）
+// P2 小组件逻辑控制器
 import { storage } from './storage.js';
+import { DEFAULT_GRAY_IMAGES } from './quotes.js';
 
 export const P2Widget = {
   defaultData: {
     searchPlaceholder: '검색',
     line1Text: 'yummy',
     line2Text: '재생 키를 누르다 ♡',
-    line3Text: 'plog .!′ ૮₍ ≧ . ≦ ₎ა',
-    image: '图片/IMG_6065等22项文件/6.jpg'
+    line3Text: 'plog .!′ ૮₍ ≧ . ≦ ₎ა'
   },
 
   async render(container, onEditClick) {
     const data = await this.getData();
-    const imgUrl = await storage.getImageURL('p2_image') || data.image;
+    const imgUrl = await storage.getImageURL('p2_image') || DEFAULT_GRAY_IMAGES.square;
 
     container.innerHTML = `
       <div class="widget-p2-card" id="widget-p2-inner">
@@ -20,15 +20,13 @@ export const P2Widget = {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
 
-        <!-- 极简搜索条 -->
         <div class="p2-search-bar">
           <div class="p2-search-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7A7C80" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7A7C80" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <span class="p2-search-text">${data.searchPlaceholder}</span>
         </div>
 
-        <!-- 图文排版区 -->
         <div class="p2-content-row">
           <div class="p2-image-box">
             <img src="${imgUrl}" alt="Coffee" class="p2-img" id="p2-display-img">

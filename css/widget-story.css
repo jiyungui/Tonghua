@@ -1,0 +1,226 @@
+/* 第二页顶部 Story Mode 故事小组件样式 (纯黑白灰质感，严禁Emoji) */
+
+.widget-story-card {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: var(--radius-widget);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--glass-shadow);
+  padding: 14px 14px 12px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部 Story 标签栏 */
+.story-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.story-pill-tag {
+  background: #EAEAEA;
+  color: #7A7C80;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 用户状态栏 (测试员 / 签名 / 爱心计数) */
+.story-user-row {
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FAFAFA;
+  margin-bottom: 12px;
+}
+
+.story-user-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.story-avatar-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #E0E0E0;
+  border: 1px solid #D0D0D0;
+  flex-shrink: 0;
+}
+
+.story-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.story-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1D1D1F;
+}
+
+.story-user-status {
+  font-size: 10px;
+  color: #8E8E93;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.story-user-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #1D1D1F;
+}
+
+.story-heart-icon {
+  width: 11px;
+  height: 11px;
+  fill: #1D1D1F;
+}
+
+.story-rank-num {
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* 4格照片网格 (3张日常图 + 1个上传/添加槽位) */
+.story-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.story-photo-item {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #F0F0F2;
+  border: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+.story-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.story-photo-add-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F8F8F9;
+  border: 1.5px dashed #D0D0D4;
+  cursor: pointer;
+}
+
+/* 故事文案与黑色日期操作底栏 */
+.story-quote-box {
+  background: #F7F7F8;
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.story-quote-content {
+  padding: 12px 14px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #48484A;
+  text-align: center;
+  font-weight: 500;
+}
+
+.story-quote-footer {
+  background: #1D1D1F;
+  color: #FFFFFF;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+}
+
+.story-date-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.story-footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.story-stars-row {
+  display: flex;
+  gap: 2px;
+  opacity: 0.7;
+}
+
+/* 底部黑色操作胶囊按键 (Latest Re-roll) */
+.story-bottom-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.story-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: #EAEAEA;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.story-reroll-btn {
+  flex: 1;
+  height: 40px;
+  border-radius: 20px;
+  background: #1D1D1F;
+  color: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.story-reroll-btn:active {
+  opacity: 0.9;
+}

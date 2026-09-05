@@ -3,6 +3,7 @@ import { storage } from './storage.js';
 import { P1Widget } from './widget-p1.js';
 import { P2Widget } from './widget-p2.js';
 import { P3Widget } from './widget-p3.js';
+import { P4Widget } from './widget-p4.js';
 import { AppsModule } from './apps.js';
 import { EditModal } from './modal.js';
 import { ViewportController } from './viewport.js';
@@ -14,17 +15,16 @@ class App {
   }
 
   async init() {
-    // 1. 初始化视口与多页滑动
+    // 1. 初始化视口与双页滑动
     const track = document.getElementById('pages-track');
     const dots = document.querySelectorAll('.indicator-dot');
     this.viewport = new ViewportController({ track, dots });
 
-    // 点击小圆点切页
     dots.forEach((dot, index) => {
       dot.addEventListener('click', () => this.viewport.goToPage(index));
     });
 
-    // 2. 初始化弹窗管理器
+    // 2. 初始化编辑弹窗
     this.modal = new EditModal({
       onSave: async (type, data, files) => {
         if (type === 'p1') {
@@ -36,6 +36,9 @@ class App {
         } else if (type === 'p3') {
           await P3Widget.saveData(data, files.p3_top, files.p3_avatar);
           await this.renderP3();
+        } else if (type === 'p4') {
+          await P4Widget.saveData(data, files);
+          await this.renderP4();
         }
       }
     });
@@ -44,13 +47,14 @@ class App {
     await this.renderP1();
     await this.renderP2();
     await this.renderP3();
+    await this.renderP4();
     this.renderApps();
 
-    // 4. 注册 PWA Service Worker (若支持)
+    // 4. 注册 Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(err => {
-          console.log('SW registration skipped:', err);
+          console.log('SW error:', err);
         });
       });
     }
@@ -83,16 +87,31 @@ class App {
     });
   }
 
-  renderApps() {
-    const appsContainer = document.getElementById('slot-apps-page1');
-    if (appsContainer) {
-      AppsModule.renderPage1Apps(appsContainer);
-    }
+  async renderP4() {
+    const container = document.getElementById('slot-widget-p4');
+    if (!container) return;
+    await P4Widget.render(
+      container,
+      async (type) => {
+        const data = await P4Widget.getData();
+        this.modal.open(type, data);
+      },
+      async () => {
+        await P4Widget.rerollQuote();
+        await this.renderP4();
+      }
+    );
+  }
 
-    const dockContainer = document.getElementById('slot-dock-apps');
-    if (dockContainer) {
-      AppsModule.renderDock(dockContainer);
-    }
+  renderApps() {
+    const appsPage1 = document.getElementById('slot-apps-page1');
+    if (appsPage1) AppsModule.renderPage1Apps(appsPage1);
+
+    const appsPage2 = document.getElementById('slot-apps-page2');
+    if (appsPage2) AppsModule.renderPage2Apps(appsPage2);
+
+    const dock = document.getElementById('slot-dock-apps');
+    if (dock) AppsModule.renderDock(dock);
   }
 }
 

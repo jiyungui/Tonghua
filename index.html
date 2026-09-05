@@ -2,31 +2,32 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <!-- 严禁缩放、支持 iOS 视口贴边与全面屏沉浸式适配 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>祁祁phone</title>
 
-  <!-- iOS PWA 沉浸式全屏支持 -->
+  <!-- iOS PWA 沉浸式全屏配置 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="祁祁phone">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#F1F2F1">
 
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./图片/IMG_6065等22项文件/6.jpg">
 
   <!-- 样式模块化引入 -->
   <link rel="stylesheet" href="./css/core.css">
   <link rel="stylesheet" href="./css/widget-p1.css">
   <link rel="stylesheet" href="./css/widget-p2.css">
   <link rel="stylesheet" href="./css/widget-p3.css">
+  <link rel="stylesheet" href="./css/widget-p4.css">
 </head>
 <body>
   <div id="phone-screen">
-    <!-- 顶部极简状态栏 -->
+    <!-- 顶部状态栏 -->
     <header class="status-bar">
       <div class="status-left">
-        <span class="status-time" id="status-time-display">20:11</span>
+        <span class="status-time" id="status-time-display">20:28</span>
       </div>
       <div class="status-right">
         <!-- 信号图标 -->
@@ -58,11 +59,11 @@
       </div>
     </header>
 
-    <!-- 三页滑动主屏幕容器 -->
+    <!-- 双页滑动主视口 -->
     <main class="screen-pages-wrapper">
       <div class="screen-pages-track" id="pages-track">
         
-        <!-- ==================== 第一页 (主页) ==================== -->
+        <!-- ==================== 第一页 ==================== -->
         <section class="page-view" id="page-1">
           <!-- 顶部小组件 P1 -->
           <div id="slot-widget-p1"></div>
@@ -73,32 +74,26 @@
             <div id="slot-widget-p3"></div>
           </div>
 
-          <!-- 6个常用应用 (chat-记忆世界-相册-日记-世界书-老福特) -->
+          <!-- 8个常用应用 (chat-记忆世界-相册-日记-世界书-老福特-闲鱼-美团) -->
           <div class="apps-grid" id="slot-apps-page1"></div>
         </section>
 
-        <!-- ==================== 第二页 (预留) ==================== -->
+        <!-- ==================== 第二页 ==================== -->
         <section class="page-view" id="page-2">
-          <div class="empty-page-placeholder">
-            <span>PAGE 02 · 待添加小组件与应用</span>
-          </div>
-        </section>
+          <!-- 第二页顶部小组件 (Story Mode 卡片 + 语录胶囊) -->
+          <div id="slot-widget-p4"></div>
 
-        <!-- ==================== 第三页 (预留) ==================== -->
-        <section class="page-view" id="page-3">
-          <div class="empty-page-placeholder">
-            <span>PAGE 03 · 待添加小组件与应用</span>
-          </div>
+          <!-- 第二页 4 个应用 (视频-恋人之家-你懂得-查手机) -->
+          <div class="apps-grid" id="slot-apps-page2"></div>
         </section>
 
       </div>
     </main>
 
-    <!-- 底部切页圆点指示器 -->
+    <!-- 底部双页指示器 -->
     <nav class="page-indicators" aria-label="页面指示器">
       <div class="indicator-dot active" data-index="0"></div>
       <div class="indicator-dot" data-index="1"></div>
-      <div class="indicator-dot" data-index="2"></div>
     </nav>
 
     <!-- 底部 Dock 栏 (设置-美化-短信-频道) -->
@@ -107,7 +102,7 @@
     </footer>
   </div>
 
-  <!-- 引入主逻辑入口模块 -->
+  <!-- 主逻辑模块 -->
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>

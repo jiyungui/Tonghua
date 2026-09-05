@@ -1,13 +1,11 @@
-// 视口、全屏 PWA 适配与滑动多页控制器
+// 视口与 2 页滑动控制器
 export class ViewportController {
   constructor(options) {
     this.track = options.track;
     this.dots = options.dots;
     this.currentPage = 0;
-    this.totalPages = 3;
+    this.totalPages = 2;
     this.startX = 0;
-    this.currentTranslate = 0;
-    this.prevTranslate = 0;
     this.isDragging = false;
     this.init();
   }
@@ -30,7 +28,6 @@ export class ViewportController {
   }
 
   setupResizeHandler() {
-    // 监听窗口大小变化自适应视口高度
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -54,13 +51,12 @@ export class ViewportController {
       const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
       const diffX = currentX - this.startX;
       
-      // 边界阻尼感计算
-      let movePercent = (diffX / wrapper.offsetWidth) * 33.333333;
+      let movePercent = (diffX / wrapper.offsetWidth) * 50;
       if ((this.currentPage === 0 && diffX > 0) || (this.currentPage === this.totalPages - 1 && diffX < 0)) {
-        movePercent = movePercent * 0.3; // 边缘阻尼
+        movePercent = movePercent * 0.25;
       }
 
-      const translate = -this.currentPage * 33.333333 + movePercent;
+      const translate = -this.currentPage * 50 + movePercent;
       this.track.style.transform = `translateX(${translate}%)`;
     };
 
@@ -69,7 +65,7 @@ export class ViewportController {
       this.isDragging = false;
       const endX = e.type.includes('mouse') ? e.pageX : (e.changedTouches ? e.changedTouches[0].clientX : this.startX);
       const diffX = endX - this.startX;
-      const threshold = wrapper.offsetWidth * 0.2; // 滑动阈值 20%
+      const threshold = wrapper.offsetWidth * 0.18;
 
       this.track.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
 
@@ -103,7 +99,7 @@ export class ViewportController {
 
   goToPage(pageIndex) {
     this.currentPage = Math.max(0, Math.min(pageIndex, this.totalPages - 1));
-    this.track.style.transform = `translateX(-${this.currentPage * 33.333333}%)`;
+    this.track.style.transform = `translateX(-${this.currentPage * 50}%)`;
     this.updateDots();
   }
 

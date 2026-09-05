@@ -1,4 +1,4 @@
-/* P1 顶部大卡片组件：支持背景图/二次元漫画图、纸夹Clip装饰、浮层小气泡、右侧拟态按键组、底部英文标题与多标签、简介文案 */
+/* P1 顶部大卡片组件样式 */
 
 .widget-p1-card {
   width: 100%;
@@ -6,31 +6,31 @@
   background: #FFFFFF;
   border: 1px solid var(--border-subtle);
   box-shadow: var(--glass-shadow);
-  padding: 14px 14px 18px 14px;
+  padding: 12px 12px 14px 12px;
   position: relative;
   overflow: hidden;
 }
 
-/* 顶部回形针/金属夹拟态装饰 */
+/* 顶部回形针拟态装饰 */
 .p1-paperclip {
   position: absolute;
-  top: 6px;
-  left: 20px;
-  width: 26px;
-  height: 48px;
+  top: 4px;
+  left: 18px;
+  width: 24px;
+  height: 44px;
   z-index: 10;
   pointer-events: none;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
 
 /* 主图容器 */
 .p1-image-container {
   position: relative;
   width: 100%;
-  height: 200px;
-  border-radius: 20px;
+  height: 168px;
+  border-radius: 18px;
   overflow: hidden;
-  background-color: #E2E2E2;
+  background-color: #E2E3E2;
 }
 
 .p1-bg-image {
@@ -43,30 +43,31 @@
 /* 底部左侧半透明毛玻璃气泡 */
 .p1-bubble-tag {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(255, 255, 255, 0.75);
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  padding: 4px 10px 4px 6px;
+  padding: 3px 10px 3px 5px;
   border-radius: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  gap: 7px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .p1-bubble-avatar {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid rgba(255,255,255,0.8);
+  background-color: #DCDDDC;
 }
 
 .p1-bubble-text {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
   color: #1A1A1A;
   letter-spacing: -0.1px;
@@ -75,25 +76,25 @@
 /* 右侧浮动功能按钮组 */
 .p1-action-buttons {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 10px;
+  bottom: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .p1-action-btn {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.88);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -104,38 +105,37 @@
 
 /* 底部详情信息 */
 .p1-details-section {
-  padding-top: 14px;
+  padding-top: 10px;
 }
 
 .p1-name-title {
   font-family: Georgia, "Times New Roman", "CatFont", serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #121212;
-  letter-spacing: -0.5px;
-  margin-bottom: 8px;
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
 }
 
 .p1-tags-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
-  margin-bottom: 10px;
+  gap: 6px 10px;
+  margin-bottom: 8px;
 }
 
 .p1-tag-item {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 500;
   color: #4A4A4C;
   background: #F4F4F5;
-  padding: 3px 9px;
-  border-radius: 8px;
-  letter-spacing: 0.1px;
+  padding: 2.5px 8px;
+  border-radius: 7px;
 }
 
 .p1-bio-text {
-  font-size: 12px;
-  line-height: 1.55;
+  font-size: 11.5px;
+  line-height: 1.5;
   color: #6E6E73;
   font-weight: 400;
 }

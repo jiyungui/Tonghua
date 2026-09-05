@@ -1,4 +1,4 @@
-// 统一编辑弹窗组件：支持文本修改、原画质图片上传、即时预览与存储到 IndexedDB
+// 统一编辑弹窗组件：支持所有小组件的高清图片无损上传与文本编辑
 
 export class EditModal {
   constructor(options) {
@@ -50,13 +50,13 @@ export class EditModal {
           <input type="text" class="form-input" id="edit-p1-bubble" value="${data.bubbleText || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">简介说明 (Bio)</label>
+          <label class="form-label">简介文案 / 语录 (Bio)</label>
           <textarea class="form-textarea" id="edit-p1-bio">${data.bio || ''}</textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">更换主背景图片 (高清原图储存)</label>
+          <label class="form-label">更换主背景图片 (原画质直存)</label>
           <div class="upload-box" id="p1-bg-upload-btn">
-            <span>点击上传高清大图</span>
+            <span>点击上传卡片大图</span>
             <input type="file" id="edit-p1-bg-file" accept="image/*">
             <img class="upload-preview" id="p1-bg-preview">
           </div>
@@ -64,7 +64,7 @@ export class EditModal {
         <div class="form-group">
           <label class="form-label">更换小头像</label>
           <div class="upload-box" id="p1-avatar-upload-btn">
-            <span>点击上传头像图片</span>
+            <span>点击上传头像</span>
             <input type="file" id="edit-p1-avatar-file" accept="image/*">
             <img class="upload-preview" id="p1-avatar-preview">
           </div>
@@ -82,17 +82,17 @@ export class EditModal {
           <input type="text" class="form-input" id="edit-p2-line1" value="${data.line1Text || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">二级说明文案</label>
+          <label class="form-label">二级说明文案 / 语录</label>
           <input type="text" class="form-input" id="edit-p2-line2" value="${data.line2Text || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">底部标语 (Plog)</label>
+          <label class="form-label">底部标语</label>
           <input type="text" class="form-input" id="edit-p2-line3" value="${data.line3Text || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">更换咖啡插图 (高清原图储存)</label>
+          <label class="form-label">更换插图 (原画质直存)</label>
           <div class="upload-box" id="p2-img-upload-btn">
-            <span>点击上传原图</span>
+            <span>点击上传插图</span>
             <input type="file" id="edit-p2-file" accept="image/*">
             <img class="upload-preview" id="p2-preview">
           </div>
@@ -114,13 +114,13 @@ export class EditModal {
           <input type="text" class="form-input" id="edit-p3-date" value="${data.dateText || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">胶囊心情字符 / 符号</label>
+          <label class="form-label">胶囊心情文案 / 符号</label>
           <input type="text" class="form-input" id="edit-p3-kaomoji" value="${data.kaomojiText || ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">更换顶部日常图片 (高清原图储存)</label>
+          <label class="form-label">更换顶部日常图片 (原画质直存)</label>
           <div class="upload-box" id="p3-top-upload-btn">
-            <span>点击上传日常原图</span>
+            <span>点击上传日常图</span>
             <input type="file" id="edit-p3-top-file" accept="image/*">
             <img class="upload-preview" id="p3-top-preview">
           </div>
@@ -131,6 +131,62 @@ export class EditModal {
             <span>点击上传头像</span>
             <input type="file" id="edit-p3-avatar-file" accept="image/*">
             <img class="upload-preview" id="p3-avatar-preview">
+          </div>
+        </div>
+      `;
+    } else if (type === 'p4') {
+      title = '编辑第二页 Story 小组件';
+      formHtml = `
+        <div class="form-group">
+          <label class="form-label">用户名</label>
+          <input type="text" class="form-input" id="edit-p4-name" value="${data.userName || ''}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">个性签名 (Motto)</label>
+          <input type="text" class="form-input" id="edit-p4-motto" value="${data.userMotto || ''}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">语录文本 (Quote)</label>
+          <textarea class="form-textarea" id="edit-p4-quote">${data.quoteText || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更换头像</label>
+          <div class="upload-box" id="p4-avatar-upload-btn">
+            <span>点击上传用户头像</span>
+            <input type="file" id="edit-p4-avatar-file" accept="image/*">
+            <img class="upload-preview" id="p4-avatar-preview">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更换相册照片 1</label>
+          <div class="upload-box" id="p4-photo1-upload-btn">
+            <span>点击上传照片 1</span>
+            <input type="file" id="edit-p4-photo1-file" accept="image/*">
+            <img class="upload-preview" id="p4-photo1-preview">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更换相册照片 2</label>
+          <div class="upload-box" id="p4-photo2-upload-btn">
+            <span>点击上传照片 2</span>
+            <input type="file" id="edit-p4-photo2-file" accept="image/*">
+            <img class="upload-preview" id="p4-photo2-preview">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更换相册照片 3</label>
+          <div class="upload-box" id="p4-photo3-upload-btn">
+            <span>点击上传照片 3</span>
+            <input type="file" id="edit-p4-photo3-file" accept="image/*">
+            <img class="upload-preview" id="p4-photo3-preview">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更换相册照片 4 (或添加格)</label>
+          <div class="upload-box" id="p4-photo4-upload-btn">
+            <span>点击上传照片 4</span>
+            <input type="file" id="edit-p4-photo4-file" accept="image/*">
+            <img class="upload-preview" id="p4-photo4-preview">
           </div>
         </div>
       `;
@@ -185,6 +241,12 @@ export class EditModal {
     } else if (this.currentWidget === 'p3') {
       bindUploader('p3-top-upload-btn', 'edit-p3-top-file', 'p3-top-preview', 'p3_top');
       bindUploader('p3-avatar-upload-btn', 'edit-p3-avatar-file', 'p3-avatar-preview', 'p3_avatar');
+    } else if (this.currentWidget === 'p4') {
+      bindUploader('p4-avatar-upload-btn', 'edit-p4-avatar-file', 'p4-avatar-preview', 'p4_avatar');
+      bindUploader('p4-photo1-upload-btn', 'edit-p4-photo1-file', 'p4-photo1-preview', 'p4_photo_1');
+      bindUploader('p4-photo2-upload-btn', 'edit-p4-photo2-file', 'p4-photo2-preview', 'p4_photo_2');
+      bindUploader('p4-photo3-upload-btn', 'edit-p4-photo3-file', 'p4-photo3-preview', 'p4_photo_3');
+      bindUploader('p4-photo4-upload-btn', 'edit-p4-photo4-file', 'p4-photo4-preview', 'p4_photo_4');
     }
 
     const saveBtn = this.overlay.querySelector('#modal-save-action');
@@ -213,6 +275,12 @@ export class EditModal {
           titleText: this.overlay.querySelector('#edit-p3-title').value,
           dateText: this.overlay.querySelector('#edit-p3-date').value,
           kaomojiText: this.overlay.querySelector('#edit-p3-kaomoji').value
+        };
+      } else if (this.currentWidget === 'p4') {
+        resultData = {
+          userName: this.overlay.querySelector('#edit-p4-name').value,
+          userMotto: this.overlay.querySelector('#edit-p4-motto').value,
+          quoteText: this.overlay.querySelector('#edit-p4-quote').value
         };
       }
 
